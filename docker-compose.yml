@@ -15,3 +15,4 @@ services:
     volumes:
       - .:/app
       - ./config:/config
+      - /usr/bin/git:/usr/bin/git 
