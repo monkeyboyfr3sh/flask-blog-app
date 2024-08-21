@@ -10,10 +10,15 @@ WORD_LIST = ['PYTHON', 'FLASK', 'HANGMAN', 'COMPUTER', 'PROGRAMMING']
 def game_home():
     return render_template('game_home.html')
 
+@game.route('/game/set_word_length', methods=['POST'])
+def set_word_length():
+    word_length = int(request.form.get('word_length', 10))  # Default to 10 if not provided
+    hangman = Hangman(WORD_LIST, word_length=word_length)
+    session['hangman'] = hangman.to_dict()
+    return redirect(url_for('game.play_game'))
+
 @game.route('/game/start')
 def start_game():
-    hangman = Hangman(WORD_LIST)
-    session['hangman'] = hangman.to_dict()
     return redirect(url_for('game.play_game'))
 
 @game.route('/game/play', methods=['GET', 'POST'])
