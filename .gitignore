@@ -36,7 +36,6 @@ nosetests.xml
 
 # Instance folder
 instance/
-config.py
 config.json
 
 # Flask built-in server files
