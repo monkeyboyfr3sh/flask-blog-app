@@ -53,8 +53,10 @@ class Post(db.Model):  # type: ignore
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
 
-
 def create_table_if_not_exist(app):
     with app.app_context():
-        db.create_all()
-        # db.session.commit()
+        try:
+            db.create_all()
+        except OperationalError as e:
+            # Log the exception or handle it appropriately
+            print(f"OperationalError: {e}")

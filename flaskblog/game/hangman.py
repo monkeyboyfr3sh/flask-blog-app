@@ -54,8 +54,8 @@ HANGMAN_PICS = [
 ]
 
 class Hangman:
-    def __init__(self, word_list, word=None, guesses=None, remaining_attempts=6, word_length=0):
-        self.word_list = [w for w in word_list if len(w) == word_length]
+    def __init__(self, word_list, word=None, guesses=None, remaining_attempts=6):
+        self.word_list = word_list
         self.word = word or random.choice(self.word_list).upper()
         self.guesses = set(guesses) if guesses else set()
         self.remaining_attempts = remaining_attempts

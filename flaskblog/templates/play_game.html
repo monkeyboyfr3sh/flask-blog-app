@@ -2,42 +2,26 @@
 
 {% block content %}
     <h1>Hangman</h1>
-    
-    {% if hangman is none or hangman.game_over() %}
-        <!-- Word length slider and start button -->
-        <form action="{{ url_for('game.start_game') }}" method="post">
-            <label for="word_length">Select Word Length: <span id="slider_value">10</span></label>
-            <input type="range" id="word_length" name="word_length" min="4" max="15" value="10" oninput="updateSliderValue(this.value)">
-            <button type="submit" class="btn btn-primary">Start Game</button>
-        </form>
-        <script>
-            function updateSliderValue(val) {
-                document.getElementById('slider_value').innerText = val;
-            }
-        </script>
-    {% else %}
-        <!-- Display the game state -->
-        <pre>{{ hangman.display_hangman() }}</pre> <!-- Display ASCII art -->
-        <p>Word: {{ hangman.display_word() }}</p>
-        <p>Remaining Attempts: {{ hangman.remaining_attempts }}</p>
+    <pre>{{ hangman.display_hangman() }}</pre> <!-- Display ASCII art -->
+    <p>Word: {{ hangman.display_word() }}</p>
+    <p>Remaining Attempts: {{ hangman.remaining_attempts }}</p>
 
-        {% if hangman.game_over() %}
-            {% if hangman.status == "won" %}
-                <p>Congratulations! You've won! The word was: {{ hangman.word }}</p>
-            {% elif hangman.status == "lost" %}
-                <p>Game Over! You've lost! The word was: {{ hangman.word }}</p>
-            {% endif %}
-            <p><a href="{{ url_for('game.start_game') }}" class="btn btn-primary">Play Again</a></p>
-        {% else %}
-            <form method="post">
-                <label for="letter">Enter a letter:</label>
-                <input type="text" name="letter" maxlength="1" required>
-                <button type="submit" class="btn btn-success">Guess</button>
-            </form>
-            <p>Guessed Letters: {{ hangman.guesses | join(', ') }}</p>
+    {% if hangman.game_over() %}
+        {% if hangman.status == "won" %}
+            <p>Congratulations! You've won! The word was: {{ hangman.word }}</p>
+        {% elif hangman.status == "lost" %}
+            <p>Game Over! You've lost! The word was: {{ hangman.word }}</p>
         {% endif %}
-        
-        <!-- Restart button -->
-        <p><a href="{{ url_for('game.start_game') }}" class="btn btn-warning">Restart Game</a></p>
+        <p><a href="{{ url_for('game.start_game') }}" class="btn btn-primary">Play Again</a></p>
+    {% else %}
+        <form method="post">
+            <label for="letter">Enter a letter:</label>
+            <input type="text" name="letter" maxlength="1" required>
+            <button type="submit" class="btn btn-success">Guess</button>
+        </form>
+        <p>Guessed Letters: {{ hangman.guesses | join(', ') }}</p>
     {% endif %}
+    
+    <!-- Restart button -->
+    <p><a href="{{ url_for('game.start_game') }}" class="btn btn-warning">Restart Game</a></p>
 {% endblock %}
