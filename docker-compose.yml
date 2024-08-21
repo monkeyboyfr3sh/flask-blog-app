@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  flaskblog:
+    image: jlw4049/flask_blog
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      EMAIL_USER: "monkeyboyfresh_bro@yahoo.com"
+      EMAIL_PASSWORD: "pass"
+      FLASK_SECRET_KEY: "your_secret_key"
+    volumes:
+      - .:/app
+      - ./config:/config
