@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h1>Games</h1>
-    <p><a href="{{ url_for('game.start_game') }}">Start Hangman</a></p>
+    <h1>Welcome to Hangman</h1>
+    <p>Win Counter: {{ session['win_counter'] }}</p> <!-- Display win counter -->
+    <p><a href="{{ url_for('game.start_game') }}" class="btn btn-primary">Start New Game</a></p>
 {% endblock %}

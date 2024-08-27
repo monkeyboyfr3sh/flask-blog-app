@@ -2,6 +2,7 @@
 
 {% block content %}
     <h1>Hangman</h1>
+    <p>Win Counter: {{ session['win_counter'] }}</p> <!-- Display win counter -->
     <pre>{{ hangman.display_hangman() }}</pre> <!-- Display ASCII art -->
     <p>Word: {{ hangman.display_word() }}</p>
     <p>Remaining Attempts: {{ hangman.remaining_attempts }}</p>
@@ -23,5 +24,5 @@
     {% endif %}
     
     <!-- Restart button -->
-    <p><a href="{{ url_for('game.start_game') }}" class="btn btn-warning">Restart Game</a></p>
+    <p><a href="{{ url_for('game.reset_game') }}" class="btn btn-warning">Restart Game</a></p>
 {% endblock %}
