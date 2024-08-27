@@ -6,12 +6,15 @@ game = Blueprint('game', __name__)
 # List of words for Hangman
 WORD_LIST = ['PYTHON', 'FLASK', 'HANGMAN', 'COMPUTER', 'PROGRAMMING']
 
+# Initialize an in-memory scoreboard
+SCOREBOARD = []
+
 @game.route('/game')
 def game_home():
     # Initialize the win counter if not already set
     if 'win_counter' not in session:
         session['win_counter'] = 0
-    return render_template('game_home.html')
+    return render_template('game_home.html', scoreboard=SCOREBOARD)
 
 @game.route('/game/start')
 def start_game():
@@ -42,6 +45,29 @@ def play_game():
         return render_template('play_game.html', hangman=hangman)
 
     return render_template('play_game.html', hangman=hangman)
+
+@game.route('/game/save_score', methods=['POST'])
+def save_score():
+    player_name = request.form['player_name']
+
+    # Get wins
+    wins = session['win_counter']
+
+    # Check if the player already exists in the scoreboard
+    for entry in SCOREBOARD:
+        if entry['name'] == player_name:
+            
+            # Update entry
+            if wins > entry['wins']:
+                entry['wins'] = wins  # Update the existing player's score
+            break
+    else:
+        # If the player does not exist, add a new entry
+        SCOREBOARD.append({'name': player_name, 'wins': wins})
+
+    return redirect(url_for('game.start_game'))
+
+
 
 @game.route('/game/reset')
 def reset_game():

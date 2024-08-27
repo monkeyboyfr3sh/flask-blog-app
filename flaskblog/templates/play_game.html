@@ -10,6 +10,12 @@
     {% if hangman.game_over() %}
         {% if hangman.status == "won" %}
             <p>Congratulations! You've won! The word was: {{ hangman.word }}</p>
+            <!-- Form to save the score -->
+            <form action="{{ url_for('game.save_score') }}" method="post">
+                <label for="player_name">Enter your name to save your score:</label>
+                <input type="text" name="player_name" required>
+                <button type="submit" class="btn btn-success">Save Score</button>
+            </form>
         {% elif hangman.status == "lost" %}
             <p>Game Over! You've lost! The word was: {{ hangman.word }}</p>
         {% endif %}
