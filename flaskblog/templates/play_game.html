@@ -2,28 +2,32 @@
 
 {% block content %}
     <h1>Hangman</h1>
-    <p>Win Counter: {{ session['win_counter'] }}</p> <!-- Display win counter -->
-    <pre>{{ hangman.display_hangman() }}</pre> <!-- Display ASCII art -->
+    <p>Win Counter: {{ session['win_counter'] }}</p>
+    <pre>{{ hangman.display_hangman() }}</pre>
     <p>Word: {{ hangman.display_word() }}</p>
     <p>Remaining Attempts: {{ hangman.remaining_attempts }}</p>
 
     {% if hangman.game_over() %}
         {% if hangman.status == "won" %}
             <p>Congratulations! You've won! The word was: {{ hangman.word }}</p>
-            <!-- Form to save the score -->
-            <form action="{{ url_for('game.save_score') }}" method="post">
-                <label for="player_name">Enter your name to save your score:</label>
-                <input type="text" name="player_name" required>
-                <button type="submit" class="btn btn-success">Save Score</button>
-            </form>
         {% elif hangman.status == "lost" %}
             <p>Game Over! You've lost! The word was: {{ hangman.word }}</p>
         {% endif %}
+        
+        <!-- Form to save the score -->
+        {% if allow_save %}
+        <form action="{{ url_for('game.save_score') }}" method="post">
+            <label for="player_name">Enter your name to save your score:</label>
+            <input type="text" name="player_name" required>
+            <button type="submit" class="btn btn-success">Save Score</button>
+        </form>
+        {% endif %}
+        
         <p><a href="{{ url_for('game.start_game') }}" class="btn btn-primary">Play Again</a></p>
     {% else %}
         <form method="post">
-            <label for="letter">Enter a letter:</label>
-            <input type="text" name="letter" maxlength="1" required>
+            <label for="guess">Enter a letter or guess the word:</label>
+            <input type="text" name="guess" maxlength="{{ hangman.word|length }}" required>
             <button type="submit" class="btn btn-success">Guess</button>
         </form>
         <p>Guessed Letters: {{ hangman.guesses | join(', ') }}</p>

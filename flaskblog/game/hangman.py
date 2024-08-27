@@ -61,14 +61,24 @@ class Hangman:
         self.remaining_attempts = remaining_attempts
         self.status = "ongoing"
 
-    def guess(self, letter):
-        letter = letter.upper()
-        if letter in self.guesses:
-            return False  # Letter was already guessed
-        self.guesses.add(letter)
+    def guess(self, guess):
+        guess = guess.upper()
         
-        if letter not in self.word:
-            self.remaining_attempts -= 1
+        if guess in self.guesses:
+            return False  # Guess was already made
+        self.guesses.add(guess)
+        
+        if len(guess) == 1:  # Single letter guess
+            if guess not in self.word:
+                self.remaining_attempts -= 1
+        elif len(guess) > 1:  # Multiple letters guessed (word guess)
+            if guess == self.word:
+                self.status = "won"
+                return True
+            else:
+                self.remaining_attempts = 0  # Instant fail on incorrect word guess
+                self.status = "lost"
+                return False
 
         if self.remaining_attempts <= 0:
             self.status = "lost"
@@ -78,7 +88,10 @@ class Hangman:
         return True
 
     def display_word(self):
-        return " ".join([letter if letter in self.guesses else "_" for letter in self.word])
+        if self.status == "won":
+            return self.word
+        else:
+            return " ".join([letter if letter in self.guesses else "_" for letter in self.word])
 
     def game_over(self):
         return self.status in ["won", "lost"]

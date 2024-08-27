@@ -32,22 +32,21 @@ def play_game():
     hangman = Hangman.from_dict(hangman_state)
 
     if request.method == 'POST':
-        letter = request.form['letter'].upper()
-        if len(letter) == 1 and letter.isalpha():
-            hangman.guess(letter)
-        session['hangman'] = hangman.to_dict()  # Save the state back to the session
+        guess = request.form.get('guess', '').strip().upper()
+        if guess and guess.isalpha():
+            hangman.guess(guess)
+        session['hangman'] = hangman.to_dict()
 
     if hangman.game_over():
         if hangman.status == "won":
-            session['win_counter'] += 1  # Increment win counter if the user wins
-        else:
-            session['win_counter'] = 0  # Reset win counter if the user loses
-        return render_template('play_game.html', hangman=hangman)
+            session['win_counter'] += 1
+        return render_template('play_game.html', hangman=hangman, allow_save=True)
 
     return render_template('play_game.html', hangman=hangman)
 
 @game.route('/game/save_score', methods=['POST'])
 def save_score():
+
     player_name = request.form['player_name']
 
     # Get wins
@@ -65,12 +64,26 @@ def save_score():
         # If the player does not exist, add a new entry
         SCOREBOARD.append({'name': player_name, 'wins': wins})
 
+    hangman_state = session.get('hangman', None)
+    
+    if hangman_state is None:
+        return redirect(url_for('game.start_game'))
+
+    hangman = Hangman.from_dict(hangman_state)
+
+    if hangman.status == "lost":
+        session['win_counter'] = 0
+
     return redirect(url_for('game.start_game'))
-
-
 
 @game.route('/game/reset')
 def reset_game():
+    # Allow player to save score before resetting
+    if 'hangman' in session:
+        hangman = Hangman.from_dict(session['hangman'])
+        if hangman.game_over() and hangman.status == "lost":
+            return redirect(url_for('game.play_game'))
+
     # Reset the game and win counter
     session.pop('hangman', None)
     session['win_counter'] = 0
