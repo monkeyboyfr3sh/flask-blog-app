@@ -16,14 +16,8 @@ def get_user_session_key(key):
 @hangman_game.route('/hangman')
 @login_required
 def game_home():
-    # Initialize or retrieve the user's score from the database
-    user_score = HangmanScore.query.filter_by(user_id=current_user.id).first()
-    if not user_score:
-        user_score = HangmanScore(user_id=current_user.id)
-        db.session.add(user_score)
-        db.session.commit()
-
-    session[get_user_session_key('win_counter')] = user_score.wins
+    # Reset the session win counter on page load to track the current session's wins
+    session[get_user_session_key('win_counter')] = 0
 
     # Get the scoreboard with all users' scores
     scoreboard = HangmanScore.query.order_by(HangmanScore.wins.desc()).all()
@@ -65,25 +59,21 @@ def play_game():
 @hangman_game.route('/hangman/save_score', methods=['POST'])
 @login_required
 def save_score():
-    # Update or create the user's score in the database
+    # Only save the max number of wins from this session
+    session_wins = session.get(get_user_session_key('win_counter'), 0)
+    
     user_score = HangmanScore.query.filter_by(user_id=current_user.id).first()
     if user_score:
-        user_score.wins = session[get_user_session_key('win_counter')]
+        if session_wins > user_score.wins:
+            user_score.wins = session_wins  # Update with max session wins only if it's higher
         user_score.date_updated = datetime.utcnow()
     else:
-        user_score = HangmanScore(user_id=current_user.id, wins=session[get_user_session_key('win_counter')])
+        user_score = HangmanScore(user_id=current_user.id, wins=session_wins)
         db.session.add(user_score)
     db.session.commit()
 
-    hangman_state = session.get(get_user_session_key('hangman'), None)
-    
-    if hangman_state is None:
-        return redirect(url_for('hangman.start_game'))
-
-    hangman = Hangman.from_dict(hangman_state)
-
-    if hangman.status == "lost":
-        session[get_user_session_key('win_counter')] = 0
+    # Reset the session win counter after saving
+    session[get_user_session_key('win_counter')] = 0
 
     return redirect(url_for('hangman.start_game'))
 
@@ -99,11 +89,5 @@ def reset_game():
     # Reset the game and win counter
     session.pop(get_user_session_key('hangman'), None)
     session[get_user_session_key('win_counter')] = 0
-
-    # Reset the user's win counter in the database
-    user_score = HangmanScore.query.filter_by(user_id=current_user.id).first()
-    if user_score:
-        user_score.wins = 0
-        db.session.commit()
 
     return redirect(url_for('hangman.start_game'))
