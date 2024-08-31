@@ -10,7 +10,7 @@ fitness = Blueprint("fitness", __name__)
 @login_required
 def journal_home():
     logs = WorkoutLog.query.filter_by(author=current_user).all()
-    return render_template('journal_home.html', logs=logs)
+    return render_template('fitjournal_home.html', logs=logs)
 
 @fitness.route("/fitness/log/new", methods=["GET", "POST"])
 @login_required
@@ -29,13 +29,13 @@ def new_log():
         flash("Your workout log has been created!", "success")
         return redirect(url_for("fitness.journal_home"))
     return render_template(
-        "add_journal_entry.html", title="New Workout Log", form=form, legend="New Workout Log"
+        "fitjournal_add_entry.html", title="New Workout Log", form=form, legend="New Workout Log"
     )
 
 @fitness.route("/fitness/log/<int:log_id>")
 def log(log_id):
     log = WorkoutLog.query.get_or_404(log_id)
-    return render_template("log.html", title=log.workout_type, log=log)
+    return render_template("fitjournal_log.html", title=log.workout_type, log=log)
 
 @fitness.route("/fitness/log/<int:log_id>/update", methods=["GET", "POST"])
 @login_required
@@ -58,7 +58,7 @@ def update_log(log_id):
         form.time.data = log.time
         form.rating.data = log.rating
     return render_template(
-        "add_journal_entry.html", title="Update Workout Log", form=form, legend="Update Workout Log"
+        "fitjournal_add_entry.html", title="Update Workout Log", form=form, legend="Update Workout Log"
     )
 
 @fitness.route("/fitness/log/<int:log_id>/delete", methods=["POST"])

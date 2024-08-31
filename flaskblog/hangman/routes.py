@@ -51,8 +51,8 @@ def play_game():
         if hangman.status == "won":
             session[get_user_session_key('win_counter')] += 1
         elif hangman.status == "lost":
-            session[get_user_session_key('win_counter')] = 0  # Reset win counter on loss
-        return render_template('hangman_play_game.html', hangman=hangman, allow_save=True)
+            # Don't reset the win counter immediately; allow the user to save it first
+            return render_template('hangman_play_game.html', hangman=hangman, allow_save=True)
 
     return render_template('hangman_play_game.html', hangman=hangman)
 

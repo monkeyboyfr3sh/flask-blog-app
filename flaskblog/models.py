@@ -1,3 +1,5 @@
+
+from datetime import datetime, timezone
 from datetime import datetime
 from flask import current_app
 from flask_login import UserMixin
@@ -44,7 +46,7 @@ class User(db.Model, UserMixin):  # type: ignore
 class Post(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
@@ -58,7 +60,7 @@ class WorkoutLog(db.Model):  # New model for workout logs
     duration = db.Column(db.Integer, nullable=False)
     time = db.Column(db.Time, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
@@ -68,7 +70,7 @@ class HangmanScore(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     wins = db.Column(db.Integer, nullable=False, default=0)
-    date_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f"HangmanScore(User: '{self.user_id}', Wins: '{self.wins}')"
