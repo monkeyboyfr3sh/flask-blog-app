@@ -1,13 +1,9 @@
 from datetime import datetime
-
-import itsdangerous.exc
 from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import TimedSerializer
 from sqlalchemy.exc import OperationalError
-
 from flaskblog import db, login_manager
-from flask_login import UserMixin
 
 
 @login_manager.user_loader
@@ -25,6 +21,8 @@ class User(db.Model, UserMixin):  # type: ignore
     image_file = db.Column(db.String(20), nullable=False, default="images/default.jpg")
     password = db.Column(db.String(60), nullable=False)
     posts = db.relationship("Post", backref="author", lazy=True)
+    workouts = db.relationship("WorkoutLog", backref="author", lazy=True)
+    scores = db.relationship("HangmanScore", backref="user", lazy=True)
 
     def get_reset_token(self):
         s = TimedSerializer(current_app.secret_key)
@@ -52,6 +50,28 @@ class Post(db.Model):  # type: ignore
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
+
+
+class WorkoutLog(db.Model):  # New model for workout logs
+    id = db.Column(db.Integer, primary_key=True)
+    workout_type = db.Column(db.String(100), nullable=False)
+    duration = db.Column(db.Integer, nullable=False)
+    time = db.Column(db.Time, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"WorkoutLog('{self.workout_type}', '{self.date_posted}')"
+
+class HangmanScore(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    wins = db.Column(db.Integer, nullable=False, default=0)
+    date_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"HangmanScore(User: '{self.user_id}', Wins: '{self.wins}')"
 
 def create_table_if_not_exist(app):
     with app.app_context():

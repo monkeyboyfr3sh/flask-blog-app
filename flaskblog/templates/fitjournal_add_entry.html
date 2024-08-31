@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Add New Fitness Entry</h1>
+    <form method="POST" action="{{ url_for('fitness.new_log') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.workout_type.label }}
+            {{ form.workout_type(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.duration.label }}
+            {{ form.duration(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.time.label }}
+            {{ form.time(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.rating.label }}
+            {{ form.rating(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <a href="{{ url_for('fitness.journal_home') }}" class="btn btn-secondary mt-3">Back to Journal</a>
+{% endblock %}
