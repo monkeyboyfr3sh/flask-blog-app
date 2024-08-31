@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>Hangman</h1>
-    <p>Win Counter: {{ session['win_counter'] }}</p>
+    <p>Win Counter: {{ session[get_user_session_key('win_counter')] }}</p>
     <pre>{{ hangman.display_hangman() }}</pre>
     <p>Word: {{ hangman.display_word() }}</p>
     <p>Remaining Attempts: {{ hangman.remaining_attempts }}</p>

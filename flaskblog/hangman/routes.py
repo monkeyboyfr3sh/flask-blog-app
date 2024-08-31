@@ -10,6 +10,9 @@ hangman_game = Blueprint('hangman', __name__)
 # List of words for Hangman
 WORD_LIST = ['PYTHON', 'FLASK', 'HANGMAN', 'COMPUTER', 'PROGRAMMING']
 
+def get_user_session_key(key):
+    return f"{current_user.id}_{key}"
+
 @hangman_game.route('/hangman')
 @login_required
 def game_home():
@@ -20,7 +23,7 @@ def game_home():
         db.session.add(user_score)
         db.session.commit()
 
-    session['win_counter'] = user_score.wins
+    session[get_user_session_key('win_counter')] = user_score.wins
 
     # Get the scoreboard with all users' scores
     scoreboard = HangmanScore.query.order_by(HangmanScore.wins.desc()).all()
@@ -31,13 +34,13 @@ def game_home():
 @login_required
 def start_game():
     hangman = Hangman(WORD_LIST)
-    session['hangman'] = hangman.to_dict()
+    session[get_user_session_key('hangman')] = hangman.to_dict()
     return redirect(url_for('hangman.play_game'))
 
 @hangman_game.route('/hangman/play', methods=['GET', 'POST'])
 @login_required
 def play_game():
-    hangman_state = session.get('hangman', None)
+    hangman_state = session.get(get_user_session_key('hangman'), None)
     
     if hangman_state is None:
         return redirect(url_for('hangman.start_game'))
@@ -48,11 +51,13 @@ def play_game():
         guess = request.form.get('guess', '').strip().upper()
         if guess and guess.isalpha():
             hangman.guess(guess)
-        session['hangman'] = hangman.to_dict()
+        session[get_user_session_key('hangman')] = hangman.to_dict()
 
     if hangman.game_over():
         if hangman.status == "won":
-            session['win_counter'] += 1
+            session[get_user_session_key('win_counter')] += 1
+        elif hangman.status == "lost":
+            session[get_user_session_key('win_counter')] = 0  # Reset win counter on loss
         return render_template('hangman_play_game.html', hangman=hangman, allow_save=True)
 
     return render_template('hangman_play_game.html', hangman=hangman)
@@ -63,14 +68,14 @@ def save_score():
     # Update or create the user's score in the database
     user_score = HangmanScore.query.filter_by(user_id=current_user.id).first()
     if user_score:
-        user_score.wins = session['win_counter']
+        user_score.wins = session[get_user_session_key('win_counter')]
         user_score.date_updated = datetime.utcnow()
     else:
-        user_score = HangmanScore(user_id=current_user.id, wins=session['win_counter'])
+        user_score = HangmanScore(user_id=current_user.id, wins=session[get_user_session_key('win_counter')])
         db.session.add(user_score)
     db.session.commit()
 
-    hangman_state = session.get('hangman', None)
+    hangman_state = session.get(get_user_session_key('hangman'), None)
     
     if hangman_state is None:
         return redirect(url_for('hangman.start_game'))
@@ -78,7 +83,7 @@ def save_score():
     hangman = Hangman.from_dict(hangman_state)
 
     if hangman.status == "lost":
-        session['win_counter'] = 0
+        session[get_user_session_key('win_counter')] = 0
 
     return redirect(url_for('hangman.start_game'))
 
@@ -86,14 +91,14 @@ def save_score():
 @login_required
 def reset_game():
     # Allow player to save score before resetting
-    if 'hangman' in session:
-        hangman = Hangman.from_dict(session['hangman'])
+    if get_user_session_key('hangman') in session:
+        hangman = Hangman.from_dict(session[get_user_session_key('hangman')])
         if hangman.game_over() and hangman.status == "lost":
             return redirect(url_for('hangman.play_game'))
 
     # Reset the game and win counter
-    session.pop('hangman', None)
-    session['win_counter'] = 0
+    session.pop(get_user_session_key('hangman'), None)
+    session[get_user_session_key('win_counter')] = 0
 
     # Reset the user's win counter in the database
     user_score = HangmanScore.query.filter_by(user_id=current_user.id).first()

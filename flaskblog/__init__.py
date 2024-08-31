@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 from flask import Flask
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 
@@ -34,6 +34,14 @@ def create_app(config_class: object = Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+
+    # Utility function to generate a user-specific session key
+    def get_user_session_key(key):
+        return f"{current_user.id}_{key}"
+
+    @app.context_processor
+    def utility_processor():
+        return dict(get_user_session_key=get_user_session_key)
 
     # import routes
     from flaskblog.users.routes import users
