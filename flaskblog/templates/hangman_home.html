@@ -9,15 +9,36 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Username</th>
-                <th>Wins</th>
+                <th style="width: 15%; text-align: center;">Position</th>
+                <th style="width: 50%; text-align: center;">Username</th>
+                <th style="width: 35%; text-align: center;">Wins</th>
             </tr>
         </thead>
         <tbody>
             {% for entry in scoreboard %}
                 <tr>
-                    <td>{{ entry.user.username }}</td>
-                    <td>{{ entry.wins }}</td>
+                    <td style="text-align: center;">
+                        {% set pos = loop.index %}
+                        {% if pos == 1 %}
+                            1st
+                        {% elif pos == 2 %}
+                            2nd
+                        {% elif pos == 3 %}
+                            3rd
+                        {% else %}
+                            {{ pos }}th
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {% if pos == 1 %}
+                            &#x2B50; <!-- Gold star Unicode character -->
+                        {% endif %}
+                        {{ entry.user.username }}
+                        {% if pos == 1 %}
+                            &#x2B50; <!-- Gold star Unicode character -->
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">{{ entry.wins }}</td>
                 </tr>
             {% endfor %}
         </tbody>
