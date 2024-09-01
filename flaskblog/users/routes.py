@@ -58,6 +58,36 @@ def register():
     return render_template("register.html", title="Register", form=form)
 
 
+@users.route("/admin/user/new", methods=["GET", "POST"])
+@login_required
+def create_user():
+    # if not current_user.is_admin:  # Assuming you have a way to check admin rights
+    #     flash("You do not have permission to access this page.", "danger")
+    #     return redirect(url_for("main.home"))
+
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        if form.password.data != form.confirm_password.data:
+            flash("Passwords do not match!", "danger")
+        else:
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+            user = User(
+                username=form.username.data,
+                email=form.email.data,
+                password=hashed_password
+            )
+            db.session.add(user)
+            db.session.commit()
+            flash(f"User {form.username.data} has been created!", "success")
+            return redirect(url_for("users.admin_users"))
+    else:
+        # Print the errors to debug
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Error in the {getattr(form, field).label.text} field - {error}", "danger")
+                    
+    return render_template("create_user.html", title="Create User", form=form)
+
 @users.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -125,3 +155,63 @@ def reset_token(token):
         flash("Your password has been updated! You are now able to log in.", "success")
         return redirect(url_for("users.login"))
     return render_template("reset_token.html", title="Reset Password", form=form)
+
+@users.route("/admin/users", methods=["GET", "POST"])
+@login_required
+def admin_users():
+    # if not current_user.is_admin:  # Assuming you have a way to check admin rights
+    #     flash("You do not have permission to access this page.", "danger")
+    #     return redirect(url_for("main.home"))
+
+    users = User.query.all()
+    return render_template("admin_users.html", title="Manage Users", users=users)
+
+
+@users.route("/admin/user/<int:user_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_user(user_id):
+    # if not current_user.is_admin:  # Assuming you have a way to check admin rights
+    #     flash("You do not have permission to access this page.", "danger")
+    #     return redirect(url_for("main.home"))
+
+    user = User.query.get_or_404(user_id)
+    form = UpdateAccountForm()
+
+    if form.validate_on_submit():
+        if form.picture.data:
+            old_picture = user.image_file
+            picture_file = save_picture(form.picture.data)
+            user.image_file = picture_file
+            delete_old_pic(old_picture)
+        user.username = form.username.data
+        user.email = form.email.data
+        db.session.commit()
+        flash(f"{user.username}'s account has been updated!", "success")
+        return redirect(url_for("users.admin_users"))
+
+    elif request.method == "GET":
+        form.username.data = user.username
+        form.email.data = user.email
+
+    image_file = url_for("static", filename=user.image_file)
+    return render_template(
+        "edit_user.html", title="Edit User", user=user, image_file=image_file, form=form
+    )
+
+@users.route("/admin/user/<int:user_id>/delete", methods=["POST"])
+@login_required
+def delete_user(user_id):
+    # if not current_user.is_admin:  # Assuming you have a way to check admin rights
+    #     flash("You do not have permission to access this page.", "danger")
+    #     return redirect(url_for("main.home"))
+
+    user = User.query.get_or_404(user_id)
+    
+    # Delete the user's profile picture if it exists
+    if user.image_file:
+        delete_old_pic(user.image_file)
+    
+    db.session.delete(user)
+    db.session.commit()
+    flash(f"User {user.username} has been deleted.", "success")
+    return redirect(url_for("users.admin_users"))
