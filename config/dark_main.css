@@ -84,6 +84,12 @@ a.article-title:hover {
   font-size: 2.5rem;
 }
 
+.about-me-portrait {
+  border-radius: 10%;
+  width: 200px; /* Optional: You can control the size here */
+  height: auto;
+}
+
 /* Style for Hangman ASCII art */
 pre {
   color: #ffffff; /* White color for better contrast in dark mode */

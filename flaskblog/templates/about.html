@@ -1,4 +1,20 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>About Page</h1>
+
+    <hr>
+    
+    <section id="about-me">
+        <h2>About Webpage</h2>
+        <p>Welcome to my Flask web app! This app is a collection of demo projects I'm using to learn Flask.</p>
+        <p>The web app features a blog page where I can post and manage articles, a hangman game for some light-hearted fun, and a fitness tracker to log workouts. Each of these components serves as a practical way for me to explore and understand the capabilities of Flask and Python web development.</p>
+    </section>
+    
+    <hr>
+
+    <section id="about-me">
+        <h2>About Me</h2>
+        <img src="{{ url_for('static', filename='me.jpg') }}" alt="David Cain" class="about-me-portrait">
+        <p>I'm David Cain, a passionate developer exploring the world of web development through Flask. This web app is part of my journey to master Flask and Python, and each feature has helped me learn something new.</p>
+    </section>
 {% endblock content %}
