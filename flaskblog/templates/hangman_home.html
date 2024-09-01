@@ -39,11 +39,23 @@
                     </td>
                     <td style="text-align: center;">
                         {% if pos == 1 %}
-                            &#x2B50; <!-- Gold star Unicode character -->
+                            &#x1F947; <!-- Gold medal Unicode character -->
+                        {% elif pos == 2 %}
+                            &#x1F948; <!-- Silver medal Unicode character -->
+                        {% elif pos == 3 %}
+                            &#x1F949; <!-- Bronze medal Unicode character -->
+                        {% else %}
+                            {{ pos }}th
                         {% endif %}
                         {{ entry.user.username }}
                         {% if pos == 1 %}
-                            &#x2B50; <!-- Gold star Unicode character -->
+                            &#x1F947; <!-- Gold medal Unicode character -->
+                        {% elif pos == 2 %}
+                            &#x1F948; <!-- Silver medal Unicode character -->
+                        {% elif pos == 3 %}
+                            &#x1F949; <!-- Bronze medal Unicode character -->
+                        {% else %}
+                            {{ pos }}th
                         {% endif %}
                     </td>
                     <td style="text-align: center;">{{ entry.wins }}</td>
