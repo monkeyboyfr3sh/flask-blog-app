@@ -2,10 +2,18 @@
 
 {% block content %}
     <h1>Ready to play Hangman</h1>
-    <p>Win Counter: {{ session[get_user_session_key('win_counter')] }}</p> <!-- Display win counter from session -->
-    <p><a href="{{ url_for('hangman.start_game') }}" class="btn btn-primary">Start New Game</a></p>
 
-    <h2>Scoreboard</h2>
+    <div style="display: flex; gap: 10px;">
+        <a href="{{ url_for('hangman.start_game') }}" class="btn btn-primary">Start New Game</a>
+
+        {% if current_user.username == 'david' %}
+        <form method="POST" action="{{ url_for('hangman.clear_scoreboard') }}" onsubmit="return confirm('Are you sure you want to delete all scoreboard entries?');">
+            <button type="submit" class="btn btn-danger">Clear Scoreboard</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <br>
     <table class="table">
         <thead>
             <tr>

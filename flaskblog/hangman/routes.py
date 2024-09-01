@@ -95,3 +95,12 @@ def reset_game():
     session[get_user_session_key('win_counter')] = 0
 
     return redirect(url_for('hangman.start_game'))
+
+@hangman_game.route('/hangman/clear_scoreboard', methods=['POST'])
+@login_required
+def clear_scoreboard():
+    # Delete all entries in the HangmanScore table
+    HangmanScore.query.delete()
+    db.session.commit()
+    flash('All entries in the scoreboard have been deleted.', 'success')
+    return redirect(url_for('hangman.game_home'))
