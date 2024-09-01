@@ -45,6 +45,15 @@
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
               {% if current_user.is_authenticated %}
+                  <!-- Show the user profile  -->
+                  <a class="nav-item nav-link" href="{{ url_for('users.account') }}">
+                    <img src="{{ url_for('static', filename=current_user.image_file) }}" 
+                         alt="Profile" 
+                         class="rounded-circle" 
+                         style="width: 30px; height: 30px; margin-right: 8px;">
+                    {{ current_user.username }}
+                  </a>
+                  
                 <a class="nav-item nav-link" href="{{ url_for('posts.new_post') }}">New Post</a>
                 <a class="nav-item nav-link" href="{{ url_for('users.account') }}">Account</a>
                 <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
