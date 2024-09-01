@@ -49,9 +49,9 @@
                 {{ form.confirm_password(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
-            <div class="form-group">
-                {{ form.admin.label(class="form-control-label") }}
+            <div class="form-check">
                 {{ form.admin(class="form-check-input") }} <!-- Checkbox for admin status -->
+                {{ form.admin.label(class="form-control-label") }}
             </div>
         </fieldset>
         <div class="form-group">

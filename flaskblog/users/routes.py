@@ -171,7 +171,8 @@ def admin_users():
 @users.route("/admin/user/<int:user_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_user(user_id):
-    # if not current_user.is_admin:  # Assuming you have a way to check admin rights
+    # current_user = User.query.get_or_404(user_id)
+    # if not current_user.admin:
     #     flash("You do not have permission to access this page.", "danger")
     #     return redirect(url_for("main.home"))
 
