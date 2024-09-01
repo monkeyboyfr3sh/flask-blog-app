@@ -2,16 +2,14 @@
 {% block content %}
     <h1>About This Web Application</h1>    
     <section id="about-page">
-        <p>
-            Welcome to my Flask web applicaiton!<br><br>
+        <p>Welcome to my Flask web application!</p>
 
-            The web app features:<br>
-            <ul>
-                <li>A blog page where users can share posts.</li>
-                <li>A hangman game for some light-hearted fun.</li>
-                <li>A fitness tracker to users to log their workouts.</li>
-            </ul>
-        </p>
+        <p>The web app features:</p>
+        <ul>
+            <li>A blog page where users can share posts.</li>
+            <li>A hangman game for some light-hearted fun.</li>
+            <li>A fitness tracker for users to log their workouts.</li>
+        </ul>
     </section>
 
     <hr>
@@ -21,8 +19,11 @@
         <img src="{{ url_for('static', filename='me.jpg') }}" alt="David Cain" class="about-me-portrait">
         
         <p>
-            I'm David Cain, a passionate developer exploring the world of web development through Flask.<br>
-            This web app is part of my journey to master Flask and Python, and each feature has helped me learn something new.
+            I'm David Cain, an Electrical Engineer Project Manager with a master's degree in Computer Engineering from the University of Louisiana at Lafayette.<br><br>
+            I specialize in designing hardware analog processing circuits, digital system circuits, and developing software for a wide variety of systems.<br><br>
+            My expertise includes low-level register programming, FPGA development using VHDL and Verilog, embedded C/C++ (both bare metal and within FreeRTOS), Python, and Flutter applications.<br><br>
+            This web app is part of my ongoing journey to explore and master Flask and Python, with each feature serving as a practical way to deepen my understanding of web development.
         </p>
     </section>
+    
 {% endblock content %}
