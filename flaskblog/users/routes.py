@@ -74,7 +74,8 @@ def create_user():
             user = User(
                 username=form.username.data,
                 email=form.email.data,
-                password=hashed_password
+                password=hashed_password,
+                admin=form.admin.data  # Handle the admin checkbox
             )
             db.session.add(user)
             db.session.commit()
@@ -178,6 +179,7 @@ def edit_user(user_id):
     form = UpdateAccountForm()
 
     if form.validate_on_submit():
+
         if form.picture.data:
             old_picture = user.image_file
             picture_file = save_picture(form.picture.data)
@@ -185,11 +187,13 @@ def edit_user(user_id):
             delete_old_pic(old_picture)
         user.username = form.username.data
         user.email = form.email.data
+        user.admin = form.admin.data
         db.session.commit()
         flash(f"{user.username}'s account has been updated!", "success")
         return redirect(url_for("users.admin_users"))
 
     elif request.method == "GET":
+        form = UpdateAccountForm(user=user)
         form.username.data = user.username
         form.email.data = user.email
 

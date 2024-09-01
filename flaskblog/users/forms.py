@@ -16,7 +16,15 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField(
         "Confirm Password", validators=[DataRequired(), EqualTo("password")]
     )
+    admin = BooleanField('Is Admin')
     submit = SubmitField("Sign Up")
+
+    def __init__(self, user=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user:
+            self.username.data = user.username
+            self.email.data = user.email
+            self.admin.data = user.admin
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
@@ -29,7 +37,6 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError("That email is taken. Please choose a different one.")
-
 
 class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
@@ -46,7 +53,15 @@ class UpdateAccountForm(FlaskForm):
     picture = FileField(
         "Update Profile Picture", validators=[FileAllowed(["jpg", "png"])]
     )
+    admin = BooleanField('Is Admin')
     submit = SubmitField("Update")
+
+    def __init__(self, user=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user:
+            self.username.data = user.username
+            self.email.data = user.email
+            self.admin.data = user.admin
 
     def validate_username(self, username):
         if username.data != current_user.username:
@@ -63,7 +78,6 @@ class UpdateAccountForm(FlaskForm):
                 raise ValidationError(
                     "That email is taken. Please choose a different one."
                 )
-
 
 class RequestResetForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])

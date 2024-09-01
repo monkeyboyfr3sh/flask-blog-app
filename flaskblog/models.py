@@ -18,6 +18,7 @@ class User(db.Model, UserMixin):  # type: ignore
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default="images/default.jpg")
     password = db.Column(db.String(60), nullable=False)
+    admin = db.Column(db.Boolean, nullable=False, default=False)  # Admin parameter
 
     posts = db.relationship("Post", backref="author", lazy=True, cascade="all, delete-orphan")
     workouts = db.relationship("WorkoutLog", backref="author", lazy=True, cascade="all, delete-orphan")
