@@ -1,12 +1,9 @@
-
 from datetime import datetime, timezone
-from datetime import datetime
 from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import TimedSerializer
 from sqlalchemy.exc import OperationalError
 from flaskblog import db, login_manager
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -14,7 +11,6 @@ def load_user(user_id):
         return User.query.get(int(user_id))
     except OperationalError:
         return None
-
 
 class User(db.Model, UserMixin):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
@@ -42,7 +38,6 @@ class User(db.Model, UserMixin):  # type: ignore
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
-
 class Post(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -53,14 +48,14 @@ class Post(db.Model):  # type: ignore
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
 
-
-class WorkoutLog(db.Model):  # New model for workout logs
+class WorkoutLog(db.Model):  # Updated model for workout logs
     id = db.Column(db.Integer, primary_key=True)
     workout_type = db.Column(db.String(100), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     time = db.Column(db.Time, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    notes = db.Column(db.Text, nullable=True)  # **Added Notes Field**
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):

@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint
+from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import current_user, login_required
 from flaskblog import db
 from flaskblog.models import WorkoutLog
@@ -22,6 +22,7 @@ def new_log():
             duration=form.duration.data,
             time=form.time.data,
             rating=form.rating.data,
+            notes=form.notes.data,  # **Handle Notes**
             author=current_user,
         )
         db.session.add(log)
@@ -49,6 +50,7 @@ def update_log(log_id):
         log.duration = form.duration.data
         log.time = form.time.data
         log.rating = form.rating.data
+        log.notes = form.notes.data  # **Handle Notes**
         db.session.commit()
         flash("Your workout log has been updated!", "success")
         return redirect(url_for("fitness.log", log_id=log.id))
@@ -57,6 +59,7 @@ def update_log(log_id):
         form.duration.data = log.duration
         form.time.data = log.time
         form.rating.data = log.rating
+        form.notes.data = log.notes  # **Populate Notes Field**
     return render_template(
         "fitjournal_add_entry.html", title="Update Workout Log", form=form, legend="Update Workout Log"
     )

@@ -20,6 +20,10 @@
             {{ form.rating.label }}
             {{ form.rating(class="form-control") }}
         </div>
+        <div class="form-group">
+            {{ form.notes.label }}
+            {{ form.notes(class="form-control", rows="4") }}
+        </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
     <a href="{{ url_for('fitness.journal_home') }}" class="btn btn-secondary mt-3">Back to Journal</a>
