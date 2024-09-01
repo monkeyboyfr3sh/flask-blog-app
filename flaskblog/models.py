@@ -3,7 +3,7 @@ from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import TimedSerializer
 from sqlalchemy.exc import OperationalError
-from flaskblog import db, login_manager
+from flaskblog import db, bcrypt, login_manager
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -76,6 +76,25 @@ def create_table_if_not_exist(app):
     with app.app_context():
         try:
             db.create_all()
+            create_default_admin()  # Call the function to create the default admin user
         except OperationalError as e:
             # Log the exception or handle it appropriately
             print(f"OperationalError: {e}")
+
+def create_default_admin():
+    """Create a default admin user if none exists."""
+    admin_email = "admin@admin.com"
+    admin_username = "admin"
+    admin_password = "password"  # Replace with a more secure default or hashed password
+
+    if db.session.query(User).first() is None:
+        hashed_password = bcrypt.generate_password_hash(admin_password).decode('utf-8')
+        admin_user = User(
+            username=admin_username,
+            email=admin_email,
+            password=hashed_password,
+            admin=True
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print(f"Created default admin user: {admin_username} with email: {admin_email}")
