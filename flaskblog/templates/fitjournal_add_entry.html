@@ -6,7 +6,18 @@
         {{ form.hidden_tag() }}
         <div class="form-group">
             {{ form.workout_type.label }}
-            {{ form.workout_type(class="form-control") }}
+            <select name="workout_type" id="workout_type_select" class="form-control">
+                <option value="Running">Running</option>
+                <option value="Cycling">Cycling</option>
+                <option value="Swimming">Swimming</option>
+                <option value="Weightlifting">Weightlifting</option>
+                <option value="Yoga">Yoga</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group" id="custom_workout_type_group" style="display: none;">
+            <label for="custom_workout_type">Please specify</label>
+            <input type="text" name="workout_type" id="custom_workout_type_select" class="form-control" />
         </div>
         <div class="form-group">
             {{ form.duration.label }}
@@ -27,4 +38,22 @@
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
     <a href="{{ url_for('fitness.journal_home') }}" class="btn btn-secondary mt-3">Back to Journal</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var workoutTypeSelect = document.getElementById('workout_type_select');
+            var customWorkoutTypeGroup = document.getElementById('custom_workout_type_group');
+            var customWorkoutTypeInput = document.getElementById('custom_workout_type');
+
+            workoutTypeSelect.addEventListener('change', function () {
+                if (this.value === "Other") {
+                    customWorkoutTypeGroup.style.display = "block";
+                    customWorkoutTypeInput.required = true; // Make the input required if 'Other' is selected
+                } else {
+                    customWorkoutTypeGroup.style.display = "none";
+                    customWorkoutTypeInput.required = false; // Remove the required attribute if 'Other' is not selected
+                }
+            });
+        });
+    </script>
 {% endblock %}

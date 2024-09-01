@@ -46,15 +46,20 @@ def update_log(log_id):
         abort(403)
     form = WorkoutLogForm()
     if form.validate_on_submit():
+        # Optionally delete old log if you want to replace it entirely
+        db.session.delete(log)
+        db.session.commit()
+
         log.workout_type = form.workout_type.data
         log.duration = form.duration.data
         log.time = form.time.data
         log.rating = form.rating.data
         log.notes = form.notes.data  # **Handle Notes**
-        db.session.commit()
+        db.session.commit()  # Save the updated log
         flash("Your workout log has been updated!", "success")
         return redirect(url_for("fitness.log", log_id=log.id))
     elif request.method == "GET":
+        # Populate the form with the current log data
         form.workout_type.data = log.workout_type
         form.duration.data = log.duration
         form.time.data = log.time
@@ -63,6 +68,7 @@ def update_log(log_id):
     return render_template(
         "fitjournal_add_entry.html", title="Update Workout Log", form=form, legend="Update Workout Log"
     )
+
 
 @fitness.route("/fitness/log/<int:log_id>/delete", methods=["POST"])
 @login_required
