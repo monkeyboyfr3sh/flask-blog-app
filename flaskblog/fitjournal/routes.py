@@ -12,7 +12,7 @@ def journal_home():
     logs = WorkoutLog.query.filter_by(author=current_user).all()
     return render_template('fitjournal_home.html', logs=logs)
 
-@fitness.route("/fitness/log/new", methods=["GET", "POST"])
+@fitness.route("/fitness/journal/log/new", methods=["GET", "POST"])
 @login_required
 def new_log():
     form = WorkoutLogForm()
@@ -33,12 +33,12 @@ def new_log():
         "fitjournal_add_entry.html", title="New Workout Log", form=form, legend="New Workout Log"
     )
 
-@fitness.route("/fitness/log/<int:log_id>")
+@fitness.route("/fitness/journal/log/<int:log_id>")
 def log(log_id):
     log = WorkoutLog.query.get_or_404(log_id)
     return render_template("fitjournal_log.html", title=log.workout_type, log=log)
 
-@fitness.route("/fitness/log/<int:log_id>/update", methods=["GET", "POST"])
+@fitness.route("/fitness/journal/log/<int:log_id>/update", methods=["GET", "POST"])
 @login_required
 def update_log(log_id):
     log = WorkoutLog.query.get_or_404(log_id)
@@ -70,7 +70,7 @@ def update_log(log_id):
     )
 
 
-@fitness.route("/fitness/log/<int:log_id>/delete", methods=["POST"])
+@fitness.route("/fitness/journal/log/<int:log_id>/delete", methods=["POST"])
 @login_required
 def delete_log(log_id):
     log = WorkoutLog.query.get_or_404(log_id)
