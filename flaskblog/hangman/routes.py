@@ -72,10 +72,14 @@ def save_score():
         db.session.add(user_score)
     db.session.commit()
 
-    # Reset the session win counter after saving
-    session[get_user_session_key('win_counter')] = 0
+    hangman_state = session.get(get_user_session_key('hangman'), None)
+    
+    if hangman_state is None:
+        return redirect(url_for('hangman.start_game'))
 
+    # After saving, redirect to the hangman home page or any other appropriate page
     return redirect(url_for('hangman.start_game'))
+
 
 @hangman_game.route('/hangman/reset')
 @login_required
