@@ -4,6 +4,7 @@ from flaskblog import db
 from flaskblog.models import HangmanScore
 from datetime import datetime
 from .hangman import Hangman
+import random
 
 hangman_game = Blueprint('hangman', __name__)
 
@@ -12,6 +13,21 @@ WORD_LIST = ['PYTHON', 'FLASK', 'HANGMAN', 'COMPUTER', 'PROGRAMMING']
 
 def get_user_session_key(key):
     return f"{current_user.id}_{key}"
+
+def select_new_word():
+    used_words = session.get(get_user_session_key('used_words'), [])
+    while True:
+        selected_word = random.choice(WORD_LIST)
+        if selected_word not in used_words:
+            break
+    
+    # Update the FIFO queue of used words
+    used_words.append(selected_word)
+    if len(used_words) > 3:
+        used_words.pop(0)  # Remove the oldest word if more than 3 words are stored
+    session[get_user_session_key('used_words')] = used_words
+
+    return selected_word
 
 @hangman_game.route('/hangman')
 @login_required
@@ -27,7 +43,8 @@ def game_home():
 @hangman_game.route('/hangman/start')
 @login_required
 def start_game():
-    hangman = Hangman('PYTHON')
+    word = select_new_word()
+    hangman = Hangman(word)
     session[get_user_session_key('hangman')] = hangman.to_dict()
     return redirect(url_for('hangman.play_game'))
 
