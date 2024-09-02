@@ -8,16 +8,44 @@ import random
 
 hangman_game = Blueprint('hangman', __name__)
 
-# List of words for Hangman
-WORD_LIST = ['PYTHON', 'FLASK', 'HANGMAN', 'COMPUTER', 'PROGRAMMING']
+# Define word lists for each category
+WORD_LISTS = {
+    'space': [
+        'ASTEROID', 'COMET', 'GALAXY', 'NEBULA', 'PLANET', 'QUASAR', 
+        'SUPERNOVA', 'TELESCOPE', 'ORBIT', 'ASTRONAUT', 'BLACKHOLE', 
+        'CONSTELLATION', 'GRAVITY', 'INTERSTELLAR', 'ROCKET', 'SATELLITE'
+    ],
+    'fun_math': [
+        'FRACTION', 'ALGEBRA', 'CALCULUS', 'GEOMETRY', 'TRIGONOMETRY', 
+        'EQUATION', 'MATRIX', 'INTEGRAL', 'DERIVATIVE', 'LOGARITHM', 
+        'PARALLELOGRAM', 'POLYNOMIAL', 'PYTHAGORAS', 'TANGENT', 'COSINE', 
+        'PROBABILITY'
+    ],
+    'philosophers': [
+        'PLATO', 'ARISTOTLE', 'DESCARTES', 'KANT', 'HEGEL', 'NIETZSCHE', 
+        'WITTGENSTEIN', 'AQUINAS', 'HUME', 'SPINOZA', 'LOCKE', 
+        'RUSSELL', 'SARTRE', 'FREGE', 'AUGUSTINE'
+    ],
+    'authors': [
+        'SHAKESPEARE', 'DOSTOEVSKY', 'TOLSTOY', 'ORWELL', 'AUSTEN', 
+        'HEMINGWAY', 'JOYCE', 'DICKENS', 'FAULKNER', 'FROST', 
+        'WOOLF', 'HOMER', 'CERVANTES', 'CHAUCER', 'MILTON'
+    ],
+    'video_games': [
+        'MINECRAFT', 'FORTNITE', 'OVERWATCH', 'CYBERPUNK', 'GODOFWAR', 
+        'REDDEAD', 'WITCHER', 'APEXLEGENDS', 'AMONGUS', 'FALLOUT', 
+        'LEAGUEOFLEGENDS', 'VALORANT', 'ELDENRING', 'HORIZON', 'FIFA'
+    ]
+}
 
 def get_user_session_key(key):
     return f"{current_user.id}_{key}"
 
-def select_new_word():
+def select_new_word(category):
     used_words = session.get(get_user_session_key('used_words'), [])
+    word_list = WORD_LISTS.get(category, WORD_LISTS['space'])  # Default to space if invalid category
     while True:
-        selected_word = random.choice(WORD_LIST)
+        selected_word = random.choice(word_list)
         if selected_word not in used_words:
             break
     
@@ -43,7 +71,8 @@ def game_home():
 @hangman_game.route('/hangman/start')
 @login_required
 def start_game():
-    word = select_new_word()
+    category = request.args.get('category', 'space')  # Default to 'space' if no category is selected
+    word = select_new_word(category)
     hangman = Hangman(word)
     session[get_user_session_key('hangman')] = hangman.to_dict()
     return redirect(url_for('hangman.play_game'))
@@ -97,6 +126,11 @@ def save_score():
     # After saving, redirect to the hangman home page or any other appropriate page
     return redirect(url_for('hangman.start_game'))
 
+@hangman_game.route('/hangman/select_category')
+@login_required
+def select_category():
+    categories = WORD_LISTS.keys()  # Get the list of available categories
+    return render_template('select_category.html', categories=categories)
 
 @hangman_game.route('/hangman/reset')
 @login_required
