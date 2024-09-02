@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h1>Hangman</h1>
+    <h1>Hangman: {{ category.replace('_', ' ').title() }}</h1>
     <p>Session Win Counter: {{ session[get_user_session_key('win_counter')] }}</p> <!-- Tracks session wins only -->
     <pre>{{ hangman.display_hangman() }}</pre>
     <p>Word: {{ hangman.display_word() }}</p>
@@ -20,7 +20,7 @@
         </form>
         
         {% if hangman.status == "won" %}
-            <p><a href="{{ url_for('hangman.start_game') }}" class="btn btn-primary" style="margin: 5px;">Play Again</a></p>
+            <p><a href="{{ url_for('hangman.start_game', category=category) }}" class="btn btn-primary" style="margin: 5px;">Play Again</a></p>
         {% endif %}
     {% else %}
         <form method="post">

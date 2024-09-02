@@ -71,15 +71,23 @@ def game_home():
 @hangman_game.route('/hangman/start')
 @login_required
 def start_game():
-    category = request.args.get('category', 'space')  # Default to 'space' if no category is selected
+    category = request.args.get('category')
+    
+    if category:
+        session[get_user_session_key('category')] = category
+    else:
+        category = session.get(get_user_session_key('category'), 'space')  # Default to 'space' if no category is selected
+
     word = select_new_word(category)
     hangman = Hangman(word)
     session[get_user_session_key('hangman')] = hangman.to_dict()
-    return redirect(url_for('hangman.play_game'))
+
+    return redirect(url_for('hangman.play_game', category=category))
 
 @hangman_game.route('/hangman/play', methods=['GET', 'POST'])
 @login_required
 def play_game():
+    category = session.get(get_user_session_key('category'), 'space')
     hangman_state = session.get(get_user_session_key('hangman'), None)
     
     if hangman_state is None:
@@ -97,10 +105,9 @@ def play_game():
         if hangman.status == "won":
             session[get_user_session_key('win_counter')] += 1
         elif hangman.status == "lost":
-            # Don't reset the win counter immediately; allow the user to save it first
-            return render_template('hangman_play_game.html', hangman=hangman, allow_save=True)
+            return render_template('hangman_play_game.html', hangman=hangman, category=category, allow_save=True)
 
-    return render_template('hangman_play_game.html', hangman=hangman)
+    return render_template('hangman_play_game.html', hangman=hangman, category=category)
 
 @hangman_game.route('/hangman/save_score', methods=['POST'])
 @login_required
