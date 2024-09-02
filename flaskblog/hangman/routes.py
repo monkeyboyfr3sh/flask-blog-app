@@ -27,7 +27,7 @@ def game_home():
 @hangman_game.route('/hangman/start')
 @login_required
 def start_game():
-    hangman = Hangman(WORD_LIST)
+    hangman = Hangman('PYTHON')
     session[get_user_session_key('hangman')] = hangman.to_dict()
     return redirect(url_for('hangman.play_game'))
 

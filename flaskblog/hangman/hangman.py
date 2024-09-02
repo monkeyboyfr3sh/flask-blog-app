@@ -54,9 +54,8 @@ HANGMAN_PICS = [
 ]
 
 class Hangman:
-    def __init__(self, word_list, word=None, guesses=None, remaining_attempts=6):
-        self.word_list = word_list
-        self.word = word or random.choice(self.word_list).upper()
+    def __init__(self, word=None, guesses=None, remaining_attempts=6):
+        self.word = word.upper()
         self.guesses = set(guesses) if guesses else set()
         self.remaining_attempts = remaining_attempts
         self.status = "ongoing"
@@ -109,7 +108,6 @@ class Hangman:
     @classmethod
     def from_dict(cls, state):
         return cls(
-            word_list=[],  # Empty because the word is already chosen
             word=state['word'],
             guesses=state['guesses'],
             remaining_attempts=state['remaining_attempts']
