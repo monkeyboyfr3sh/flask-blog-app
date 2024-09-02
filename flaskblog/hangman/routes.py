@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash
 from flask_login import current_user, login_required
+from flask import jsonify
 from flaskblog import db
 from flaskblog.models import HangmanScore
 from datetime import datetime
@@ -162,3 +163,16 @@ def clear_scoreboard():
     db.session.commit()
     flash('All entries in the scoreboard have been deleted.', 'success')
     return redirect(url_for('hangman.game_home'))
+
+@hangman_game.route('/hangman/death_animation')
+@login_required
+def death_animation():
+    hangman_state = session.get(get_user_session_key('hangman'), None)
+    
+    if hangman_state is None:
+        return jsonify({'error': 'No active game'}), 400
+
+    hangman = Hangman.from_dict(hangman_state)
+    animation_data = hangman.get_death_animation()
+    
+    return jsonify(animation_data)

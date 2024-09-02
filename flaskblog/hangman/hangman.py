@@ -53,12 +53,44 @@ HANGMAN_PICS = [
     ========='''
 ]
 
+DEATH_ANIMATION = [
+    '''
+      +---+
+      |   |
+      O   |
+     /|\\  |
+     / \\  |
+          |
+    =========''',  # Final hangman frame
+    '''
+          
+          
+          
+          
+          
+          
+          
+    =========''',  # Blank frame
+    '''
+          
+          
+          
+     _______
+    |       |
+    |  R.I.P|
+    |_______|
+          
+          
+    ========='''  # Tombstone frame
+]
+
 class Hangman:
     def __init__(self, word=None, guesses=None, remaining_attempts=6):
         self.word = word.upper()
         self.guesses = set(guesses) if guesses else set()
         self.remaining_attempts = remaining_attempts
         self.status = "ongoing"
+        self.death_animation = DEATH_ANIMATION  # Initialize the death animation list
 
     def guess(self, guess):
         guess = guess.upper()
@@ -104,6 +136,12 @@ class Hangman:
 
     def display_hangman(self):
         return HANGMAN_PICS[len(HANGMAN_PICS) - self.remaining_attempts - 1]
+
+    def get_death_animation(self):
+        return {
+            'frames': self.death_animation,
+            'playback_rate': 500  # Playback rate in milliseconds
+        }
 
     @classmethod
     def from_dict(cls, state):

@@ -2,8 +2,11 @@
 
 {% block content %}
     <h1>Hangman: {{ category.replace('_', ' ').title() }}</h1>
-    <p>Session Win Counter: {{ session[get_user_session_key('win_counter')] }}</p> <!-- Tracks session wins only -->
-    <pre>{{ hangman.display_hangman() }}</pre>
+    <p>Session Win Counter: {{ session[get_user_session_key('win_counter')] }}</p>
+
+    <!-- Container for the Hangman ASCII art -->
+    <pre id="hangman-stage">{{ hangman.display_hangman() }}</pre>
+
     <p>Word: {{ hangman.display_word() }}</p>
     <p>Remaining Attempts: {{ hangman.remaining_attempts }}</p>
 
@@ -12,6 +15,32 @@
             <p>Congratulations! You've won! The word was: {{ hangman.word }}</p>
         {% elif hangman.status == "lost" %}
             <p>Game Over! You've lost! The word was: {{ hangman.word }}</p>
+            <script>
+                // JavaScript function to play the death animation
+                function playDeathAnimation(frames, playbackRate) {
+                    let currentFrame = 0;
+
+                    function showNextFrame() {
+                        if (currentFrame < frames.length) {
+                            document.getElementById("hangman-stage").innerText = frames[currentFrame];
+                            currentFrame++;
+                            setTimeout(showNextFrame, playbackRate);
+                        }
+                    }
+
+                    showNextFrame();
+                }
+
+                // Fetch the death animation frames and playback rate from the server
+                fetch('{{ url_for("hangman.death_animation") }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.frames) {
+                            playDeathAnimation(data.frames, data.playback_rate);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching death animation:', error));
+            </script>
         {% endif %}
         
         <!-- Form to save the session's max score -->
