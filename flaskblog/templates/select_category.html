@@ -5,7 +5,7 @@
     <div class="category-selection">
         {% for category in categories %}
             <button 
-                class="btn-neon {{ category.replace('_', '-') }}" 
+                class="btn btn-basic {{ category.replace('_', '-') }}" 
                 onclick="window.location.href='{{ url_for('hangman.start_game', category=category) }}'">
                 {{ category.replace('_', ' ').title() }}
             </button>
