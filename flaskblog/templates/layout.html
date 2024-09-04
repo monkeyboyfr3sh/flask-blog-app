@@ -18,6 +18,9 @@
     <link rel="stylesheet"
           type="text/css"
           href="{{ url_for('static', filename='basic_buttons.css') }}">
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='minesweeper.css') }}">
     {% if title %}
       <title>Flask Blog - {{ title }}</title>
     {% else %}
@@ -43,6 +46,7 @@
               <a class="nav-item nav-link" href="{{ url_for('main.home') }}">Home</a>
               <a class="nav-item nav-link" href="{{ url_for('main.about') }}">About</a>
               <a class="nav-item nav-link" href="{{ url_for('hangman.game_home') }}">Hangman</a>
+              <a class="nav-item nav-link" href="{{ url_for('minesweeper.minesweeper_home') }}">Minesweeper</a>
               <a class="nav-item nav-link" href="{{ url_for('fitness.journal_home') }}">Fitness Journal</a>
             </div>
             <!-- Navbar Right Side -->

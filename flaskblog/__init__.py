@@ -50,13 +50,14 @@ def create_app(config_class: object = Config):
     from flaskblog.errors.handlers import errors
     from flaskblog.hangman.routes import hangman_game
     from flaskblog.fitjournal.routes import fitness
+    from flaskblog.minesweeper.routes import minesweeper
 
     # create table from models if it doesn't exist
     from flaskblog.models import create_table_if_not_exist
 
     create_table_if_not_exist(app)
 
-    for bp in [users, posts, main, errors, hangman_game, fitness]:  # Add the game blueprint here
+    for bp in [users, posts, main, errors, hangman_game, fitness, minesweeper]:  # Add the game blueprint here
         app.register_blueprint(bp)
 
     return app

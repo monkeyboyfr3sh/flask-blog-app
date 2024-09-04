@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h1>Minesweeper Game</h1>
+  <div id="minesweeper-game" class="content-section">
+    <div id="game-info">
+      <p>Mines left: <span id="mines-count">0</span></p>
+      <p>Time: <span id="timer">0</span></p>
+      <button id="reset-button" class="btn btn-outline-info">Reset Game</button>
+    </div>
+    <div id="minesweeper-grid"></div>
+  </div>
+  <!-- Include the Minesweeper JavaScript file here -->
+  <script src="{{ url_for('static', filename='minesweeper.js') }}" defer></script>
+{% endblock content %}
