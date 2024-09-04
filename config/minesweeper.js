@@ -181,7 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startTimer() {
         interval = setInterval(() => {
-            timer++;
+            if (timer < 999) {
+                timer++;
+            }
             timerElement.textContent = String(timer).padStart(3, '0'); // Ensure it's always 3 digits
         }, 1000);
     }

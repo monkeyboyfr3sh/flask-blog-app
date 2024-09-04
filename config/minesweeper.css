@@ -86,35 +86,38 @@
 }
 
 .seven-segment {
-    font-family: 'Digital-7', sans-serif; /* You can use a digital font or custom CSS */
-    font-size: 36px; /* Size of the digits */
-    color: red; /* Color of the digits */
-    background-color: black; /* Background of the display */
-    border: 2px solid #333; /* Border to give a sunken effect */
+    font-family: 'Digital-7', sans-serif;
+    font-size: 40px; /* Increase font size to match the seven-segment look */
+    color: red;
+    background-color: black;
+    border: 2px solid #333;
     padding: 5px 10px;
-    width: 80px; /* Width to accommodate 3 digits */
+    min-width: 90px; /* Ensure it can fit 3 digits */
     text-align: center;
-    border-radius: 4px; /* Rounded corners to match the original look */
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensures padding is included in the width */
 }
 
 #game-info {
     display: flex;
     justify-content: space-between;
-    width: 200px;
+    width: 400px; /* Adjusted width for the game info box */
     margin-bottom: 20px;
     padding: 10px;
-    background-color: #ddd; /* Optional: background color for the game info area */
+    background-color: #ddd;
     border: 2px solid #aaa;
     border-radius: 5px;
 }
 
 #reset-button button {
-    font-size: 24px;
-    background-color: #f7f7f7;
-    border: 2px solid #aaa;
+    font-size: 28px;
+    background-color: #ffffff00;
+    border: 0px solid #ffffff00;
     border-radius: 50%;
     padding: 5px;
     cursor: pointer;
+    width: 100px;
+    height: 100px;
 }
 
 .seven-segment {
