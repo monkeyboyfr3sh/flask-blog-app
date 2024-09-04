@@ -36,6 +36,56 @@
 }
 
 .cell.flagged {
-    background-color: #ffeb3b;
+    background-color: #ffeb3b; /* Yellow color for flag */
     cursor: default;
+}
+
+.cell.flagged i {
+    color: #333; /* Darker color for flag icon */
+}
+
+.cell i {
+    font-size: 20px;
+    color: #333;
+}
+
+.cell.mine i {
+    color: #f44336; /* Red color for bomb */
+}
+
+.cell.flagged i {
+    color: #ffeb3b; /* Yellow color for flag */
+}
+
+
+.cell.number-1 {
+    color: blue;
+}
+
+.cell.number-2 {
+    color: green;
+}
+
+.cell.number-3 {
+    color: red;
+}
+
+.cell.number-4 {
+    color: darkblue;
+}
+
+.cell.number-5 {
+    color: brown;
+}
+
+.cell.number-6 {
+    color: cyan;
+}
+
+.cell.number-7 {
+    color: black;
+}
+
+.cell.number-8 {
+    color: gray;
 }
