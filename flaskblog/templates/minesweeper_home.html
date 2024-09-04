@@ -5,14 +5,24 @@
     <div id="game-info">
       <div id="mines-count" class="seven-segment">020</div>
       <div id="reset-button">
-        <div id="reset-button">
-          <img src="{{ url_for('static', filename='cry.png') }}" alt="Reset Button" id="reset-img">
-        </div>
+        <img src="{{ url_for('static', filename='cry.png') }}" alt="Reset Button" id="reset-img">
       </div>
       <div id="timer" class="seven-segment">000</div>
     </div>
+
+    <!-- Difficulty selection dropdown -->
+    <div id="difficulty-selection">
+      <label for="difficulty">Select Difficulty:</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
     <div id="minesweeper-grid"></div>
   </div>
+
   <!-- Include the Minesweeper JavaScript file here -->
   <script src="{{ url_for('static', filename='minesweeper.js') }}" defer></script>
 {% endblock content %}

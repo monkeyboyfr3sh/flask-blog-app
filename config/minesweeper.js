@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const gridSize = 10;
-    const mineCount = 20;
+    let gridSize = 10; // Default grid size for medium difficulty
+    let mineCount = 20; // Default mine count for medium difficulty
     let grid = [];
     let minesLeft = mineCount;
     let timer = 0;
@@ -10,16 +10,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const minesCountElement = document.getElementById('mines-count');
     const timerElement = document.getElementById('timer');
     const resetButton = document.getElementById('reset-button');
+    const difficultySelect = document.getElementById('difficulty');
+
+    difficultySelect.addEventListener('change', () => {
+        updateDifficulty();
+        initGame();
+    });
+
+    function updateDifficulty() {
+        const difficulty = difficultySelect.value;
+        if (difficulty === 'easy') {
+            gridSize = 8;
+            mineCount = 10;
+        } else if (difficulty === 'medium') {
+            gridSize = 10;
+            mineCount = 20;
+        } else if (difficulty === 'hard') {
+            gridSize = 14;
+            mineCount = 40;
+        }
+    }
 
     function initGame() {
         clearInterval(interval);
         timer = 0;
         minesLeft = mineCount;
-        minesCountElement.textContent = minesLeft;
-        timerElement.textContent = timer;
+        minesCountElement.textContent = String(minesLeft).padStart(3, '0');
+        timerElement.textContent = String(timer).padStart(3, '0');
 
         grid = [];
         gridElement.innerHTML = '';
+        gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 30px)`;
+        gridElement.style.gridTemplateRows = `repeat(${gridSize}, 30px)`;
 
         for (let i = 0; i < gridSize; i++) {
             const row = [];
@@ -211,5 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resetButton.addEventListener('click', initGame);
 
+    updateDifficulty(); // Initialize with the default difficulty
     initGame();
 });
