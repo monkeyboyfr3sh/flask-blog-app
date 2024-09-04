@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Select a Category</h1>
+    <div class="category-selection">
+        {% for category in categories %}
+            <button 
+                class="btn btn-basic {{ category.replace('_', '-') }}" 
+                onclick="window.location.href='{{ url_for('hangman.start_game', category=category) }}'">
+                {{ category.replace('_', ' ').title() }}
+            </button>
+        {% endfor %}
+    </div>
+{% endblock %}

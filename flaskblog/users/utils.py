@@ -31,11 +31,15 @@ def save_picture(form_picture):
 
     output_size = (125, 125)
     i = Image.open(form_picture)
+    
+    # Convert image to RGB if it has an alpha channel (RGBA mode)
+    if i.mode == 'RGBA':
+        i = i.convert('RGB')
+
     i.thumbnail(output_size)
     i.save(picture_path)
 
     return "images/" + str(picture_fn)
-
 
 def send_reset_email(user):
     token = user.get_reset_token()

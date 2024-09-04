@@ -1,0 +1,61 @@
+/* Basic Button Styles */
+.btn-basic {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    color: #ffffff; /* White text */
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+/* Basic Colors */
+.btn-basic.space {
+    background-color: #007bff; /* Blue */
+}
+
+.btn-basic.fun-math {
+    background-color: #28a745; /* Green */
+}
+
+.btn-basic.philosophers {
+    background-color: #ffc107; /* Yellow */
+    color: #000000; /* Black text for better contrast on yellow */
+}
+
+.btn-basic.authors {
+    background-color: #dc3545; /* Red */
+}
+
+.btn-basic.video-games {
+    background-color: #6f42c1; /* Purple */
+}
+
+/* Hover Effects */
+.btn-basic:hover {
+    transform: scale(1.05);
+    background-color: #0056b3; /* Darker blue for hover effect (can be customized per button) */
+}
+
+/* Specific hover colors */
+.btn-basic.fun-math:hover {
+    background-color: #218838; /* Darker green */
+}
+
+.btn-basic.philosophers:hover {
+    background-color: #e0a800; /* Darker yellow */
+}
+
+.btn-basic.authors:hover {
+    background-color: #c82333; /* Darker red */
+}
+
+.btn-basic.video-games:hover {
+    background-color: #5a32a3; /* Darker purple */
+}

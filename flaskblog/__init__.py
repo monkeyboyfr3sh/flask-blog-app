@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 from flask import Flask
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 
@@ -35,19 +35,28 @@ def create_app(config_class: object = Config):
     login_manager.init_app(app)
     mail.init_app(app)
 
+    # Utility function to generate a user-specific session key
+    def get_user_session_key(key):
+        return f"{current_user.id}_{key}"
+
+    @app.context_processor
+    def utility_processor():
+        return dict(get_user_session_key=get_user_session_key)
+
     # import routes
     from flaskblog.users.routes import users
     from flaskblog.posts.routes import posts
     from flaskblog.main.routes import main
     from flaskblog.errors.handlers import errors
-    from flaskblog.game.routes import game
+    from flaskblog.hangman.routes import hangman_game
+    from flaskblog.fitjournal.routes import fitness
 
     # create table from models if it doesn't exist
     from flaskblog.models import create_table_if_not_exist
 
     create_table_if_not_exist(app)
 
-    for bp in [users, posts, main, errors, game]:  # Add the game blueprint here
+    for bp in [users, posts, main, errors, hangman_game, fitness]:  # Add the game blueprint here
         app.register_blueprint(bp)
 
     return app

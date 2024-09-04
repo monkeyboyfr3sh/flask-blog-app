@@ -15,6 +15,9 @@
     <link rel="stylesheet"
           type="text/css"
           href="{{ url_for('static', filename='dark_main.css') }}">
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='basic_buttons.css') }}">
     {% if title %}
       <title>Flask Blog - {{ title }}</title>
     {% else %}
@@ -37,15 +40,26 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
-              <!-- <a class="nav-item nav-link" href="{{ url_for('main.home') }}">Home</a> -->
+              <a class="nav-item nav-link" href="{{ url_for('main.home') }}">Home</a>
               <a class="nav-item nav-link" href="{{ url_for('main.about') }}">About</a>
-              <a class="nav-item nav-link" href="{{ url_for('game.game_home') }}">Games</a>
+              <a class="nav-item nav-link" href="{{ url_for('hangman.game_home') }}">Hangman</a>
+              <a class="nav-item nav-link" href="{{ url_for('fitness.journal_home') }}">Fitness Journal</a>
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
-              {% if current_user.is_authenticated %}
+              {% if current_user.is_authenticated %}                
                 <a class="nav-item nav-link" href="{{ url_for('posts.new_post') }}">New Post</a>
-                <a class="nav-item nav-link" href="{{ url_for('users.account') }}">Account</a>
+                {% if current_user.admin %}
+                  <a class="nav-item nav-link" href="{{ url_for('users.admin_users') }}">Admin Panel</a>
+                {% endif %}
+                  <!-- Show the user profile  -->
+                  <a class="nav-item nav-link" href="{{ url_for('users.account') }}">
+                    <img src="{{ url_for('static', filename=current_user.image_file) }}" 
+                         alt="Profile" 
+                         class="rounded-circle" 
+                         style="width: 30px; height: 30px; margin-right: 8px;">
+                    {{ current_user.username }}
+                  </a>
                 <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
               {% else %}
                 <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>

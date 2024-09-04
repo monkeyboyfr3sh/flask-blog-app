@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Ready to play Hangman</h1>
+
+    <div style="display: flex; gap: 10px;">
+        <a href="{{ url_for('hangman.select_category') }}" class="btn btn-primary">Start New Game</a>
+
+        {% if current_user.admin %}
+        <form method="POST" action="{{ url_for('hangman.clear_scoreboard') }}" onsubmit="return confirm('Are you sure you want to delete all scoreboard entries?');">
+            <button type="submit" class="btn btn-danger">Clear Scoreboard</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <br>
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 15%; text-align: center;">Position</th>
+                <th style="width: 50%; text-align: center;">Username</th>
+                <th style="width: 35%; text-align: center;">Wins</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in scoreboard %}
+                <tr>
+                    <td style="text-align: center;">
+                        {% set pos = loop.index %}
+                        {% if pos == 1 %}
+                            1st
+                        {% elif pos == 2 %}
+                            2nd
+                        {% elif pos == 3 %}
+                            3rd
+                        {% else %}
+                            {{ pos }}th
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {% if pos == 1 %}
+                            &#x1F947; <!-- Gold medal Unicode character -->
+                        {% elif pos == 2 %}
+                            &#x1F948; <!-- Silver medal Unicode character -->
+                        {% elif pos == 3 %}
+                            &#x1F949; <!-- Bronze medal Unicode character -->
+                        {% else %}
+                            {{ pos }}th
+                        {% endif %}
+                        {{ entry.user.username }}
+                        {% if pos == 1 %}
+                            &#x1F947; <!-- Gold medal Unicode character -->
+                        {% elif pos == 2 %}
+                            &#x1F948; <!-- Silver medal Unicode character -->
+                        {% elif pos == 3 %}
+                            &#x1F949; <!-- Bronze medal Unicode character -->
+                        {% else %}
+                            {{ pos }}th
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">{{ entry.wins }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
