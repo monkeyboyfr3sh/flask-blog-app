@@ -202,7 +202,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-        alert('Game Over!');
+    
+        // Delay the game over alert by 500ms to allow the bombs to be revealed first
+        setTimeout(() => {
+            alert('Game Over!');
+        }, 1);
     }
 
     resetButton.addEventListener('click', initGame);

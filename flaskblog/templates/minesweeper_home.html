@@ -5,7 +5,9 @@
     <div id="game-info">
       <div id="mines-count" class="seven-segment">020</div>
       <div id="reset-button">
-          <button>🥹</button> <!-- You can style this to look like the original smiley -->
+        <div id="reset-button">
+          <img src="{{ url_for('static', filename='cry.png') }}" alt="Reset Button" id="reset-img">
+        </div>
       </div>
       <div id="timer" class="seven-segment">000</div>
     </div>
