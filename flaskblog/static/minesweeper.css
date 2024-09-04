@@ -86,9 +86,9 @@
 }
 
 .seven-segment {
-    font-family: 'Digital-7', sans-serif;
+    font-family: 'Seven Segment', sans-serif;
     font-size: 40px;
-    color: red;
+    color: rgb(25, 0, 255);
     background-color: black;
     border: 2px solid #333;
     padding: 5px 10px;
@@ -127,8 +127,4 @@
 
 #reset-img:hover {
     background-color: #e0e0e0;
-}
-
-.seven-segment {
-    font-family: 'Digital-7', sans-serif;
 }
