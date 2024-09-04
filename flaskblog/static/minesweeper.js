@@ -182,8 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function startTimer() {
         interval = setInterval(() => {
             timer++;
-            timerElement.textContent = timer;
+            timerElement.textContent = String(timer).padStart(3, '0'); // Ensure it's always 3 digits
         }, 1000);
+    }
+    
+    function updateMinesLeft() {
+        minesCountElement.textContent = String(minesLeft).padStart(3, '0'); // Ensure it's always 3 digits
     }
 
     function gameOver() {

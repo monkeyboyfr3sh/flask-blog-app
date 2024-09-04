@@ -3,9 +3,11 @@
   <h1>Minesweeper Game</h1>
   <div id="minesweeper-game" class="content-section">
     <div id="game-info">
-      <p>Mines left: <span id="mines-count">0</span></p>
-      <p>Time: <span id="timer">0</span></p>
-      <button id="reset-button" class="btn btn-outline-info">Reset Game</button>
+      <div id="mines-count" class="seven-segment">020</div>
+      <div id="reset-button">
+          <button>🥹</button> <!-- You can style this to look like the original smiley -->
+      </div>
+      <div id="timer" class="seven-segment">000</div>
     </div>
     <div id="minesweeper-grid"></div>
   </div>

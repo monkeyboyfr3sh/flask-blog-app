@@ -18,7 +18,7 @@
 .cell {
     width: 30px;
     height: 30px;
-    background-color: #e7e7e7;
+    background-color: #a9a9a9; /* Darker gray for unrevealed cells */
     border: 1px solid #ccc;
     text-align: center;
     line-height: 30px;
@@ -26,13 +26,13 @@
     cursor: pointer;
 }
 
-.cell.mine {
-    background-color: #f44336;
+.cell.revealed {
+    background-color: #ddd; /* Lighter gray for revealed cells */
+    cursor: default;
 }
 
-.cell.revealed {
-    background-color: #ddd;
-    cursor: default;
+.cell.mine {
+    background-color: #f44336; /* Red color for mines */
 }
 
 .cell.flagged {
@@ -52,11 +52,6 @@
 .cell.mine i {
     color: #f44336; /* Red color for bomb */
 }
-
-.cell.flagged i {
-    color: #ffeb3b; /* Yellow color for flag */
-}
-
 
 .cell.number-1 {
     color: blue;
@@ -88,4 +83,40 @@
 
 .cell.number-8 {
     color: gray;
+}
+
+.seven-segment {
+    font-family: 'Digital-7', sans-serif; /* You can use a digital font or custom CSS */
+    font-size: 36px; /* Size of the digits */
+    color: red; /* Color of the digits */
+    background-color: black; /* Background of the display */
+    border: 2px solid #333; /* Border to give a sunken effect */
+    padding: 5px 10px;
+    width: 80px; /* Width to accommodate 3 digits */
+    text-align: center;
+    border-radius: 4px; /* Rounded corners to match the original look */
+}
+
+#game-info {
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #ddd; /* Optional: background color for the game info area */
+    border: 2px solid #aaa;
+    border-radius: 5px;
+}
+
+#reset-button button {
+    font-size: 24px;
+    background-color: #f7f7f7;
+    border: 2px solid #aaa;
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.seven-segment {
+    font-family: 'Digital-7', sans-serif;
 }
