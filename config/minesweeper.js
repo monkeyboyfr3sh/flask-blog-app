@@ -30,22 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
         initGame();
     });
 
-    const GRAVITY = 0.02;  // Gravity to accelerate downward movement
-    const FRICTION = 0.7;  // Horizontal movement damping
+    const GRAVITY = 0.005;
+    const FRICTION = 0.98;
+    let confettiParticleRate = 8;  // How many particles to spawn per frame
     
     function startConfetti() {
         isConfettiActive = true;
-        for (let i = 0; i < 300; i++) {
-            confettiParticles.push({
-                x: Math.random() * confettiCanvas.width,
-                y: Math.random() * confettiCanvas.height,  // Start at random positions
-                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                size: Math.random() * 5 + 5,
-                speedX: Math.random() * 5 - 2.5,
-                speedY: Math.random() * 5 + 2,
-                velocityY: 0,  // Vertical velocity
-            });
-        }
         requestAnimationFrame(renderConfetti);
     }
     
@@ -54,7 +44,38 @@ document.addEventListener('DOMContentLoaded', () => {
     
         confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     
-        confettiParticles.forEach((particle) => {
+        // Spawn new particles each frame
+        for (let i = 0; i < confettiParticleRate; i++) {
+            const centerX = confettiCanvas.width / 2;
+            // Randomly select either the top-left, top-right, or top-center
+            const spawnPoint = Math.floor(Math.random() * 3);
+            let x, y = 0;  // All particles start from the top of the canvas
+    
+            if (spawnPoint === 0) {
+                x = 0;  // Top-left corner
+            } else if (spawnPoint === 1) {
+                x = confettiCanvas.width;  // Top-right corner
+            } else {
+                x = centerX;  // Top-center
+            }
+    
+            // Calculate random speed and direction
+            const angle = Math.atan2(confettiCanvas.height - y, (Math.random() * confettiCanvas.width) - x);
+            const speed = Math.random() * 5 + 2;  // Random speed
+    
+            confettiParticles.push({
+                x: x,
+                y: y,
+                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                size: Math.random() * 3 + 5,
+                speedX: Math.cos(angle) * speed,
+                speedY: Math.sin(angle) * speed,
+                velocityY: 0,
+            });
+        }
+    
+        // Update existing particles
+        confettiParticles.forEach((particle, index) => {
             // Apply gravity and friction
             particle.velocityY += GRAVITY;
             particle.speedY += particle.velocityY;
@@ -64,12 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
             particle.x += particle.speedX;
             particle.y += particle.speedY;
     
-            // Recycle particle slightly above the canvas to maintain smooth flow
+            // Recycle particle if it goes below the canvas (vertical only)
             if (particle.y > confettiCanvas.height) {
-                particle.y = -particle.size - Math.random() * 10;  // Randomly place slightly above the canvas
-                particle.x = Math.random() * confettiCanvas.width;
-                particle.speedY = Math.random() * 5 + 2;
-                particle.velocityY = 0;  // Reset velocity
+                confettiParticles.splice(index, 1);  // Remove particle once it goes off the screen
             }
     
             // Draw particle
@@ -87,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         confettiParticles = [];
         confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     }
-
+    
     function updateDifficulty() {
         const difficulty = difficultySelect.value;
         if (difficulty === 'easy') {
@@ -308,5 +326,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateDifficulty();
     initGame();
-    startConfetti();
 });
