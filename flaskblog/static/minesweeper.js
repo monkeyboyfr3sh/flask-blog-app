@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confettiContext = confettiCanvas.getContext('2d');
     let confettiParticles = [];
     let isConfettiActive = false;
+    let firstClick = true;
 
     window.addEventListener('resize', () => {
         confettiCanvas.width = window.innerWidth;
@@ -132,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 30px)`;
         gridElement.style.gridTemplateRows = `repeat(${gridSize}, 30px)`;
 
+        firstClick = true;
+
         for (let i = 0; i < gridSize; i++) {
             const row = [];
             for (let j = 0; j < gridSize; j++) {
@@ -216,9 +219,17 @@ document.addEventListener('DOMContentLoaded', () => {
         flagCell(row, col);
         checkWinCondition(); // Check for win condition after a flag is placed
     }
-    
+
     function revealCell(row, col) {
         if (grid[row][col].isRevealed || grid[row][col].isFlagged) return;
+    
+        // If it's the first click and the cell is a mine, move the mine to a new position
+        if (firstClick && grid[row][col].isMine) {
+            moveMine(row, col);
+        }
+    
+        firstClick = false;  // Once the first cell is revealed, this becomes false
+    
         grid[row][col].isRevealed = true;
         const cellElement = getCellElement(row, col);
     
@@ -235,6 +246,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 revealAdjacentCells(row, col);
             }
         }
+    }
+
+    function moveMine(row, col) {
+        // Find a random empty cell to move the mine to
+        let newRow, newCol;
+        do {
+            newRow = Math.floor(Math.random() * gridSize);
+            newCol = Math.floor(Math.random() * gridSize);
+        } while (grid[newRow][newCol].isMine || (newRow === row && newCol === col));
+    
+        // Move the mine
+        grid[row][col].isMine = false;
+        grid[newRow][newCol].isMine = true;
+    
+        // Recalculate adjacent mines after moving the mine
+        calculateAdjacentMines();
     }
 
     function revealAdjacentCells(row, col) {
