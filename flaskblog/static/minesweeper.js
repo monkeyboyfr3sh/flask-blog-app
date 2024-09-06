@@ -30,43 +30,58 @@ document.addEventListener('DOMContentLoaded', () => {
         initGame();
     });
 
+    const GRAVITY = 0.02;  // Gravity to accelerate downward movement
+    const FRICTION = 0.7;  // Horizontal movement damping
+    
     function startConfetti() {
         isConfettiActive = true;
         for (let i = 0; i < 300; i++) {
             confettiParticles.push({
                 x: Math.random() * confettiCanvas.width,
-                y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                y: Math.random() * confettiCanvas.height,  // Start at random positions
                 color: `hsl(${Math.random() * 360}, 100%, 50%)`,
                 size: Math.random() * 5 + 5,
                 speedX: Math.random() * 5 - 2.5,
                 speedY: Math.random() * 5 + 2,
+                velocityY: 0,  // Vertical velocity
             });
         }
         requestAnimationFrame(renderConfetti);
     }
-
+    
     function renderConfetti() {
         if (!isConfettiActive) return;
-
+    
         confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-        confettiParticles.forEach((particle, index) => {
+    
+        confettiParticles.forEach((particle) => {
+            // Apply gravity and friction
+            particle.velocityY += GRAVITY;
+            particle.speedY += particle.velocityY;
+            particle.speedX *= FRICTION;
+    
+            // Update particle position
             particle.x += particle.speedX;
             particle.y += particle.speedY;
-
+    
+            // Recycle particle slightly above the canvas to maintain smooth flow
             if (particle.y > confettiCanvas.height) {
-                particle.y = 0 - particle.size;
+                particle.y = -particle.size - Math.random() * 10;  // Randomly place slightly above the canvas
                 particle.x = Math.random() * confettiCanvas.width;
+                particle.speedY = Math.random() * 5 + 2;
+                particle.velocityY = 0;  // Reset velocity
             }
-
+    
+            // Draw particle
             confettiContext.fillStyle = particle.color;
             confettiContext.beginPath();
             confettiContext.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
             confettiContext.fill();
         });
-
+    
         requestAnimationFrame(renderConfetti);
     }
-
+    
     function stopConfetti() {
         isConfettiActive = false;
         confettiParticles = [];
@@ -293,4 +308,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateDifficulty();
     initGame();
+    startConfetti();
 });
