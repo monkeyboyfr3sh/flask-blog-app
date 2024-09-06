@@ -128,3 +128,13 @@
 #reset-img:hover {
     background-color: #e0e0e0;
 }
+
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* So the user can still interact with the game */
+    z-index: 1000; /* Ensure it's drawn above everything else */
+}
