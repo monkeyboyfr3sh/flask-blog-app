@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>NES Emulator</h1>
+    <canvas id="nes-canvas" width="256" height="240"></canvas>
+
+    <!-- Emulator controls -->
+    <div id="controls">
+        <button id="start">Start</button>
+        <button id="select">Select</button>
+        <button id="a">A</button>
+        <button id="b">B</button>
+        <button id="up">Up</button>
+        <button id="down">Down</button>
+        <button id="left">Left</button>
+        <button id="right">Right</button>
+    </div>
+
+    <input type="file" id="rom-loader" />
+
+    <script src="{{ url_for('static', filename='js/jsnes.min.js') }}"></script>
+
+    <script>
+        // Initialize JSNES emulator
+        const nes = new jsnes.NES({
+            onFrame: function(framebuffer_24) {
+                const canvas = document.getElementById('nes-canvas');
+                const context = canvas.getContext('2d');
+                const imageData = context.createImageData(256, 240);
+                
+                for (let i = 0; i < framebuffer_24.length; i++) {
+                    imageData.data[i * 4 + 0] = (framebuffer_24[i] >> 16) & 0xFF;  // Red
+                    imageData.data[i * 4 + 1] = (framebuffer_24[i] >> 8) & 0xFF;   // Green
+                    imageData.data[i * 4 + 2] = framebuffer_24[i] & 0xFF;          // Blue
+                    imageData.data[i * 4 + 3] = 0xFF;                              // Alpha
+                }
+                context.putImageData(imageData, 0, 0);
+            },
+            onAudioSample: function(left, right) {
+                // Handle audio output if needed
+            }
+        });
+
+        // Load ROM file
+        document.getElementById('rom-loader').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const arrayBuffer = reader.result;
+                    nes.loadROM(new Uint8Array(arrayBuffer));
+                    startEmulator();
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        // Controls
+        document.getElementById('start').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_START));
+        document.getElementById('select').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_SELECT));
+        document.getElementById('a').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_A));
+        document.getElementById('b').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_B));
+        document.getElementById('up').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_UP));
+        document.getElementById('down').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_DOWN));
+        document.getElementById('left').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_LEFT));
+        document.getElementById('right').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_RIGHT));
+
+        function startEmulator() {
+            function frame() {
+                nes.frame();
+                requestAnimationFrame(frame);
+            }
+            frame();
+        }
+    </script>
+{% endblock %}

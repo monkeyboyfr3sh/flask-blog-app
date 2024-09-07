@@ -21,7 +21,7 @@ COPY . .
 # Install JSNES using npm
 RUN npm install jsnes
 
-# Copy the JSNES library into the Flask static folder
+# Copy the JSNES library into the static folder of Flask
 RUN mkdir -p /code/flaskblog/static/js
 RUN cp node_modules/jsnes/dist/jsnes.min.js /code/flaskblog/static/js/
 
