@@ -1,10 +1,8 @@
-from flask import render_template, request, Blueprint
-
+from flask import render_template, request, Blueprint, send_from_directory, current_app
 from flaskblog.models import Post
 from sqlalchemy.exc import OperationalError
 
 main = Blueprint("main", __name__)
-
 
 @main.route("/")
 @main.route("/home")
@@ -18,7 +16,11 @@ def home():
         posts = None
     return render_template("home.html", posts=posts)
 
-
 @main.route("/about")
 def about():
     return render_template("about.html", title="About")
+
+# Add this route to serve the favicon
+@main.route('/favicon.ico')
+def favicon():
+    return send_from_directory(current_app.static_folder, 'favicon.ico')
