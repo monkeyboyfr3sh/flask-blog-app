@@ -22,17 +22,25 @@
         <button id="down">Down</button>
         <button id="left">Left</button>
         <button id="right">Right</button>
-        <button id="map-keys">Map Keys</button>
+    </div>
+
+    <!-- Full Screen button -->
+    <button id="fullscreen">Full Screen</button>
+
+    <!-- Key mapping guide -->
+    <div id="key-guide">
+        <p>Key Mappings:</p>
+        <ul>
+            <li>Start: Enter</li>
+            <li>Select: C</li>
+            <li>A: X</li>
+            <li>B: Z</li>
+            <li>Directional Pad: Arrow keys</li>
+        </ul>
     </div>
 
     <!-- ROM loader -->
     <input type="file" id="rom-loader" accept=".nes" />
-
-    <!-- Key mapping modal -->
-    <div id="key-mapping-modal" style="display:none;">
-        <h2>Press a key to map to the selected control</h2>
-        <p>Currently mapping: <span id="current-mapping"></span></p>
-    </div>
 
     <script>
         const nes = new jsnes.NES({
@@ -51,19 +59,32 @@
             }
         });
 
-        const defaultMapping = {
-            'start': 'Enter',
-            'select': 'Shift',
-            'a': 'Z',
-            'b': 'X',
-            'up': 'ArrowUp',
-            'down': 'ArrowDown',
-            'left': 'ArrowLeft',
-            'right': 'ArrowRight'
+        // Hardcoded key mapping
+        const controlMapping = {
+            'Enter': jsnes.Controller.BUTTON_START,          
+            'c': jsnes.Controller.BUTTON_SELECT,  
+            'x': jsnes.Controller.BUTTON_A,                  
+            'z': jsnes.Controller.BUTTON_B,                  
+            'ArrowUp': jsnes.Controller.BUTTON_UP,           
+            'ArrowDown': jsnes.Controller.BUTTON_DOWN,       
+            'ArrowLeft': jsnes.Controller.BUTTON_LEFT,       
+            'ArrowRight': jsnes.Controller.BUTTON_RIGHT      
         };
 
-        let userMapping = { ...defaultMapping };
-        let currentMappingButton = null;
+        // Bind controls to keydown and keyup events
+        document.addEventListener('keydown', (event) => {
+            const button = controlMapping[event.key];
+            if (button !== undefined) {
+                nes.buttonDown(1, button);
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            const button = controlMapping[event.key];
+            if (button !== undefined) {
+                nes.buttonUp(1, button);
+            }
+        });
 
         // Load ROM file
         document.getElementById('rom-loader').addEventListener('change', function(event) {
@@ -71,6 +92,7 @@
             if (file) {
                 const reader = new FileReader();
 
+                // Progress tracking
                 document.getElementById('loading-container').style.display = 'block';
                 reader.onprogress = function(event) {
                     if (event.lengthComputable) {
@@ -80,11 +102,12 @@
                     }
                 };
 
+                // Load the ROM as binary string
                 reader.onload = function() {
                     try {
                         const binaryString = reader.result;
                         nes.loadROM(binaryString);
-                        startEmulator();
+                        startEmulator();  // Start emulator once ROM is loaded
                         document.getElementById('loading-container').style.display = 'none';
                     } catch (error) {
                         console.error("Error loading ROM:", error);
@@ -101,62 +124,28 @@
             }
         });
 
-        // Custom key mapping modal
-        document.getElementById('map-keys').addEventListener('click', () => {
-            document.getElementById('key-mapping-modal').style.display = 'block';
-        });
-
-        const controlMapping = {
-            'start': jsnes.Controller.BUTTON_START,
-            'select': jsnes.Controller.BUTTON_SELECT,
-            'a': jsnes.Controller.BUTTON_A,
-            'b': jsnes.Controller.BUTTON_B,
-            'up': jsnes.Controller.BUTTON_UP,
-            'down': jsnes.Controller.BUTTON_DOWN,
-            'left': jsnes.Controller.BUTTON_LEFT,
-            'right': jsnes.Controller.BUTTON_RIGHT
-        };
-
-        // Bind controls with custom mapping
-        document.addEventListener('keydown', (event) => {
-            const mappedButton = Object.keys(userMapping).find(key => userMapping[key] === event.key);
-            if (mappedButton && controlMapping[mappedButton]) {
-                nes.buttonDown(1, controlMapping[mappedButton]);
-            }
-        });
-
-        document.addEventListener('keyup', (event) => {
-            const mappedButton = Object.keys(userMapping).find(key => userMapping[key] === event.key);
-            if (mappedButton && controlMapping[mappedButton]) {
-                nes.buttonUp(1, controlMapping[mappedButton]);
-            }
-        });
-
-        // Handle button remapping
-        for (const buttonId in controlMapping) {
-            document.getElementById(buttonId).addEventListener('click', () => {
-                currentMappingButton = buttonId;
-                document.getElementById('current-mapping').textContent = buttonId;
-                document.getElementById('key-mapping-modal').style.display = 'block';
-            });
-        }
-
-        document.addEventListener('keydown', function(event) {
-            if (currentMappingButton) {
-                userMapping[currentMappingButton] = event.key;
-                document.getElementById('key-mapping-modal').style.display = 'none';
-                currentMappingButton = null;
-            }
-        });
-
         // Emulator loop
         function startEmulator() {
             function frame() {
                 nes.frame();  // Render the next frame of the game
                 requestAnimationFrame(frame);  // Continue rendering
             }
-            frame();  // Start the rendering loop
+            frame();  // Start the rendering loop immediately after ROM is loaded
         }
+
+        // Full screen mode
+        document.getElementById('fullscreen').addEventListener('click', function() {
+            const canvas = document.getElementById('nes-canvas');
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.mozRequestFullScreen) { 
+                canvas.mozRequestFullScreen();
+            } else if (canvas.webkitRequestFullscreen) { 
+                canvas.webkitRequestFullscreen();
+            } else if (canvas.msRequestFullscreen) { 
+                canvas.msRequestFullscreen();
+            }
+        });
 
         // Resize canvas dynamically
         window.addEventListener('resize', () => {
@@ -167,6 +156,7 @@
             canvas.height = Math.floor(240 * scale);
         });
 
+        // Trigger initial resize
         window.dispatchEvent(new Event('resize'));
     </script>
 {% endblock %}
