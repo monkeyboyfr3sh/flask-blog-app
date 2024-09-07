@@ -22,10 +22,17 @@
         <button id="down">Down</button>
         <button id="left">Left</button>
         <button id="right">Right</button>
+        <button id="map-keys">Map Keys</button>
     </div>
 
     <!-- ROM loader -->
     <input type="file" id="rom-loader" accept=".nes" />
+
+    <!-- Key mapping modal -->
+    <div id="key-mapping-modal" style="display:none;">
+        <h2>Press a key to map to the selected control</h2>
+        <p>Currently mapping: <span id="current-mapping"></span></p>
+    </div>
 
     <script>
         const nes = new jsnes.NES({
@@ -44,13 +51,26 @@
             }
         });
 
+        const defaultMapping = {
+            'start': 'Enter',
+            'select': 'Shift',
+            'a': 'Z',
+            'b': 'X',
+            'up': 'ArrowUp',
+            'down': 'ArrowDown',
+            'left': 'ArrowLeft',
+            'right': 'ArrowRight'
+        };
+
+        let userMapping = { ...defaultMapping };
+        let currentMappingButton = null;
+
         // Load ROM file
         document.getElementById('rom-loader').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
 
-                // Progress tracking
                 document.getElementById('loading-container').style.display = 'block';
                 reader.onprogress = function(event) {
                     if (event.lengthComputable) {
@@ -60,12 +80,11 @@
                     }
                 };
 
-                // Load the ROM as binary string
                 reader.onload = function() {
                     try {
                         const binaryString = reader.result;
                         nes.loadROM(binaryString);
-                        startEmulator();  // Start emulator once ROM is loaded
+                        startEmulator();
                         document.getElementById('loading-container').style.display = 'none';
                     } catch (error) {
                         console.error("Error loading ROM:", error);
@@ -82,7 +101,11 @@
             }
         });
 
-        // Controls
+        // Custom key mapping modal
+        document.getElementById('map-keys').addEventListener('click', () => {
+            document.getElementById('key-mapping-modal').style.display = 'block';
+        });
+
         const controlMapping = {
             'start': jsnes.Controller.BUTTON_START,
             'select': jsnes.Controller.BUTTON_SELECT,
@@ -94,11 +117,37 @@
             'right': jsnes.Controller.BUTTON_RIGHT
         };
 
-        for (const [buttonId, buttonAction] of Object.entries(controlMapping)) {
-            const button = document.getElementById(buttonId);
-            button.addEventListener('mousedown', () => nes.buttonDown(1, buttonAction));
-            button.addEventListener('mouseup', () => nes.buttonUp(1, buttonAction));
+        // Bind controls with custom mapping
+        document.addEventListener('keydown', (event) => {
+            const mappedButton = Object.keys(userMapping).find(key => userMapping[key] === event.key);
+            if (mappedButton && controlMapping[mappedButton]) {
+                nes.buttonDown(1, controlMapping[mappedButton]);
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            const mappedButton = Object.keys(userMapping).find(key => userMapping[key] === event.key);
+            if (mappedButton && controlMapping[mappedButton]) {
+                nes.buttonUp(1, controlMapping[mappedButton]);
+            }
+        });
+
+        // Handle button remapping
+        for (const buttonId in controlMapping) {
+            document.getElementById(buttonId).addEventListener('click', () => {
+                currentMappingButton = buttonId;
+                document.getElementById('current-mapping').textContent = buttonId;
+                document.getElementById('key-mapping-modal').style.display = 'block';
+            });
         }
+
+        document.addEventListener('keydown', function(event) {
+            if (currentMappingButton) {
+                userMapping[currentMappingButton] = event.key;
+                document.getElementById('key-mapping-modal').style.display = 'none';
+                currentMappingButton = null;
+            }
+        });
 
         // Emulator loop
         function startEmulator() {
@@ -118,7 +167,6 @@
             canvas.height = Math.floor(240 * scale);
         });
 
-        // Trigger initial resize
         window.dispatchEvent(new Event('resize'));
     </script>
 {% endblock %}
