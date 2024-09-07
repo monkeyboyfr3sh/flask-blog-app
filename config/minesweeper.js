@@ -1,185 +1,226 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Existing variables
-    let gridSize = 10;
-    let mineCount = 20;
+    const confettiSettings = {
+        gravity: 0.005,
+        friction: 0.98,
+        particleRate: 8,
+        colors: () => `hsl(${Math.random() * 360}, 100%, 50%)`,
+        sizeRange: [5, 8],
+        speedRange: [2, 7]
+    };
+
+    const gridSettings = {
+        size: 10,
+        mineCount: 20,
+        minesLeft: 20
+    };
+
     let grid = [];
-    let minesLeft = mineCount;
     let timer = 0;
     let interval;
+    let confettiParticles = [];
+    let isConfettiActive = false;
+    let firstClick = true;
 
     const gridElement = document.getElementById('minesweeper-grid');
     const minesCountElement = document.getElementById('mines-count');
     const timerElement = document.getElementById('timer');
     const resetButton = document.getElementById('reset-button');
     const difficultySelect = document.getElementById('difficulty');
-
-    // Confetti setup
     const confettiCanvas = document.getElementById('confetti-canvas');
     const confettiContext = confettiCanvas.getContext('2d');
-    let confettiParticles = [];
-    let isConfettiActive = false;
-    let firstClick = true;
 
-    window.addEventListener('resize', () => {
-        confettiCanvas.width = window.innerWidth;
-        confettiCanvas.height = window.innerHeight;
-    });
-    window.dispatchEvent(new Event('resize'));
+    window.addEventListener('resize', resizeConfettiCanvas);
+    resizeConfettiCanvas();
 
     difficultySelect.addEventListener('change', () => {
         updateDifficulty();
         initGame();
     });
 
-    const GRAVITY = 0.005;
-    const FRICTION = 0.98;
-    let confettiParticleRate = 8;  // How many particles to spawn per frame
-    
-    function startConfetti() {
-        isConfettiActive = true;
-        requestAnimationFrame(renderConfetti);
+    resetButton.addEventListener('click', () => {
+        stopConfetti();
+        initGame();
+    });
+
+    function resizeConfettiCanvas() {
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
     }
-    
-    function renderConfetti() {
-        if (!isConfettiActive) return;
-    
-        confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    
-        // Spawn new particles each frame
-        for (let i = 0; i < confettiParticleRate; i++) {
-            const centerX = confettiCanvas.width / 2;
-            // Randomly select either the top-left, top-right, or top-center
-            const spawnPoint = Math.floor(Math.random() * 3);
-            let x, y = 0;  // All particles start from the top of the canvas
-    
-            if (spawnPoint === 0) {
-                x = 0;  // Top-left corner
-            } else if (spawnPoint === 1) {
-                x = confettiCanvas.width;  // Top-right corner
-            } else {
-                x = centerX;  // Top-center
-            }
-    
-            // Calculate random speed and direction
-            const angle = Math.atan2(confettiCanvas.height - y, (Math.random() * confettiCanvas.width) - x);
-            const speed = Math.random() * 5 + 2;  // Random speed
-    
-            confettiParticles.push({
-                x: x,
-                y: y,
-                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                size: Math.random() * 3 + 5,
-                speedX: Math.cos(angle) * speed,
-                speedY: Math.sin(angle) * speed,
-                velocityY: 0,
-            });
-        }
-    
-        // Update existing particles
-        confettiParticles.forEach((particle, index) => {
-            // Apply gravity and friction
-            particle.velocityY += GRAVITY;
-            particle.speedY += particle.velocityY;
-            particle.speedX *= FRICTION;
-    
-            // Update particle position
-            particle.x += particle.speedX;
-            particle.y += particle.speedY;
-    
-            // Recycle particle if it goes below the canvas (vertical only)
-            if (particle.y > confettiCanvas.height) {
-                confettiParticles.splice(index, 1);  // Remove particle once it goes off the screen
-            }
-    
-            // Draw particle
-            confettiContext.fillStyle = particle.color;
-            confettiContext.beginPath();
-            confettiContext.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            confettiContext.fill();
-        });
-    
-        requestAnimationFrame(renderConfetti);
-    }
-    
-    function stopConfetti() {
-        isConfettiActive = false;
-        confettiParticles = [];
-        confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    }
-    
+
     function updateDifficulty() {
         const difficulty = difficultySelect.value;
-        if (difficulty === 'easy') {
-            gridSize = 8;
-            mineCount = 10;
-        } else if (difficulty === 'medium') {
-            gridSize = 10;
-            mineCount = 20;
-        } else if (difficulty === 'hard') {
-            gridSize = 14;
-            mineCount = 40;
-        }
+        const settings = {
+            easy: { size: 8, mineCount: 10 },
+            medium: { size: 10, mineCount: 20 },
+            hard: { size: 14, mineCount: 40 }
+        };
+        gridSettings.size = settings[difficulty].size;
+        gridSettings.mineCount = settings[difficulty].mineCount;
+        gridSettings.minesLeft = gridSettings.mineCount;
     }
 
     function initGame() {
         clearInterval(interval);
         timer = 0;
-        minesLeft = mineCount;
-        minesCountElement.textContent = String(minesLeft).padStart(3, '0');
-        timerElement.textContent = String(timer).padStart(3, '0');
-
         grid = [];
+        minesLeft = gridSettings.mineCount;
+        minesCountElement.textContent = formatNumber(minesLeft);
+        timerElement.textContent = formatNumber(timer);
         gridElement.innerHTML = '';
-        gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 30px)`;
-        gridElement.style.gridTemplateRows = `repeat(${gridSize}, 30px)`;
-
         firstClick = true;
 
-        for (let i = 0; i < gridSize; i++) {
-            const row = [];
-            for (let j = 0; j < gridSize; j++) {
-                const cell = {
-                    isMine: false,
-                    isRevealed: false,
-                    isFlagged: false,
-                    adjacentMines: 0
-                };
-                row.push(cell);
-                const cellElement = document.createElement('div');
-                cellElement.className = 'cell';
-                cellElement.dataset.row = i;
-                cellElement.dataset.col = j;
-                cellElement.addEventListener('click', handleClick);
-                cellElement.addEventListener('contextmenu', handleRightClick);
-                gridElement.appendChild(cellElement);
-            }
-            grid.push(row);
-        }
-
+        setupGrid();
         placeMines();
         startTimer();
     }
 
+    function setupGrid() {
+        gridElement.style.gridTemplateColumns = `repeat(${gridSettings.size}, 30px)`;
+        gridElement.style.gridTemplateRows = `repeat(${gridSettings.size}, 30px)`;
+
+        for (let row = 0; row < gridSettings.size; row++) {
+            const rowArray = [];
+            for (let col = 0; col < gridSettings.size; col++) {
+                const cell = createCell(row, col);
+                rowArray.push(cell);
+                gridElement.appendChild(cell.element);
+            }
+            grid.push(rowArray);
+        }
+    }
+
+    function createCell(row, col) {
+        const cell = {
+            isMine: false,
+            isRevealed: false,
+            isFlagged: false,
+            adjacentMines: 0,
+            element: createCellElement(row, col)
+        };
+        return cell;
+    }
+
+    function createCellElement(row, col) {
+        const cellElement = document.createElement('div');
+        cellElement.className = 'cell';
+        cellElement.dataset.row = row;
+        cellElement.dataset.col = col;
+        cellElement.addEventListener('click', handleClick);
+        cellElement.addEventListener('contextmenu', handleRightClick);
+        return cellElement;
+    }
+
+    function handleClick(event) {
+        const { row, col } = getCellCoords(event.target);
+        revealCell(row, col);
+        checkWinCondition();
+    }
+
+    function handleRightClick(event) {
+        event.preventDefault();
+        const { row, col } = getCellCoords(event.target);
+        flagCell(row, col);
+        checkWinCondition();
+    }
+
+    function getCellCoords(target) {
+        return {
+            row: parseInt(target.dataset.row),
+            col: parseInt(target.dataset.col)
+        };
+    }
+
+    function revealCell(row, col) {
+        const cell = grid[row][col];
+        if (cell.isRevealed || cell.isFlagged) return;
+
+        if (firstClick && cell.isMine) {
+            moveMine(row, col);
+        }
+        firstClick = false;
+
+        cell.isRevealed = true;
+        updateCellDisplay(cell, row, col);
+
+        if (cell.isMine) {
+            gameOver();
+        } else if (cell.adjacentMines === 0) {
+            revealAdjacentCells(row, col);
+        }
+    }
+
+    function flagCell(row, col) {
+        const cell = grid[row][col];
+        if (cell.isRevealed) return;
+
+        cell.isFlagged = !cell.isFlagged;
+        cell.element.classList.toggle('flagged');
+        cell.element.innerHTML = cell.isFlagged ? '<i class="fas fa-flag"></i>' : '';
+
+        minesLeft += cell.isFlagged ? -1 : 1;
+        minesCountElement.textContent = minesLeft;
+    }
+
+    function updateCellDisplay(cell, row, col) {
+        const cellElement = cell.element;
+        if (cell.isMine) {
+            cellElement.classList.add('mine');
+            cellElement.innerHTML = '<i class="fas fa-bomb"></i>';
+        } else {
+            cellElement.classList.add('revealed');
+            if (cell.adjacentMines > 0) {
+                cellElement.textContent = cell.adjacentMines;
+                cellElement.classList.add('number-' + cell.adjacentMines);
+            }
+        }
+    }
+
+    function moveMine(row, col) {
+        let newRow, newCol;
+        do {
+            newRow = Math.floor(Math.random() * gridSettings.size);
+            newCol = Math.floor(Math.random() * gridSettings.size);
+        } while (grid[newRow][newCol].isMine || (newRow === row && newCol === col));
+
+        grid[row][col].isMine = false;
+        grid[newRow][newCol].isMine = true;
+        calculateAdjacentMines();
+    }
+
+    function revealAdjacentCells(row, col) {
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                const newRow = row + i;
+                const newCol = col + j;
+                if (isInBounds(newRow, newCol)) {
+                    revealCell(newRow, newCol);
+                }
+            }
+        }
+    }
+
+    function isInBounds(row, col) {
+        return row >= 0 && row < gridSettings.size && col >= 0 && col < gridSettings.size;
+    }
+
     function placeMines() {
         let placedMines = 0;
-        while (placedMines < mineCount) {
-            const row = Math.floor(Math.random() * gridSize);
-            const col = Math.floor(Math.random() * gridSize);
-
+        while (placedMines < gridSettings.mineCount) {
+            const row = Math.floor(Math.random() * gridSettings.size);
+            const col = Math.floor(Math.random() * gridSettings.size);
             if (!grid[row][col].isMine) {
                 grid[row][col].isMine = true;
                 placedMines++;
             }
         }
-
         calculateAdjacentMines();
     }
 
     function calculateAdjacentMines() {
-        for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++) {
-                if (!grid[i][j].isMine) {
-                    grid[i][j].adjacentMines = countAdjacentMines(i, j);
+        for (let row = 0; row < gridSettings.size; row++) {
+            for (let col = 0; col < gridSettings.size; col++) {
+                if (!grid[row][col].isMine) {
+                    grid[row][col].adjacentMines = countAdjacentMines(row, col);
                 }
             }
         }
@@ -191,166 +232,107 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let j = -1; j <= 1; j++) {
                 const newRow = row + i;
                 const newCol = col + j;
-                if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize) {
-                    if (grid[newRow][newCol].isMine) {
-                        count++;
-                    }
+                if (isInBounds(newRow, newCol) && grid[newRow][newCol].isMine) {
+                    count++;
                 }
             }
         }
         return count;
     }
 
-    function handleClick(event) {
-        const row = parseInt(event.target.dataset.row);
-        const col = parseInt(event.target.dataset.col);
-        revealCell(row, col);
-        checkWinCondition(); // Check for win condition after a cell is revealed
-    }
-
-    function handleRightClick(event) {
-        event.preventDefault(); 
-        let cellElement = event.target;
-        if (!cellElement.classList.contains('cell')) {
-            cellElement = cellElement.closest('.cell');
-        }
-        const row = parseInt(cellElement.dataset.row);
-        const col = parseInt(cellElement.dataset.col);
-        flagCell(row, col);
-        checkWinCondition(); // Check for win condition after a flag is placed
-    }
-
-    function revealCell(row, col) {
-        if (grid[row][col].isRevealed || grid[row][col].isFlagged) return;
-    
-        // If it's the first click and the cell is a mine, move the mine to a new position
-        if (firstClick && grid[row][col].isMine) {
-            moveMine(row, col);
-        }
-    
-        firstClick = false;  // Once the first cell is revealed, this becomes false
-    
-        grid[row][col].isRevealed = true;
-        const cellElement = getCellElement(row, col);
-    
-        if (grid[row][col].isMine) {
-            cellElement.classList.add('mine');
-            cellElement.innerHTML = '<i class="fas fa-bomb"></i>';
-            gameOver();
-        } else {
-            cellElement.classList.add('revealed');
-            if (grid[row][col].adjacentMines > 0) {
-                cellElement.textContent = grid[row][col].adjacentMines;
-                cellElement.classList.add('number-' + grid[row][col].adjacentMines);
-            } else {
-                revealAdjacentCells(row, col);
-            }
-        }
-    }
-
-    function moveMine(row, col) {
-        // Find a random empty cell to move the mine to
-        let newRow, newCol;
-        do {
-            newRow = Math.floor(Math.random() * gridSize);
-            newCol = Math.floor(Math.random() * gridSize);
-        } while (grid[newRow][newCol].isMine || (newRow === row && newCol === col));
-    
-        // Move the mine
-        grid[row][col].isMine = false;
-        grid[newRow][newCol].isMine = true;
-    
-        // Recalculate adjacent mines after moving the mine
-        calculateAdjacentMines();
-    }
-
-    function revealAdjacentCells(row, col) {
-        for (let i = -1; i <= 1; i++) {
-            for (let j = -1; j <= 1; j++) {
-                const newRow = row + i;
-                const newCol = col + j;
-                if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize) {
-                    revealCell(newRow, newCol);
-                }
-            }
-        }
-    }
-
-    function flagCell(row, col) {
-        if (grid[row][col].isRevealed) return;
-        grid[row][col].isFlagged = !grid[row][col].isFlagged;
-        const cellElement = getCellElement(row, col);
-        cellElement.classList.toggle('flagged');
-        if (grid[row][col].isFlagged) {
-            cellElement.innerHTML = '<i class="fas fa-flag"></i>';
-        } else {
-            cellElement.innerHTML = '';
-        }
-
-        minesLeft += grid[row][col].isFlagged ? -1 : 1;
-        minesCountElement.textContent = minesLeft;
-    }
-
-    function getCellElement(row, col) {
-        return gridElement.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
-    }
-
     function startTimer() {
         interval = setInterval(() => {
-            if (timer < 999) {
-                timer++;
-            }
-            timerElement.textContent = String(timer).padStart(3, '0');
+            if (timer < 999) timer++;
+            timerElement.textContent = formatNumber(timer);
         }, 1000);
+    }
+
+    function formatNumber(num) {
+        return String(num).padStart(3, '0');
     }
 
     function gameOver() {
         clearInterval(interval);
-        grid.forEach((row, i) => {
-            row.forEach((cell, j) => {
-                if (cell.isMine && !cell.isRevealed) {
-                    getCellElement(i, j).classList.add('mine');
-                    getCellElement(i, j).innerHTML = '<i class="fas fa-bomb"></i>';
-                }
-            });
-        });
-
-        setTimeout(() => {
-            alert('Game Over!');
-        }, 500);
+        grid.forEach(row => row.forEach(cell => {
+            if (cell.isMine && !cell.isRevealed) {
+                updateCellDisplay(cell);
+            }
+        }));
+        setTimeout(() => alert('Game Over!'), 500);
     }
 
-    // New function to check if the user has won the game
     function checkWinCondition() {
-        let allMinesFlagged = true;
-        let allNonMinesRevealed = true;
-
-        for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++) {
-                const cell = grid[i][j];
-                if (cell.isMine && !cell.isFlagged) {
-                    allMinesFlagged = false;
-                }
-                if (!cell.isMine && !cell.isRevealed) {
-                    allNonMinesRevealed = false;
-                }
-            }
-        }
-
+        const allMinesFlagged = grid.flat().every(cell => !cell.isMine || cell.isFlagged);
+        const allNonMinesRevealed = grid.flat().every(cell => cell.isMine || cell.isRevealed);
         if (allMinesFlagged && allNonMinesRevealed) {
             setTimeout(() => {
                 startConfetti();
                 alert('You won!');
-                clearInterval(interval); // Stop the timer
+                clearInterval(interval);
             }, 500);
         }
     }
 
-    resetButton.addEventListener('click', () => {
-        stopConfetti();
-        initGame();
-    });
+    // Confetti
+    function startConfetti() {
+        isConfettiActive = true;
+        requestAnimationFrame(renderConfetti);
+    }
 
+    function renderConfetti() {
+        if (!isConfettiActive) return;
+        confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+        for (let i = 0; i < confettiSettings.particleRate; i++) {
+            confettiParticles.push(createConfettiParticle());
+        }
+
+        confettiParticles.forEach((particle, index) => {
+            updateParticle(particle);
+            drawParticle(particle);
+            if (particle.y > confettiCanvas.height) confettiParticles.splice(index, 1);
+        });
+
+        requestAnimationFrame(renderConfetti);
+    }
+
+    function createConfettiParticle() {
+        const x = Math.random() * confettiCanvas.width;
+        const y = 0;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * (confettiSettings.speedRange[1] - confettiSettings.speedRange[0]) + confettiSettings.speedRange[0];
+        return {
+            x, y,
+            size: Math.random() * (confettiSettings.sizeRange[1] - confettiSettings.sizeRange[0]) + confettiSettings.sizeRange[0],
+            color: confettiSettings.colors(),
+            speedX: Math.cos(angle) * speed,
+            speedY: Math.sin(angle) * speed,
+            velocityY: 0
+        };
+    }
+
+    function updateParticle(particle) {
+        particle.velocityY += confettiSettings.gravity;
+        particle.speedY += particle.velocityY;
+        particle.speedX *= confettiSettings.friction;
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+    }
+
+    function drawParticle(particle) {
+        confettiContext.fillStyle = particle.color;
+        confettiContext.beginPath();
+        confettiContext.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        confettiContext.fill();
+    }
+
+    function stopConfetti() {
+        isConfettiActive = false;
+        confettiParticles = [];
+        confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+
+    // Initialize game
     updateDifficulty();
     initGame();
 });
