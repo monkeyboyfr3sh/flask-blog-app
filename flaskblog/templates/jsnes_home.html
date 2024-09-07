@@ -1,7 +1,15 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    <script src="{{ url_for('static', filename='js/jsnes.min.js') }}"></script>    
     <h1>NES Emulator</h1>
+
+    <!-- ROM loading progress -->
+    <div id="loading-container" style="display:none;">
+        <p>Loading ROM: <span id="progress-percent">0%</span></p>
+        <progress id="progress-bar" max="100" value="0"></progress>
+    </div>
+
     <canvas id="nes-canvas" width="256" height="240"></canvas>
 
     <!-- Emulator controls -->
@@ -16,18 +24,16 @@
         <button id="right">Right</button>
     </div>
 
-    <input type="file" id="rom-loader" />
-
-    <script src="{{ url_for('static', filename='js/jsnes.min.js') }}"></script>
+    <!-- ROM loader -->
+    <input type="file" id="rom-loader" accept=".nes" />
 
     <script>
-        // Initialize JSNES emulator
         const nes = new jsnes.NES({
             onFrame: function(framebuffer_24) {
                 const canvas = document.getElementById('nes-canvas');
                 const context = canvas.getContext('2d');
                 const imageData = context.createImageData(256, 240);
-                
+
                 for (let i = 0; i < framebuffer_24.length; i++) {
                     imageData.data[i * 4 + 0] = (framebuffer_24[i] >> 16) & 0xFF;  // Red
                     imageData.data[i * 4 + 1] = (framebuffer_24[i] >> 8) & 0xFF;   // Green
@@ -35,9 +41,6 @@
                     imageData.data[i * 4 + 3] = 0xFF;                              // Alpha
                 }
                 context.putImageData(imageData, 0, 0);
-            },
-            onAudioSample: function(left, right) {
-                // Handle audio output if needed
             }
         });
 
@@ -46,31 +49,76 @@
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function() {
-                    const arrayBuffer = reader.result;
-                    nes.loadROM(new Uint8Array(arrayBuffer));
-                    startEmulator();
+
+                // Progress tracking
+                document.getElementById('loading-container').style.display = 'block';
+                reader.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        const percentLoaded = Math.round((event.loaded / event.total) * 100);
+                        document.getElementById('progress-bar').value = percentLoaded;
+                        document.getElementById('progress-percent').textContent = percentLoaded + '%';
+                    }
                 };
-                reader.readAsArrayBuffer(file);
+
+                // Load the ROM as binary string
+                reader.onload = function() {
+                    try {
+                        const binaryString = reader.result;
+                        nes.loadROM(binaryString);
+                        startEmulator();  // Start emulator once ROM is loaded
+                        document.getElementById('loading-container').style.display = 'none';
+                    } catch (error) {
+                        console.error("Error loading ROM:", error);
+                        alert("Failed to load ROM. Please try again with a valid ROM.");
+                    }
+                };
+
+                reader.onerror = function() {
+                    console.error("Failed to read the ROM file.");
+                    alert("Error reading the file. Please try again.");
+                };
+
+                reader.readAsBinaryString(file);
             }
         });
 
         // Controls
-        document.getElementById('start').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_START));
-        document.getElementById('select').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_SELECT));
-        document.getElementById('a').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_A));
-        document.getElementById('b').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_B));
-        document.getElementById('up').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_UP));
-        document.getElementById('down').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_DOWN));
-        document.getElementById('left').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_LEFT));
-        document.getElementById('right').addEventListener('click', () => nes.buttonDown(1, jsnes.Controller.BUTTON_RIGHT));
+        const controlMapping = {
+            'start': jsnes.Controller.BUTTON_START,
+            'select': jsnes.Controller.BUTTON_SELECT,
+            'a': jsnes.Controller.BUTTON_A,
+            'b': jsnes.Controller.BUTTON_B,
+            'up': jsnes.Controller.BUTTON_UP,
+            'down': jsnes.Controller.BUTTON_DOWN,
+            'left': jsnes.Controller.BUTTON_LEFT,
+            'right': jsnes.Controller.BUTTON_RIGHT
+        };
 
+        for (const [buttonId, buttonAction] of Object.entries(controlMapping)) {
+            const button = document.getElementById(buttonId);
+            button.addEventListener('mousedown', () => nes.buttonDown(1, buttonAction));
+            button.addEventListener('mouseup', () => nes.buttonUp(1, buttonAction));
+        }
+
+        // Emulator loop
         function startEmulator() {
             function frame() {
-                nes.frame();
-                requestAnimationFrame(frame);
+                nes.frame();  // Render the next frame of the game
+                requestAnimationFrame(frame);  // Continue rendering
             }
-            frame();
+            frame();  // Start the rendering loop
         }
+
+        // Resize canvas dynamically
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('nes-canvas');
+            const container = canvas.parentNode;
+            const scale = Math.min(container.clientWidth / 256, container.clientHeight / 240);
+            canvas.width = Math.floor(256 * scale);
+            canvas.height = Math.floor(240 * scale);
+        });
+
+        // Trigger initial resize
+        window.dispatchEvent(new Event('resize'));
     </script>
 {% endblock %}

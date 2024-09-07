@@ -24,6 +24,7 @@ RUN npm install jsnes
 # Copy the JSNES library into the static folder of Flask
 RUN mkdir -p /code/flaskblog/static/js
 RUN cp node_modules/jsnes/dist/jsnes.min.js /code/flaskblog/static/js/
+RUN cp node_modules/jsnes/dist/jsnes.min.js.map /code/flaskblog/static/js/
 
 # Expose port 8000 for the Flask app
 EXPOSE 8000
