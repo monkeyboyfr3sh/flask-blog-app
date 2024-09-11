@@ -145,12 +145,19 @@ function resizeCanvas() {
         canvas.width = Math.floor(256 * scale);
         canvas.height = Math.floor(240 * scale);
     } else {
-        // Normal scaling based on container width/height
+        // Normal scaling based on container width/height, adjusted to fit the canvas content
         scale = Math.min(container.clientWidth / 256, container.clientHeight / 240);
         canvas.width = Math.floor(256 * scale);
         canvas.height = Math.floor(240 * scale);
     }
+
+    // Ensure container size matches the canvas size exactly
+    container.style.width = `${canvas.width}px`;
+    container.style.height = `${canvas.height}px`;
 }
+
+// Trigger initial resize on page load
+window.addEventListener('load', resizeCanvas);
 
 // Full screen mode
 document.getElementById('fullscreen').addEventListener('click', function() {

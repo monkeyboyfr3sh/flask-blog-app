@@ -2,7 +2,6 @@
 
 {% block content %}
     <script src="{{ url_for('static', filename='js/jsnes.min.js') }}"></script>    
-    <h1>NES Emulator</h1>
 
     <!-- ROM loading progress -->
     <div id="loading-container" style="display:none;">
@@ -35,32 +34,23 @@
     <!-- Full Screen button -->
     <button id="fullscreen">Full Screen</button>
 
-    <!-- Key mapping guide -->
-    <div id="key-guide">
-        <p>Key Mappings:</p>
-        <ul>
-            <li>Start: Enter</li>
-            <li>Select: C</li>
-            <li>A: X</li>
-            <li>B: Z</li>
-            <li>Directional Pad: Arrow keys</li>
-        </ul>
-    </div>
-
     <!-- ROM loader -->
     <input type="file" id="rom-loader" accept=".nes" />
 
     <style>
         #canvas-container {
-            width: 100%;
-            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            width: auto; /* Let it resize based on the canvas */
+            height: auto; /* Let it resize based on the canvas */
+            margin: 0 auto;
         }
 
         #nes-canvas {
             border: 1px solid black;
+            width: 100%; /* Ensure the canvas scales dynamically */
+            height: auto; /* Keep the aspect ratio */
         }
 
         #controls {
@@ -90,6 +80,18 @@
         #key-guide ul li {
             margin-bottom: 5px;
         }
+
     </style>
   <script src="{{ url_for('static', filename='js/nes_player.js') }}" defer></script>
+{% endblock %}
+
+{% block sidebar %}
+  <h3>Game Button Map</h3>
+  <ul>
+    <li>Start: Enter</li>
+    <li>Select: C</li>
+    <li>A: X</li>
+    <li>B: Z</li>
+    <li>Directional Pad: Arrow keys</li>
+  </ul>
 {% endblock %}
