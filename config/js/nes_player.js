@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     let fps = 80; // Initial FPS value
     let originalFPS = fps; // Store the original FPS value
+    let fpsBoostActive = false; // Boolean to track if FPS boost is active
     let emulatorInterval;
     let waitingForInput = null; // To store the button being remapped
     let lastHighlighted = null; // To store the last highlighted element
@@ -49,13 +50,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to temporarily set FPS to 200
     function activateFPSBoost() {
-        originalFPS = fps;  // Store the current FPS
-        updateFPS(20);      // Temporarily set FPS to 200
+        if (!fpsBoostActive) {  // Only set original FPS if boost is not already active
+            originalFPS = fps;  // Store the current FPS
+            updateFPS(20);      // Temporarily set FPS to 200
+            fpsBoostActive = true; // Set flag to indicate FPS boost is active
+        }
     }
 
     // Function to revert FPS to the original value
     function deactivateFPSBoost() {
-        updateFPS(originalFPS);  // Revert to the original FPS
+        if (fpsBoostActive) {  // Only revert if boost is active
+            updateFPS(originalFPS);  // Revert to the original FPS
+            fpsBoostActive = false;  // Reset flag to indicate boost is no longer active
+        }
     }
 
     // Update the sidebar button map visually
