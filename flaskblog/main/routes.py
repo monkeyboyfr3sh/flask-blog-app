@@ -23,4 +23,4 @@ def about():
 # Add this route to serve the favicon
 @main.route('/favicon.ico')
 def favicon():
-    return send_from_directory(current_app.static_folder, 'favicon.ico')
+    return send_from_directory(current_app.static_folder, 'images/favicon.ico')

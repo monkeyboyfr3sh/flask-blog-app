@@ -1,10 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
+  <link rel="stylesheet"
+    type="text/css"
+    href="{{ url_for('static', filename='css/minesweeper.css') }}">
+
   <div id="minesweeper-game" class="content-section">
     <div id="game-info">
       <div id="mines-count" class="seven-segment">020</div>
       <div id="reset-button">
-        <img src="{{ url_for('static', filename='cry.png') }}" alt="Reset Button" id="reset-img">
+        <img src="{{ url_for('static', filename='images/cry.png') }}" alt="Reset Button" id="reset-img">
       </div>
       <div id="timer" class="seven-segment">000</div>
     </div>
@@ -26,5 +30,5 @@
   <canvas id="confetti-canvas"></canvas>
 
   <!-- Include the Minesweeper JavaScript file here -->
-  <script src="{{ url_for('static', filename='minesweeper.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/minesweeper.js') }}" defer></script>
 {% endblock content %}
