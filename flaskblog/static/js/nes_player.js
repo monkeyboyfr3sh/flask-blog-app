@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let fps = 80; // Initial FPS value
+    let defaultFPS = 66;  // Default FPS
+    let fps = defaultFPS; // Initial FPS value
     let originalFPS = fps; // Store the original FPS value
     let fpsBoostActive = false; // Boolean to track if FPS boost is active
     let emulatorInterval;
@@ -22,18 +23,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 imageData.data[i * 4 + 3] = 0xFF;                              // Alpha
             }
 
-            // Create an offscreen canvas to hold the original NES frame (256x240)
             const offscreenCanvas = document.createElement('canvas');
             offscreenCanvas.width = 256;
             offscreenCanvas.height = 240;
             const offscreenContext = offscreenCanvas.getContext('2d');
             offscreenContext.putImageData(imageData, 0, 0);
 
-            // Scale and draw the offscreen canvas onto the visible canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
         }
     });
+
+    // Function to initialize FPS settings
+    function initializeDefaultFPS() {
+        fps = defaultFPS;
+        originalFPS = defaultFPS;
+        document.getElementById('fps-display').textContent = fps;
+        document.getElementById('fps-input').value = fps; // Update input field with default
+    }
+
+    // Call the function to initialize FPS on load
+    initializeDefaultFPS();
 
     // Initial key mapping, now including FPS Boost
     let controlMapping = {
@@ -192,6 +202,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    function updateFPS(newFPS) {
+        fps = newFPS;
+        document.getElementById('fps-display').textContent = fps;
+        startEmulator();  // Restart the emulator loop with the updated FPS
+    }
+
     // Emulator loop with dynamic FPS
     function startEmulator() {
         if (emulatorInterval) {
@@ -204,13 +220,6 @@ document.addEventListener('DOMContentLoaded', function () {
             nes.frame();  // Render the next frame of the game
         }, frameDuration);
     }
-
-    function updateFPS(newFPS) {
-        fps = newFPS;
-        document.getElementById('fps-display').textContent = fps;
-        startEmulator();  // Restart the emulator loop with the updated FPS
-    }
-
     // FPS control buttons
     document.getElementById('increase-fps').addEventListener('click', () => {
         if (fps < 120) {  // Set a max limit, e.g., 120 FPS
