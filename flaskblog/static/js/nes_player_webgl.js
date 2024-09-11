@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
             reader.readAsText(file);
         }
     }
-    
+
     function saveState() {
         try {
             const saveData = nes.toJSON();  // Get current emulator state
@@ -415,7 +415,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
-                    alert('State saved successfully on ' + data.save_date);
                     loadSavedStates();  // Refresh the saved states list immediately
                 } else {
                     alert('Failed to save state');
@@ -438,6 +437,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const tableBody = document.getElementById('save-state-table-body');
             tableBody.innerHTML = '';  // Clear the table
     
+            // Sort the data array by save_date (newest first)
+            data.sort((a, b) => new Date(b.save_date) - new Date(a.save_date));
+    
             // Iterate over each saved state and create table rows
             data.forEach(state => {
                 const newRow = document.createElement('tr');
@@ -455,11 +457,50 @@ document.addEventListener('DOMContentLoaded', function () {
                 actionCell.appendChild(loadButton);
                 newRow.appendChild(actionCell);
     
+                // Create and append delete cell (with trashcan icon)
+                const deleteCell = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '🗑️'; // Trashcan icon
+                deleteButton.addEventListener('click', () => deleteState(state.id));
+                deleteCell.appendChild(deleteButton);
+                newRow.appendChild(deleteCell);
+    
                 // Add the new row to the table
                 tableBody.appendChild(newRow);
             });
         })
         .catch(error => console.error('Error loading saved states:', error));
+    }
+
+    function deleteState(stateId) {
+        fetch(`/delete_state/${stateId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                loadSavedStates();  // Refresh the saved states list
+            } else {
+                alert('Failed to delete state');
+            }
+        })
+        .catch(error => console.error('Error deleting state:', error));
+    }
+    
+    function clearAllStates() {
+        fetch('/clear_states', {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert('All states cleared successfully');
+                loadSavedStates();  // Refresh the saved states list
+            } else {
+                alert('Failed to clear states');
+            }
+        })
+        .catch(error => console.error('Error clearing states:', error));
     }
     
     function loadStateFromServer(stateId) {
@@ -478,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Save and Load button event listeners
     document.getElementById('save-state').addEventListener('click', saveState);
-    document.getElementById('load-state').addEventListener('click', loadState);
+    document.getElementById('clear-all-states').addEventListener('click', clearAllStates);
 
     // Event listeners for Save/Load to file
     document.getElementById('save-state-to-file').addEventListener('click', saveStateToFile);

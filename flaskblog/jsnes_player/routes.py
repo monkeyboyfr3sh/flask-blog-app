@@ -43,3 +43,22 @@ def load_state(state_id):
     if save:
         return jsonify({'stateData': save.state_data})
     return jsonify({'error': 'Save state not found'}), 404
+
+
+@jsnes_game.route('/delete_state/<int:state_id>', methods=['DELETE'])
+@login_required
+def delete_state(state_id):
+    save_state = NESState.query.filter_by(id=state_id, user_id=current_user.id).first()
+    if save_state:
+        db.session.delete(save_state)
+        db.session.commit()
+        return jsonify({'message': 'State deleted successfully'}), 200
+    return jsonify({'error': 'State not found'}), 404
+
+
+@jsnes_game.route('/clear_states', methods=['DELETE'])
+@login_required
+def clear_states():
+    NESState.query.filter_by(user_id=current_user.id).delete()
+    db.session.commit()
+    return jsonify({'message': 'All states cleared successfully'}), 200
