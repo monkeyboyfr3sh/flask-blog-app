@@ -9,6 +9,7 @@
         <progress id="progress-bar" max="100" value="0"></progress>
     </div>
 
+    <!-- Canvas container -->
     <div id="canvas-container">
         <canvas id="nes-canvas" width="256" height="240"></canvas>
     </div>
@@ -82,13 +83,38 @@
         }
 
         .highlight {
-            background-color: yellow;
-            color: black;
+            background-color: rgba(54, 111, 175, 0.315);
+            color: rgb(158, 158, 158);
         }
 
         /* Initially hide the body */
         body {
             visibility: hidden;
+        }
+        #page-content {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        #canvas-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        #sidebar {
+            width: 300px; /* Set a fixed width for the sidebar */
+            margin-left: 20px;
+        }
+
+        #nes-canvas {
+            border: 1px solid black;
+            width: 100%; /* Ensure the canvas scales dynamically */
+            height: auto; /* Keep the aspect ratio */
         }
 
     </style>
@@ -98,14 +124,18 @@
 
 {% block sidebar %}
   <h3>Game Button Map (Click to Remap)</h3>
-  <ul id="button-map">
-    <li id="map-start" data-button="start">Start: Enter</li>
-    <li id="map-select" data-button="select">Select: C</li>
-    <li id="map-a" data-button="a">A: X</li>
-    <li id="map-b" data-button="b">B: Z</li>
-    <li id="map-up" data-button="up">Up: ArrowUp</li>
-    <li id="map-down" data-button="down">Down: ArrowDown</li>
-    <li id="map-left" data-button="left">Left: ArrowLeft</li>
-    <li id="map-right" data-button="right">Right: ArrowRight</li>
-  </ul>
+  <div id="sidebar">
+    <!-- Sidebar content -->
+    <h3>Game Button Map (Click to Remap)</h3>
+    <ul id="button-map">
+        <li id="map-start" data-button="start">Start: Enter</li>
+        <li id="map-select" data-button="select">Select: C</li>
+        <li id="map-a" data-button="a">A: X</li>
+        <li id="map-b" data-button="b">B: Z</li>
+        <li id="map-up" data-button="up">Up: ArrowUp</li>
+        <li id="map-down" data-button="down">Down: ArrowDown</li>
+        <li id="map-left" data-button="left">Left: ArrowLeft</li>
+        <li id="map-right" data-button="right">Right: ArrowRight</li>
+    </ul>
+    </div>
 {% endblock %}

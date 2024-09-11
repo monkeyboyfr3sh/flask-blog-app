@@ -194,7 +194,7 @@ window.onload = function() {
     function resizeCanvas() {
         const canvas = document.getElementById('nes-canvas');
         const container = document.getElementById('canvas-container');
-
+    
         let scale;
         if (document.fullscreenElement) {
             // Full-screen scaling
@@ -202,13 +202,13 @@ window.onload = function() {
             canvas.width = Math.floor(256 * scale);
             canvas.height = Math.floor(240 * scale);
         } else {
-            // Normal scaling based on container width/height, adjusted to fit the canvas content
+            // Normal scaling based on container width/height
             scale = Math.min(container.clientWidth / 256, container.clientHeight / 240);
             canvas.width = Math.floor(256 * scale);
             canvas.height = Math.floor(240 * scale);
         }
-
-        // Ensure container size matches the canvas size exactly
+    
+        // Keep the sidebar intact by ensuring only the canvas resizes
         container.style.width = `${canvas.width}px`;
         container.style.height = `${canvas.height}px`;
     }
