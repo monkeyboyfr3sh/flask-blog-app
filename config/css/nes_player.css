@@ -1,0 +1,175 @@
+#canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    /* Let it resize based on the canvas */
+    height: auto;
+    /* Let it resize based on the canvas */
+    margin: 0 auto;
+}
+
+#nes-canvas {
+    border: 1px solid black;
+    width: 100%;
+    /* Ensure the canvas scales dynamically */
+    height: auto;
+    /* Keep the aspect ratio */
+}
+
+#controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#controls button {
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+}
+
+#key-guide {
+    margin-top: 20px;
+}
+
+#key-guide ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#key-guide ul li {
+    margin-bottom: 5px;
+}
+
+.highlight {
+    background-color: rgba(54, 111, 175, 0.315);
+    color: rgb(158, 158, 158);
+}
+
+/* Initially hide the body */
+body {
+    visibility: hidden;
+}
+
+#page-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#canvas-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    width: 100%;
+}
+
+#sidebar {
+    width: 300px;
+    /* Set a fixed width for the sidebar */
+    margin-left: 20px;
+}
+
+#nes-canvas {
+    border: 1px solid black;
+    width: 100%;
+    /* Ensure the canvas scales dynamically */
+    height: auto;
+    /* Keep the aspect ratio */
+}
+
+#emulator-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#emulator-settings label {
+    margin-right: 10px;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+#emulator-settings input[type="file"] {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+label,
+#rom-loader {
+    display: inline-block;
+}
+
+/* General button style */
+button {
+    background-color: #3b4b58;
+    /* Match the dark steel background */
+    color: #e0e0e0;
+    /* Light text */
+    border: 1px solid #424242;
+    /* Subtle border */
+    padding: 10px 20px;
+    /* Padding for a better look */
+    font-size: 16px;
+    /* Font size */
+    border-radius: 5px;
+    /* Slightly rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 2px;
+    /* Smooth transition */
+}
+
+button:hover {
+    background-color: #424242;
+    /* Darken slightly on hover */
+    color: #ffffff;
+    /* Change to white text on hover */
+}
+
+button:active {
+    background-color: #616161;
+    /* Even darker when clicked */
+    color: #ffffff;
+}
+
+/* Disabled button style */
+button:disabled {
+    background-color: #1e1e1e;
+    /* Darker background */
+    color: #757575;
+    /* Disabled text */
+    cursor: not-allowed;
+}
+
+input[type="file"] {
+    background-color: #3b4b58;
+    /* Similar to buttons */
+    color: #e0e0e0;
+    border: 1px solid #424242;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type="file"]:hover {
+    background-color: #424242;
+}
+
+#button-map {
+    margin: 0px;
+    flex: auto;
+}
+
+#button-map .active {
+    color: #ffeb3b;
+}
+

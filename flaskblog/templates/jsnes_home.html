@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <link rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('static', filename='css/nes_player.css') }}">
+    <script src="{{ url_for('static', filename='js/nes_player.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/jsnes.min.js') }}"></script>
+
+    <!-- ROM loading progress -->
+    <div id="loading-container" style="display:none;">
+        <p>Loading ROM: <span id="progress-percent">0%</span></p>
+        <progress id="progress-bar" max="100" value="0"></progress>
+    </div>
+
+    <!-- Canvas container -->
+    <div id="canvas-container" class="content-section">
+        <canvas id="nes-canvas" width="256" height="240"></canvas>
+    </div>
+
+    <div id="emulator-settings" class="content-section">
+        <h3>Emulator Settings</h3>
+    
+        <!-- ROM loader -->
+        <div class="rom-loader">
+            <h4>Load ROM</h4>
+            <label for="rom-loader">Choose ROM file:</label>
+            <input type="file" id="rom-loader" accept=".nes" />
+        </div>
+    
+        <!-- Savestates -->
+        <div id="save-load-controls" class="content-section">
+            <h4>Savestates</h4>
+            
+            <div class="save-state-buttons">
+                <button id="save-state">Save State</button>
+                <button id="load-state">Load State</button>
+            </div>
+            
+            <div class="state-file-controls">
+                <input type="file" id="load-state-file" accept=".json" style="display:none;" />
+                <button id="load-state-from-file">Load State from File</button>
+                <button id="save-state-to-file">Save State to File</button>
+            </div>
+        </div>
+    
+        <!-- FPS Controls -->
+        <div id="fps-controls" class="content-section">
+            <h4>FPS Controls</h4>
+            
+            <div class="fps-setting">
+                <label for="fps-input">Set FPS:</label>
+                <input type="number" id="fps-input" value="80" min="1" max="120" />
+            </div>
+            
+            <div class="fps-buttons">
+                <button id="increase-fps">Increase FPS</button>
+                <button id="decrease-fps">Decrease FPS</button>
+            </div>
+        
+            <div class="fps-display">
+                <span>Current FPS: <span id="fps-display">80</span></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Emulator controls -->
+    <!-- <div id="controls" class="content-section">
+        <h3>Controls</h3>
+        
+        <button id="start">Start</button>
+        <button id="select">Select</button>
+        <button id="a">A</button>
+        <button id="b">B</button>
+        <button id="up">Up</button>
+        <button id="down">Down</button>
+        <button id="left">Left</button>
+        <button id="right">Right</button>
+    </div> -->
+
+    <!-- Full Screen button -->
+    <!-- <button id="fullscreen">Full Screen</button> -->
+{% endblock %}
+
+{% block sidebar %}
+    <h3>Game Button Map</h3>
+    <h3>(Click to Remap)</h3>
+    <!-- Sidebar content -->
+    <ul id="button-map">
+        <li id="map-start" data-button="Enter">Start: Enter</li>
+        <li id="map-select" data-button="c">Select: C</li>
+        <li id="map-a" data-button="x">A: X</li>
+        <li id="map-b" data-button="z">B: Z</li>
+        <li id="map-up" data-button="ArrowUp">Up: ArrowUp</li>
+        <li id="map-down" data-button="ArrowDown">Down: ArrowDown</li>
+        <li id="map-left" data-button="ArrowLeft">Left: ArrowLeft</li>
+        <li id="map-right" data-button="ArrowRight">Right: ArrowRight</li>
+        <li id="map-fps-boost" data-button="f">FPS Boost: F</li>
+    </ul>
+{% endblock %}
