@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    let fps = 100; // Initial FPS value
+    let fps = 80; // Initial FPS value
     let emulatorInterval;
     let waitingForInput = null; // To store the button being remapped
     let lastHighlighted = null; // To store the last highlighted element
