@@ -10,18 +10,29 @@
     </div>
 
     <!-- Canvas container -->
-    <div id="canvas-container">
+    <div id="canvas-container" class="content-section">
         <canvas id="nes-canvas" width="256" height="240"></canvas>
     </div>
 
-    <div id="fps-controls">
-        <button id="increase-fps">Increase FPS</button>
-        <button id="decrease-fps">Decrease FPS</button>
-        <span>FPS: <span id="fps-display">60</span></span>
-    </div>
+    <div id="emulator-settings" class="content-section">
+        <h3>Emulator Settings</h3>
 
+        <!-- Label and ROM loader -->
+        <label for="rom-loader">Load ROM:</label>
+        <input type="file" id="rom-loader" accept=".nes" />
+    
+        <label for="fps-controls">FPS Controls:</label>
+        <div id="fps-controls">
+            <button id="increase-fps">Increase FPS</button>
+            <button id="decrease-fps">Decrease FPS</button>
+            <span>FPS: <span id="fps-display">60</span></span>
+        </div>
+    </div>
+    
     <!-- Emulator controls -->
-    <div id="controls">
+    <div id="controls" class="content-section">
+        <h3>Controls</h3>
+        
         <button id="start">Start</button>
         <button id="select">Select</button>
         <button id="a">A</button>
@@ -33,10 +44,7 @@
     </div>
 
     <!-- Full Screen button -->
-    <button id="fullscreen">Full Screen</button>
-
-    <!-- ROM loader -->
-    <input type="file" id="rom-loader" accept=".nes" />
+    <!-- <button id="fullscreen">Full Screen</button> -->
 
     <style>
         #canvas-container {
@@ -117,25 +125,50 @@
             height: auto; /* Keep the aspect ratio */
         }
 
+        #emulator-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #emulator-settings label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        #emulator-settings input[type="file"] {
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        #fps-controls {
+            margin-top: 10px;
+        }
+
+        label, #rom-loader {
+            display: inline-block;
+}
+
     </style>
 
     <script src="{{ url_for('static', filename='js/nes_player.js') }}" defer></script>
 {% endblock %}
 
 {% block sidebar %}
-  <h3>Game Button Map (Click to Remap)</h3>
-  <div id="sidebar">
+    <h3>Game Button Map</h3>
+    <h3>(Click to Remap)</h3>
     <!-- Sidebar content -->
-    <h3>Game Button Map (Click to Remap)</h3>
-    <ul id="button-map">
-        <li id="map-start" data-button="start">Start: Enter</li>
-        <li id="map-select" data-button="select">Select: C</li>
-        <li id="map-a" data-button="a">A: X</li>
-        <li id="map-b" data-button="b">B: Z</li>
-        <li id="map-up" data-button="up">Up: ArrowUp</li>
-        <li id="map-down" data-button="down">Down: ArrowDown</li>
-        <li id="map-left" data-button="left">Left: ArrowLeft</li>
-        <li id="map-right" data-button="right">Right: ArrowRight</li>
-    </ul>
-    </div>
+    <group style="margin: 10px; flex: auto;">
+        <ul id="button-map">
+            <li id="map-start" data-button="start">Start: Enter</li>
+            <li id="map-select" data-button="select">Select: C</li>
+            <li id="map-a" data-button="a">A: X</li>
+            <li id="map-b" data-button="b">B: Z</li>
+            <li id="map-up" data-button="up">Up: ArrowUp</li>
+            <li id="map-down" data-button="down">Down: ArrowDown</li>
+            <li id="map-left" data-button="left">Left: ArrowLeft</li>
+            <li id="map-right" data-button="right">Right: ArrowRight</li>
+        </ul>
+    </group>
 {% endblock %}
