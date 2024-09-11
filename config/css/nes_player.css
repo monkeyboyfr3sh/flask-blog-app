@@ -123,6 +123,7 @@ button {
     /* Slightly rounded corners */
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 2px;
     /* Smooth transition */
 }
 
@@ -171,3 +172,4 @@ input[type="file"]:hover {
 #button-map .active {
     color: #ffeb3b;
 }
+

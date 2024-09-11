@@ -20,32 +20,50 @@
 
     <div id="emulator-settings" class="content-section">
         <h3>Emulator Settings</h3>
-
-        <!-- Label and ROM loader -->
-        <label for="rom-loader">Load ROM:</label>
-        <input type="file" id="rom-loader" accept=".nes" />
-
-        <label for="save-load-controls">Savestates:</label>
-        <div id="save-load-controls">
-            <button id="save-state">Save State</button>
-            <button id="load-state">Load State</button>
-            <input type="file" id="load-state-file" accept=".json" style="display:none;" />
-            <button id="load-state-from-file">Load State from File</button>
-            <button id="save-state-to-file">Save State to File</button>
+    
+        <!-- ROM loader -->
+        <div class="rom-loader">
+            <h4>Load ROM</h4>
+            <label for="rom-loader">Choose ROM file:</label>
+            <input type="file" id="rom-loader" accept=".nes" />
         </div>
-
-        <label for="fps-controls">FPS Controls:</label>
-        <div id="fps-controls">
+    
+        <!-- Savestates -->
+        <div id="save-load-controls" class="content-section">
+            <h4>Savestates</h4>
             
-            <label for="fps-input">Set FPS:</label>
-            <input type="number" id="fps-input" value="80" min="1" max="120" />
-
-            <button id="increase-fps">Increase FPS</button>
-            <button id="decrease-fps">Decrease FPS</button>
-            <span>FPS: <span id="fps-display">80</span></span>
+            <div class="save-state-buttons">
+                <button id="save-state">Save State</button>
+                <button id="load-state">Load State</button>
+            </div>
             
+            <div class="state-file-controls">
+                <input type="file" id="load-state-file" accept=".json" style="display:none;" />
+                <button id="load-state-from-file">Load State from File</button>
+                <button id="save-state-to-file">Save State to File</button>
+            </div>
+        </div>
+    
+        <!-- FPS Controls -->
+        <div id="fps-controls" class="content-section">
+            <h4>FPS Controls</h4>
+            
+            <div class="fps-setting">
+                <label for="fps-input">Set FPS:</label>
+                <input type="number" id="fps-input" value="80" min="1" max="120" />
+            </div>
+            
+            <div class="fps-buttons">
+                <button id="increase-fps">Increase FPS</button>
+                <button id="decrease-fps">Decrease FPS</button>
+            </div>
+        
+            <div class="fps-display">
+                <span>Current FPS: <span id="fps-display">80</span></span>
+            </div>
         </div>
     </div>
+    
     <!-- Emulator controls -->
     <!-- <div id="controls" class="content-section">
         <h3>Controls</h3>
