@@ -25,15 +25,11 @@
         <div id="save-load-controls">
             <button id="save-state">Save State</button>
             <button id="load-state">Load State</button>
-            
-            <!-- Option to load from file -->
             <input type="file" id="load-state-file" accept=".json" style="display:none;" />
             <button id="load-state-from-file">Load State from File</button>
-            
-            <!-- Button to trigger saving to file -->
             <button id="save-state-to-file">Save State to File</button>
         </div>
-    
+
         <label for="fps-controls">FPS Controls:</label>
         <div id="fps-controls">
             <button id="increase-fps">Increase FPS</button>
@@ -162,6 +158,48 @@
             display: inline-block;
         }
 
+        /* General button style */
+        button {
+        background-color: #3b4b58; /* Match the dark steel background */
+        color: #e0e0e0; /* Light text */
+        border: 1px solid #424242; /* Subtle border */
+        padding: 10px 20px; /* Padding for a better look */
+        font-size: 16px; /* Font size */
+        border-radius: 5px; /* Slightly rounded corners */
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+        }
+
+        button:hover {
+        background-color: #424242; /* Darken slightly on hover */
+        color: #ffffff; /* Change to white text on hover */
+        }
+
+        button:active {
+        background-color: #616161; /* Even darker when clicked */
+        color: #ffffff;
+        }
+
+        /* Disabled button style */
+        button:disabled {
+        background-color: #1e1e1e; /* Darker background */
+        color: #757575; /* Disabled text */
+        cursor: not-allowed;
+        }
+
+        input[type="file"] {
+        background-color: #3b4b58; /* Similar to buttons */
+        color: #e0e0e0;
+        border: 1px solid #424242;
+        padding: 8px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        }
+
+        input[type="file"]:hover {
+        background-color: #424242;
+        }
     </style>
 
     <script src="{{ url_for('static', filename='js/nes_player.js') }}" defer></script>
