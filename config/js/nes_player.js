@@ -103,23 +103,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('keydown', (event) => {
         const button = controlMapping[event.key];
-
+        const element = document.querySelector(`[data-button="${event.key}"]`);
+    
+        // If an element exists for the pressed key, add the 'active' class
+        if (element) {
+            element.classList.add('active');
+        }
+    
         if (button !== undefined && button !== 'fpsBoost') {
             nes.buttonDown(1, button);
             event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
         }
-
+    
         if (button === 'fpsBoost') {
             activateFPSBoost();  // Activate FPS boost when the key is pressed
         }
-
+    
         if (waitingForInput) {
             const newKey = event.key;
             controlMapping[newKey] = (waitingForInput === 'fpsBoost')
                 ? 'fpsBoost'
                 : jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
             updateSidebarMap(waitingForInput, newKey);
-
+    
             // Remove highlight and reset waiting state
             if (lastHighlighted) {
                 lastHighlighted.classList.remove('highlight');
@@ -128,9 +134,16 @@ document.addEventListener('DOMContentLoaded', function() {
             lastHighlighted = null;
         }
     });
-
+    
     document.addEventListener('keyup', (event) => {
         const button = controlMapping[event.key];
+        const element = document.querySelector(`[data-button="${event.key}"]`);
+    
+        // If an element exists for the released key, remove the 'active' class
+        if (element) {
+            element.classList.remove('active');
+        }
+    
         if (button === 'fpsBoost') {
             deactivateFPSBoost();  // Deactivate FPS boost when the key is released
         } else if (button !== undefined) {
