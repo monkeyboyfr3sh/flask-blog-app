@@ -98,3 +98,12 @@ def create_default_admin():
         db.session.add(admin_user)
         db.session.commit()
         print(f"Created default admin user: {admin_username} with email: {admin_email}")
+
+class NESState(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    state_data = db.Column(db.Text, nullable=False)  # Store the state data as text
+    save_date = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    
+    def __repr__(self):
+        return f"NESState(User: '{self.user_id}', Date: '{self.save_date}')"

@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let waitingForInput = null; // To store the button being remapped
     let lastHighlighted = null; // To store the last highlighted element
 
+    // Call loadSavedStates when the page loads
+    loadSavedStates();
     document.body.style.visibility = 'visible';
 
     // Web Audio API setup for audio playback
@@ -397,38 +399,81 @@ document.addEventListener('DOMContentLoaded', function () {
             reader.readAsText(file);
         }
     }
-
-    // Save State Function
+    
     function saveState() {
         try {
-            const saveData = nes.toJSON(); // Get current emulator state
+            const saveData = nes.toJSON();  // Get current emulator state
             const saveDataString = JSON.stringify(saveData);
-
-            // Save to localStorage
-            localStorage.setItem('nesSaveState', saveDataString);
-
+            
+            fetch('/save_state', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ stateData: saveDataString })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('State saved successfully on ' + data.save_date);
+                    loadSavedStates();  // Refresh the saved states list immediately
+                } else {
+                    alert('Failed to save state');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving state:', error);
+                alert('Failed to save game state.');
+            });
         } catch (error) {
             console.error('Error saving state:', error);
             alert('Failed to save game state.');
         }
     }
-
-    // Load State Function
-    function loadState() {
-        try {
-            // Load from localStorage
-            const saveDataString = localStorage.getItem('nesSaveState');
-            if (saveDataString) {
-                const saveData = JSON.parse(saveDataString);
+    
+    function loadSavedStates() {
+        fetch('/load_states')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('save-state-table-body');
+            tableBody.innerHTML = '';  // Clear the table
+    
+            // Iterate over each saved state and create table rows
+            data.forEach(state => {
+                const newRow = document.createElement('tr');
+    
+                // Create and append date cell
+                const dateCell = document.createElement('td');
+                dateCell.textContent = new Date(state.save_date).toLocaleString();
+                newRow.appendChild(dateCell);
+    
+                // Create and append action cell (with load button)
+                const actionCell = document.createElement('td');
+                const loadButton = document.createElement('button');
+                loadButton.textContent = 'Load';
+                loadButton.addEventListener('click', () => loadStateFromServer(state.id));
+                actionCell.appendChild(loadButton);
+                newRow.appendChild(actionCell);
+    
+                // Add the new row to the table
+                tableBody.appendChild(newRow);
+            });
+        })
+        .catch(error => console.error('Error loading saved states:', error));
+    }
+    
+    function loadStateFromServer(stateId) {
+        fetch(`/load_state/${stateId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.stateData) {
+                const saveData = JSON.parse(data.stateData);
                 nes.fromJSON(saveData);
             } else {
-                alert('No saved state found.');
+                alert('Failed to load save state');
             }
-
-        } catch (error) {
-            console.error('Error loading state:', error);
-            alert('Failed to load game state.');
-        }
+        })
+        .catch(error => console.error('Error loading state:', error));
     }
 
     // Save and Load button event listeners
