@@ -404,17 +404,29 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const saveData = nes.toJSON();  // Get current emulator state
             const saveDataString = JSON.stringify(saveData);
-            
+    
+            // Capture screenshot from the canvas
+            const canvas = document.getElementById('nes-canvas');
+            const screenshot = canvas.toDataURL('image/png');  // Capture screenshot as base64 PNG
+    
+            // Ensure that the screenshot is valid
+            if (!screenshot || screenshot === 'data:,') {
+                alert('Failed to capture a valid screenshot. Please try again.');
+                return;
+            }
+    
+            // Send save state data and screenshot to the server
             fetch('/save_state', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ stateData: saveDataString })
+                body: JSON.stringify({ stateData: saveDataString, screenshot: screenshot })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
+                    alert('State saved successfully on ' + data.save_date);
                     loadSavedStates();  // Refresh the saved states list immediately
                 } else {
                     alert('Failed to save state');
@@ -448,6 +460,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 const dateCell = document.createElement('td');
                 dateCell.textContent = new Date(state.save_date).toLocaleString();
                 newRow.appendChild(dateCell);
+    
+                // Create and append screenshot cell
+                const screenshotCell = document.createElement('td');
+                const screenshotImg = document.createElement('img');
+                screenshotImg.src = state.screenshot;  // Use the base64 screenshot
+                screenshotImg.style.width = '100px';  // Set thumbnail width
+                screenshotImg.style.height = 'auto';
+                screenshotCell.appendChild(screenshotImg);
+                newRow.appendChild(screenshotCell);
     
                 // Create and append action cell (with load button)
                 const actionCell = document.createElement('td');

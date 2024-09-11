@@ -104,6 +104,7 @@ class NESState(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     state_data = db.Column(db.Text, nullable=False)  # Store the state data as text
     save_date = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
-    
+    screenshot = db.Column(db.Text, nullable=False)  # Base64-encoded screenshot
+
     def __repr__(self):
         return f"NESState(User: '{self.user_id}', Date: '{self.save_date}')"
