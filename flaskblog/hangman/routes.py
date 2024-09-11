@@ -67,7 +67,7 @@ def game_home():
     # Get the scoreboard with all users' scores
     scoreboard = HangmanScore.query.order_by(HangmanScore.wins.desc()).all()
     
-    return render_template('hangman_home.html', scoreboard=scoreboard)
+    return render_template('hangman_home.html', scoreboard=scoreboard, title="Hangman")
 
 @hangman_game.route('/hangman/start')
 @login_required
@@ -106,9 +106,9 @@ def play_game():
         if hangman.status == "won":
             session[get_user_session_key('win_counter')] += 1
         elif hangman.status == "lost":
-            return render_template('hangman_play_game.html', hangman=hangman, category=category, allow_save=True)
+            return render_template('hangman_play_game.html', hangman=hangman, category=category, allow_save=True, title="Hangman")
 
-    return render_template('hangman_play_game.html', hangman=hangman, category=category)
+    return render_template('hangman_play_game.html', hangman=hangman, category=category, title="Hangman")
 
 @hangman_game.route('/hangman/save_score', methods=['POST'])
 @login_required
@@ -138,7 +138,7 @@ def save_score():
 @login_required
 def select_category():
     categories = WORD_LISTS.keys()  # Get the list of available categories
-    return render_template('select_category.html', categories=categories)
+    return render_template('select_category.html', categories=categories, title="Hangman")
 
 @hangman_game.route('/hangman/reset')
 @login_required
