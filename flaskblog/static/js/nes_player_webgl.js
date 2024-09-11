@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.style.visibility = 'visible';
 
+    // Web Audio API setup for audio playback
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const sampleRate = 44100;  // NES audio sample rate (44.1 kHz)
+    const audioBuffer = [];
+    const bufferSize = 4096;
+
     // WebGL setup
     const canvas = document.getElementById('nes-canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -93,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
+    // Create NES instance with audio and frame callbacks
     const nes = new jsnes.NES({
         onFrame: function (framebuffer_24) {
             const width = 256;
@@ -111,8 +118,32 @@ document.addEventListener('DOMContentLoaded', function () {
             
             gl.clear(gl.COLOR_BUFFER_BIT);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        },
+        onAudioSample: function (left, right) {
+            audioBuffer.push(left, right);  // Add audio samples to the buffer
+            if (audioBuffer.length >= bufferSize) {
+                playAudioSamples(audioBuffer);  // Play audio when buffer is filled
+                audioBuffer.length = 0;  // Clear the buffer
+            }
         }
     });
+
+    // Play audio samples using Web Audio API
+    function playAudioSamples(samples) {
+        const buffer = audioContext.createBuffer(2, samples.length / 2, sampleRate);
+        const channelLeft = buffer.getChannelData(0);
+        const channelRight = buffer.getChannelData(1);
+
+        for (let i = 0; i < samples.length / 2; i++) {
+            channelLeft[i] = samples[2 * i];
+            channelRight[i] = samples[2 * i + 1];
+        }
+
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start();
+    }
 
     // Initial key mapping, now including FPS Boost
     let controlMapping = {
