@@ -216,6 +216,44 @@ document.addEventListener('DOMContentLoaded', function() {
     // Trigger initial resize on page load
     window.addEventListener('load', resizeCanvas);
 
+    // Save State Function to File
+    function saveStateToFile() {
+        try {
+            const saveData = nes.toJSON(); // Get current emulator state
+            const saveDataString = JSON.stringify(saveData);
+
+            // Allow the user to download the save state
+            const blob = new Blob([saveDataString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'nes-save-state.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error saving state to file:', error);
+            alert('Failed to save game state to file.');
+        }
+    }
+
+    // Load State Function from File
+    function loadStateFromFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                try {
+                    const saveData = JSON.parse(reader.result);
+                    nes.fromJSON(saveData);
+                } catch (error) {
+                    console.error('Error loading state from file:', error);
+                    alert('Failed to load game state from file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
     // Save State Function
     function saveState() {
         try {
@@ -225,14 +263,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Save to localStorage
             localStorage.setItem('nesSaveState', saveDataString);
     
-            // // Allow the user to download the save state
-            // const blob = new Blob([saveDataString], { type: 'application/json' });
-            // const url = URL.createObjectURL(blob);
-            // const a = document.createElement('a');
-            // a.href = url;
-            // a.download = 'nes-save-state.json';
-            // a.click();
-            // URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error saving state:', error);
             alert('Failed to save game state.');
@@ -251,16 +281,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('No saved state found.');
             }
     
-            // // Load from a file (if using file input)
-            // document.getElementById('load-state-file').addEventListener('change', function(event) {
-            //     const file = event.target.files[0];
-            //     const reader = new FileReader();
-            //     reader.onload = function() {
-            //         const saveData = JSON.parse(reader.result);
-            //         nes.fromJSON(saveData);
-            //     };
-            //     reader.readAsText(file);
-            // });
         } catch (error) {
             console.error('Error loading state:', error);
             alert('Failed to load game state.');
@@ -270,11 +290,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Save and Load button event listeners
     document.getElementById('save-state').addEventListener('click', saveState);
     document.getElementById('load-state').addEventListener('click', loadState);
-    
-    // // Optional: Show file input for loading from file
-    // document.getElementById('load-state').addEventListener('click', function() {
-    //     document.getElementById('load-state-file').click();
-    // });
+
+    // Event listeners for Save/Load to file
+    document.getElementById('save-state-to-file').addEventListener('click', saveStateToFile);
+    document.getElementById('load-state-file').addEventListener('change', loadStateFromFile);
+
+    // Trigger file input when the button is clicked
+    document.getElementById('load-state-from-file').addEventListener('click', function() {
+        document.getElementById('load-state-file').click();
+    });
 
     // Trigger initial resize
     window.dispatchEvent(new Event('resize'));

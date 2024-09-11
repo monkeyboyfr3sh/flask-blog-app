@@ -17,13 +17,16 @@
     <div id="emulator-settings" class="content-section">
         <h3>Emulator Settings</h3>
 
-        <!-- Save/Load Controls -->
         <div id="save-load-controls">
             <button id="save-state">Save State</button>
             <button id="load-state">Load State</button>
-        
+            
             <!-- Option to load from file -->
             <input type="file" id="load-state-file" accept=".json" style="display:none;" />
+            <button id="load-state-from-file">Load State from File</button>
+            
+            <!-- Button to trigger saving to file -->
+            <button id="save-state-to-file">Save State to File</button>
         </div>
 
         <!-- Label and ROM loader -->
