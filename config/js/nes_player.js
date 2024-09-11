@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     let fps = 80; // Initial FPS value
+    let originalFPS = fps; // Store the original FPS value
     let emulatorInterval;
     let waitingForInput = null; // To store the button being remapped
     let lastHighlighted = null; // To store the last highlighted element
 
-    // Make body visible after everything is fully loaded
     document.body.style.visibility = 'visible';
 
     const nes = new jsnes.NES({
@@ -28,13 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const offscreenContext = offscreenCanvas.getContext('2d');
             offscreenContext.putImageData(imageData, 0, 0);
 
-            // Scale and draw the offscreen canvas onto the visible canvas, fitting the entire space
+            // Scale and draw the offscreen canvas onto the visible canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
         }
     });
 
-    // Initial key mapping
+    // Initial key mapping, now including FPS Boost
     let controlMapping = {
         'Enter': jsnes.Controller.BUTTON_START,
         'c': jsnes.Controller.BUTTON_SELECT,
@@ -43,8 +43,20 @@ document.addEventListener('DOMContentLoaded', function() {
         'ArrowUp': jsnes.Controller.BUTTON_UP,
         'ArrowDown': jsnes.Controller.BUTTON_DOWN,
         'ArrowLeft': jsnes.Controller.BUTTON_LEFT,
-        'ArrowRight': jsnes.Controller.BUTTON_RIGHT
+        'ArrowRight': jsnes.Controller.BUTTON_RIGHT,
+        'f': 'fpsBoost'  // Default mapping for FPS Boost
     };
+
+    // Function to temporarily set FPS to 200
+    function activateFPSBoost() {
+        originalFPS = fps;  // Store the current FPS
+        updateFPS(20);      // Temporarily set FPS to 200
+    }
+
+    // Function to revert FPS to the original value
+    function deactivateFPSBoost() {
+        updateFPS(originalFPS);  // Revert to the original FPS
+    }
 
     // Update the sidebar button map visually
     function updateSidebarMap(button, newKey) {
@@ -56,7 +68,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'up': 'map-up',
             'down': 'map-down',
             'left': 'map-left',
-            'right': 'map-right'
+            'right': 'map-right',
+            'fpsBoost': 'map-fps-boost'  // Added FPS Boost to the map
         };
 
         const elementId = mapElement[button];
@@ -74,41 +87,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Highlight the clicked button
             if (lastHighlighted) {
-                lastHighlighted.classList.remove('highlight');  // Remove highlight from the last element
+                lastHighlighted.classList.remove('highlight');
             }
-            event.target.classList.add('highlight');  // Add highlight to the current element
-            lastHighlighted = event.target;  // Store the current element
+            event.target.classList.add('highlight');
+            lastHighlighted = event.target;
         }
     });
 
     document.addEventListener('keydown', (event) => {
         const button = controlMapping[event.key];
-        
-        if (button !== undefined || event.code === 'Space') {
+
+        if (button !== undefined && button !== 'fpsBoost') {
             nes.buttonDown(1, button);
-            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling, spacebar scrolling)
+            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
         }
-    
+
+        if (button === 'fpsBoost') {
+            activateFPSBoost();  // Activate FPS boost when the key is pressed
+        }
+
         if (waitingForInput) {
-            // Remapping in progress
             const newKey = event.key;
-            controlMapping[newKey] = jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
-            updateSidebarMap(waitingForInput, newKey);  // Update the sidebar with the new key
-    
-            // Remove the highlight after the key is set
+            controlMapping[newKey] = (waitingForInput === 'fpsBoost')
+                ? 'fpsBoost'
+                : jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
+            updateSidebarMap(waitingForInput, newKey);
+
+            // Remove highlight and reset waiting state
             if (lastHighlighted) {
                 lastHighlighted.classList.remove('highlight');
             }
-    
-            waitingForInput = null;  // Reset waiting state
-            lastHighlighted = null;  // Reset last highlighted element
-            return;
+            waitingForInput = null;
+            lastHighlighted = null;
         }
     });
 
     document.addEventListener('keyup', (event) => {
         const button = controlMapping[event.key];
-        if (button !== undefined) {
+        if (button === 'fpsBoost') {
+            deactivateFPSBoost();  // Deactivate FPS boost when the key is released
+        } else if (button !== undefined) {
             nes.buttonUp(1, button);
             event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
         }
@@ -158,21 +176,17 @@ document.addEventListener('DOMContentLoaded', function() {
             clearInterval(emulatorInterval);  // Clear previous interval if it exists
         }
 
-        const frameDuration = 1000 / fps; // Frame duration in milliseconds
+        const frameDuration = 1000 / fps;  // Frame duration in milliseconds
 
         emulatorInterval = setInterval(() => {
             nes.frame();  // Render the next frame of the game
         }, frameDuration);
     }
 
-    // Function to update FPS and restart the emulator with the new FPS
     function updateFPS(newFPS) {
         fps = newFPS;
-        
-        // Update FPS display
         document.getElementById('fps-display').textContent = fps;
-
-        startEmulator(); // Restart the emulator loop with the updated FPS
+        startEmulator();  // Restart the emulator loop with the updated FPS
     }
 
     // FPS control buttons
