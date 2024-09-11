@@ -1,5 +1,5 @@
-window.onload = function() {
-    let fps = 60; // Initial FPS value
+document.addEventListener('DOMContentLoaded', function() {
+    let fps = 100; // Initial FPS value
     let emulatorInterval;
     let waitingForInput = null; // To store the button being remapped
     let lastHighlighted = null; // To store the last highlighted element
@@ -33,7 +33,6 @@ window.onload = function() {
             context.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
         }
     });
-
 
     // Initial key mapping
     let controlMapping = {
@@ -164,14 +163,15 @@ window.onload = function() {
         emulatorInterval = setInterval(() => {
             nes.frame();  // Render the next frame of the game
         }, frameDuration);
-
-        // Update FPS display
-        document.getElementById('fps-display').textContent = fps;
     }
 
     // Function to update FPS and restart the emulator with the new FPS
     function updateFPS(newFPS) {
         fps = newFPS;
+        
+        // Update FPS display
+        document.getElementById('fps-display').textContent = fps;
+
         startEmulator(); // Restart the emulator loop with the updated FPS
     }
 
@@ -216,20 +216,66 @@ window.onload = function() {
     // Trigger initial resize on page load
     window.addEventListener('load', resizeCanvas);
 
-    // Full screen mode
-    document.getElementById('fullscreen').addEventListener('click', function() {
-        const canvasContainer = document.getElementById('canvas-container');
-        if (canvasContainer.requestFullscreen) {
-            canvasContainer.requestFullscreen();
-        } else if (canvasContainer.mozRequestFullScreen) { 
-            canvasContainer.mozRequestFullScreen();
-        } else if (canvasContainer.webkitRequestFullscreen) { 
-            canvasContainer.webkitRequestFullscreen();
-        } else if (canvasContainer.msRequestFullscreen) { 
-            canvasContainer.msRequestFullscreen();
+    // Save State Function
+    function saveState() {
+        try {
+            const saveData = nes.toJSON(); // Get current emulator state
+            const saveDataString = JSON.stringify(saveData);
+    
+            // Save to localStorage
+            localStorage.setItem('nesSaveState', saveDataString);
+    
+            // // Allow the user to download the save state
+            // const blob = new Blob([saveDataString], { type: 'application/json' });
+            // const url = URL.createObjectURL(blob);
+            // const a = document.createElement('a');
+            // a.href = url;
+            // a.download = 'nes-save-state.json';
+            // a.click();
+            // URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error saving state:', error);
+            alert('Failed to save game state.');
         }
-    });
+    }
+
+    // Load State Function
+    function loadState() {
+        try {
+            // Load from localStorage
+            const saveDataString = localStorage.getItem('nesSaveState');
+            if (saveDataString) {
+                const saveData = JSON.parse(saveDataString);
+                nes.fromJSON(saveData);
+            } else {
+                alert('No saved state found.');
+            }
+    
+            // // Load from a file (if using file input)
+            // document.getElementById('load-state-file').addEventListener('change', function(event) {
+            //     const file = event.target.files[0];
+            //     const reader = new FileReader();
+            //     reader.onload = function() {
+            //         const saveData = JSON.parse(reader.result);
+            //         nes.fromJSON(saveData);
+            //     };
+            //     reader.readAsText(file);
+            // });
+        } catch (error) {
+            console.error('Error loading state:', error);
+            alert('Failed to load game state.');
+        }
+    }
+
+    // Save and Load button event listeners
+    document.getElementById('save-state').addEventListener('click', saveState);
+    document.getElementById('load-state').addEventListener('click', loadState);
+    
+    // // Optional: Show file input for loading from file
+    // document.getElementById('load-state').addEventListener('click', function() {
+    //     document.getElementById('load-state-file').click();
+    // });
 
     // Trigger initial resize
     window.dispatchEvent(new Event('resize'));
-};
+});
