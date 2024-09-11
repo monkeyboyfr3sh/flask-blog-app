@@ -52,7 +52,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function activateFPSBoost() {
         if (!fpsBoostActive) {  // Only set original FPS if boost is not already active
             originalFPS = fps;  // Store the current FPS
-            updateFPS(20);      // Temporarily set FPS to 200
+            const boostfpsInput = document.getElementById('fps-input').value;
+            const boostFPS = parseInt(boostfpsInput, 10);
+            updateFPS(boostFPS);      // Temporarily set FPS to 200
             fpsBoostActive = true; // Set flag to indicate FPS boost is active
         }
     }

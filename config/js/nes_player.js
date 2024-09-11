@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     let fps = 80; // Initial FPS value
     let originalFPS = fps; // Store the original FPS value
     let fpsBoostActive = false; // Boolean to track if FPS boost is active
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.visibility = 'visible';
 
     const nes = new jsnes.NES({
-        onFrame: function(framebuffer_24) {
+        onFrame: function (framebuffer_24) {
             const canvas = document.getElementById('nes-canvas');
             const context = canvas.getContext('2d');
             const imageData = context.createImageData(256, 240);
@@ -52,7 +52,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function activateFPSBoost() {
         if (!fpsBoostActive) {  // Only set original FPS if boost is not already active
             originalFPS = fps;  // Store the current FPS
-            updateFPS(20);      // Temporarily set FPS to 200
+            const boostfpsInput = document.getElementById('fps-input').value;
+            const boostFPS = parseInt(boostfpsInput, 10);
+            updateFPS(boostFPS);      // Temporarily set FPS to 200
             fpsBoostActive = true; // Set flag to indicate FPS boost is active
         }
     }
@@ -104,28 +106,28 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', (event) => {
         const button = controlMapping[event.key];
         const element = document.querySelector(`[data-button="${event.key}"]`);
-    
+
         // If an element exists for the pressed key, add the 'active' class
         if (element) {
             element.classList.add('active');
         }
-    
+
         if (button !== undefined && button !== 'fpsBoost') {
             nes.buttonDown(1, button);
             event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
         }
-    
+
         if (button === 'fpsBoost') {
             activateFPSBoost();  // Activate FPS boost when the key is pressed
         }
-    
+
         if (waitingForInput) {
             const newKey = event.key;
             controlMapping[newKey] = (waitingForInput === 'fpsBoost')
                 ? 'fpsBoost'
                 : jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
             updateSidebarMap(waitingForInput, newKey);
-    
+
             // Remove highlight and reset waiting state
             if (lastHighlighted) {
                 lastHighlighted.classList.remove('highlight');
@@ -134,16 +136,16 @@ document.addEventListener('DOMContentLoaded', function() {
             lastHighlighted = null;
         }
     });
-    
+
     document.addEventListener('keyup', (event) => {
         const button = controlMapping[event.key];
         const element = document.querySelector(`[data-button="${event.key}"]`);
-    
+
         // If an element exists for the released key, remove the 'active' class
         if (element) {
             element.classList.remove('active');
         }
-    
+
         if (button === 'fpsBoost') {
             deactivateFPSBoost();  // Deactivate FPS boost when the key is released
         } else if (button !== undefined) {
@@ -153,14 +155,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Load ROM file
-    document.getElementById('rom-loader').addEventListener('change', function(event) {
+    document.getElementById('rom-loader').addEventListener('change', function (event) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
 
             // Progress tracking
             document.getElementById('loading-container').style.display = 'block';
-            reader.onprogress = function(event) {
+            reader.onprogress = function (event) {
                 if (event.lengthComputable) {
                     const percentLoaded = Math.round((event.loaded / event.total) * 100);
                     document.getElementById('progress-bar').value = percentLoaded;
@@ -169,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             // Load the ROM as binary string
-            reader.onload = function() {
+            reader.onload = function () {
                 try {
                     const binaryString = reader.result;
                     nes.loadROM(binaryString);
@@ -181,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
-            reader.onerror = function() {
+            reader.onerror = function () {
                 console.error("Failed to read the ROM file.");
                 alert("Error reading the file. Please try again.");
             };
@@ -228,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function resizeCanvas() {
         const canvas = document.getElementById('nes-canvas');
         const container = document.getElementById('canvas-container');
-    
+
         let scale;
         if (document.fullscreenElement) {
             // Full-screen scaling
@@ -241,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
             canvas.width = Math.floor(256 * scale);
             canvas.height = Math.floor(240 * scale);
         }
-    
+
         // Keep the sidebar intact by ensuring only the canvas resizes
         container.style.width = `${canvas.width}px`;
         container.style.height = `${canvas.height}px`;
@@ -275,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function() {
+            reader.onload = function () {
                 try {
                     const saveData = JSON.parse(reader.result);
                     nes.fromJSON(saveData);
@@ -293,10 +295,10 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const saveData = nes.toJSON(); // Get current emulator state
             const saveDataString = JSON.stringify(saveData);
-    
+
             // Save to localStorage
             localStorage.setItem('nesSaveState', saveDataString);
-    
+
         } catch (error) {
             console.error('Error saving state:', error);
             alert('Failed to save game state.');
@@ -314,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 alert('No saved state found.');
             }
-    
+
         } catch (error) {
             console.error('Error loading state:', error);
             alert('Failed to load game state.');
@@ -330,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('load-state-file').addEventListener('change', loadStateFromFile);
 
     // Trigger file input when the button is clicked
-    document.getElementById('load-state-from-file').addEventListener('click', function() {
+    document.getElementById('load-state-from-file').addEventListener('click', function () {
         document.getElementById('load-state-file').click();
     });
 
