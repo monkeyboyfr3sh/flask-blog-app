@@ -81,17 +81,31 @@
             margin-bottom: 5px;
         }
 
+        .highlight {
+            background-color: yellow;
+            color: black;
+        }
+
+        /* Initially hide the body */
+        body {
+            visibility: hidden;
+        }
+
     </style>
-  <script src="{{ url_for('static', filename='js/nes_player.js') }}" defer></script>
+
+    <script src="{{ url_for('static', filename='js/nes_player.js') }}" defer></script>
 {% endblock %}
 
 {% block sidebar %}
-  <h3>Game Button Map</h3>
-  <ul>
-    <li>Start: Enter</li>
-    <li>Select: C</li>
-    <li>A: X</li>
-    <li>B: Z</li>
-    <li>Directional Pad: Arrow keys</li>
+  <h3>Game Button Map (Click to Remap)</h3>
+  <ul id="button-map">
+    <li id="map-start" data-button="start">Start: Enter</li>
+    <li id="map-select" data-button="select">Select: C</li>
+    <li id="map-a" data-button="a">A: X</li>
+    <li id="map-b" data-button="b">B: Z</li>
+    <li id="map-up" data-button="up">Up: ArrowUp</li>
+    <li id="map-down" data-button="down">Down: ArrowDown</li>
+    <li id="map-left" data-button="left">Left: ArrowLeft</li>
+    <li id="map-right" data-button="right">Right: ArrowRight</li>
   </ul>
 {% endblock %}
