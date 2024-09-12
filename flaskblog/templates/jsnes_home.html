@@ -8,15 +8,19 @@
     <!-- <script src="{{ url_for('static', filename='js/nes_player.js') }}" defer></script> -->
     <script src="{{ url_for('static', filename='js/nes_player_webgl.js') }}" defer></script>
 
-    <!-- ROM loading progress -->
-    <div id="loading-container" style="display:none;">
-        <p>Loading ROM: <span id="progress-percent">0%</span></p>
-        <progress id="progress-bar" max="100" value="0"></progress>
-    </div>
-
     <!-- Canvas container -->
-    <div id="canvas-container" class="content-section">
-        <canvas id="nes-canvas" width="256" height="240"></canvas>
+    <div id="emulator-settings" class="content-section">
+        <h3>Emulator Display</h3>
+        <div id="canvas-container">
+            <canvas id="nes-canvas" width="256" height="240"></canvas>
+        </div>
+
+        <!-- ROM loading progress -->
+        <div id="loading-container" style="display:none;">
+            <p>Loading ROM: <span id="progress-percent">0%</span></p>
+            <progress id="progress-bar" max="100" value="0"></progress>
+        </div>
+
     </div>
 
     <div id="emulator-settings" class="content-section">
@@ -30,8 +34,12 @@
     
         <!-- Savestates -->
         <div id="save-load-controls" class="content-section">
-            <label for="save-state">Server Save State:</label>
-            <button id="save-state" class="btn-save">Save State</button>
+
+            <label for="serve-state-controls">Server Save/Clear:</label>
+            <div id="serve-state-controls">
+                <button id="save-state" class="btn-save">Save State</button>
+                <button id="clear-all-states" class="btn-clear-all">Clear All Saved States</button>
+            </div>
             
             <hr>
 
@@ -50,10 +58,9 @@
                         <!-- Save state entries will be dynamically added here -->
                     </tbody>
                 </table>
-
-                <!-- Clear All Button -->
-                <button id="clear-all-states" class="btn-clear-all">Clear All Saved States</button>
             </div>
+
+            <hr>
 
             <!-- File-based State Controls -->
             <label for="file-controls">File-based State Management:</label>
@@ -67,23 +74,6 @@
 
         </div>
     
-        <!-- FPS Controls -->
-        <div id="fps-controls" class="content-section">
-
-            <label for="fps-panel">Set Idle FPS:</label>
-            <div class="fps-panel">
-                <div class="fps-display">
-                    <span>Current FPS: <span id="fps-display">66</span></span>
-                </div>
-                <button id="increase-fps">Increase FPS</button>
-                <button id="decrease-fps">Decrease FPS</button>
-            </div>
-
-            <label for="fps-setting">Set Toggle FPS:</label>
-            <div class="fps-setting">
-                <input type="number" id="fps-input" value="66" min="1" max="120" />
-            </div>
-        </div>
     </div>
     
     <!-- Emulator controls -->
@@ -105,18 +95,44 @@
 {% endblock %}
 
 {% block sidebar %}
-    <h3>Game Button Map</h3>
-    <h3>(Click to Remap)</h3>
-    <!-- Sidebar content -->
-    <ul id="button-map">
-        <li id="map-start" data-button="Enter">Start: Enter</li>
-        <li id="map-select" data-button="c">Select: C</li>
-        <li id="map-a" data-button="x">A: X</li>
-        <li id="map-b" data-button="z">B: Z</li>
-        <li id="map-up" data-button="ArrowUp">Up: ArrowUp</li>
-        <li id="map-down" data-button="ArrowDown">Down: ArrowDown</li>
-        <li id="map-left" data-button="ArrowLeft">Left: ArrowLeft</li>
-        <li id="map-right" data-button="ArrowRight">Right: ArrowRight</li>
-        <li id="map-fps-boost" data-button="f">FPS Boost: F</li>
-    </ul>
+    <div id="fps-controls" class="content-section">
+        <h3>Game Button Map</h3>
+        <!-- Sidebar content -->
+        <ul id="button-map">
+            <li id="map-start" data-button="Enter">Start: Enter</li>
+            <li id="map-select" data-button="c">Select: C</li>
+            <li id="map-a" data-button="x">A: X</li>
+            <li id="map-b" data-button="z">B: Z</li>
+            <li id="map-up" data-button="ArrowUp">Up: ArrowUp</li>
+            <li id="map-down" data-button="ArrowDown">Down: ArrowDown</li>
+            <li id="map-left" data-button="ArrowLeft">Left: ArrowLeft</li>
+            <li id="map-right" data-button="ArrowRight">Right: ArrowRight</li>
+            <li id="map-fps-boost" data-button="f">FPS Boost: F</li>
+        </ul>
+    </div>
+
+    <!-- FPS Controls -->
+    <div id="fps-controls" class="content-section">
+
+        <h3>FPS Control Panel</h3>
+
+        <!-- Current FPS Display -->
+        <div class="fps-panel">
+            <label for="fps-display">Current FPS:</label>
+            <span id="fps-display">66</span>
+        </div>
+
+        <!-- Idle FPS Input -->
+        <div class="fps-idle-setting">
+            <label for="fps-idle">Set Idle FPS:</label>
+            <input type="number" id="fps-idle" value="80" min="0" max="240" />
+        </div>
+
+        <!-- Toggle FPS Input -->
+        <div class="fps-toggle-setting">
+            <label for="fps-toggle">Set Toggle FPS:</label>
+            <input type="number" id="fps-toggle" value="200" min="0" max="240" />
+        </div>
+
+    </div>
 {% endblock %}

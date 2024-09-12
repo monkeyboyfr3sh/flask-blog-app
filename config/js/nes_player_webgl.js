@@ -1,10 +1,19 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let fps = 80; // Initial FPS value
+    let fps = 66; // Initial Idle FPS value
     let originalFPS = fps; // Store the original FPS value
     let fpsBoostActive = false; // Boolean to track if FPS boost is active
     let emulatorInterval;
     let waitingForInput = null; // To store the button being remapped
     let lastHighlighted = null; // To store the last highlighted element
+
+    // DOM Elements for FPS
+    const fpsDisplay = document.getElementById('fps-display');
+    const idleFpsInput = document.getElementById('fps-idle');
+    const toggleFpsInput = document.getElementById('fps-toggle');
+
+    // Set initial FPS values in the input fields
+    idleFpsInput.value = fps;  // Set Idle FPS input
+    toggleFpsInput.value = 200;  // Default Toggle FPS
 
     // Call loadSavedStates when the page loads
     loadSavedStates();
@@ -175,22 +184,41 @@ document.addEventListener('DOMContentLoaded', function () {
         'f': 'fpsBoost'  // Default mapping for FPS Boost
     };
 
-    // Function to temporarily set FPS to 200
-    function activateFPSBoost() {
-        if (!fpsBoostActive) {  // Only set original FPS if boost is not already active
-            originalFPS = fps;  // Store the current FPS
-            const boostfpsInput = document.getElementById('fps-input').value;
-            const boostFPS = parseInt(boostfpsInput, 10);
-            updateFPS(boostFPS);      // Temporarily set FPS to 200
-            fpsBoostActive = true; // Set flag to indicate FPS boost is active
+    // Function to update FPS
+    function updateFPS(newFPS) {
+        fps = newFPS;
+        fpsDisplay.textContent = fps;  // Update the current FPS display
+        
+        if (fps === 0) {
+            clearInterval(emulatorInterval);  // Stop the emulator if FPS is 0
+            emulatorInterval = null;  // Set the interval to null to indicate it's paused
+        } else {
+            startEmulator();  // Restart the emulator with the new FPS
         }
     }
 
-    // Function to revert FPS to the original value
+    // Update the FPS when the idle FPS input changes (on focus out or enter)
+    idleFpsInput.addEventListener('change', () => {
+        const newFPS = parseInt(idleFpsInput.value, 10);
+        if (!isNaN(newFPS) && newFPS >= 0 && newFPS <= 120) {
+            updateFPS(newFPS);  // Call updateFPS when the idle FPS input changes
+        }
+    });
+
+    // Toggle FPS Boost when necessary
+    function activateFPSBoost() {
+        if (!fpsBoostActive) {
+            originalFPS = fps;  // Store the current FPS before boosting
+            const boostFPS = parseInt(toggleFpsInput.value, 10);  // Get the toggle FPS from input
+            updateFPS(boostFPS);  // Temporarily set FPS to boost FPS
+            fpsBoostActive = true;
+        }
+    }
+
     function deactivateFPSBoost() {
-        if (fpsBoostActive) {  // Only revert if boost is active
+        if (fpsBoostActive) {
             updateFPS(originalFPS);  // Revert to the original FPS
-            fpsBoostActive = false;  // Reset flag to indicate boost is no longer active
+            fpsBoostActive = false;
         }
     }
 
@@ -319,37 +347,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Emulator loop with dynamic FPS
+    // Trigger emulator start/stop with dynamic FPS
     function startEmulator() {
         if (emulatorInterval) {
             clearInterval(emulatorInterval);  // Clear previous interval if it exists
         }
-
-        const frameDuration = 1000 / fps;  // Frame duration in milliseconds
-
+        const frameDuration = 1000 / fps;  // Frame duration based on current FPS
         emulatorInterval = setInterval(() => {
-            nes.frame();  // Render the next frame of the game
+            nes.frame();  // Render the next frame
         }, frameDuration);
     }
-
-    function updateFPS(newFPS) {
-        fps = newFPS;
-        document.getElementById('fps-display').textContent = fps;
-        startEmulator();  // Restart the emulator loop with the updated FPS
-    }
-
-    // FPS control buttons
-    document.getElementById('increase-fps').addEventListener('click', () => {
-        if (fps < 120) {  // Set a max limit, e.g., 120 FPS
-            updateFPS(fps + 1);
-        }
-    });
-
-    document.getElementById('decrease-fps').addEventListener('click', () => {
-        if (fps > 1) {  // Set a min limit, e.g., 1 FPS
-            updateFPS(fps - 1);
-        }
-    });
 
     // Resize canvas dynamically
     window.addEventListener('resize', resizeCanvas);
@@ -525,19 +532,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     function clearAllStates() {
-        fetch('/clear_states', {
-            method: 'DELETE'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                alert('All states cleared successfully');
-                loadSavedStates();  // Refresh the saved states list
-            } else {
-                alert('Failed to clear states');
-            }
-        })
-        .catch(error => console.error('Error clearing states:', error));
+        const userConfirmed = confirm("Are you sure you want to clear all saved states? This action cannot be undone.");
+
+        if (userConfirmed) {
+            fetch('/clear_states', {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('All states cleared successfully');
+                    loadSavedStates();  // Refresh the saved states list
+                } else {
+                    alert('Failed to clear states');
+                }
+            })
+            .catch(error => console.error('Error clearing states:', error));
+        }
     }
     
     function loadStateFromServer(stateId) {
@@ -556,6 +567,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Save and Load button event listeners
     document.getElementById('save-state').addEventListener('click', saveState);
+
+    // Attach the clearAllStates function to the clear button
     document.getElementById('clear-all-states').addEventListener('click', clearAllStates);
 
     // Event listeners for Save/Load to file
