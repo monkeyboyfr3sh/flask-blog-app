@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const fpsDisplay = document.getElementById('fps-display');
     const idleFpsInput = document.getElementById('fps-idle');
     const toggleFpsInput = document.getElementById('fps-toggle');
+    const fileInput = document.getElementById('rom-loader');
+    const fileButton = document.getElementById('rom-loader-btn');
+    const fileNameDisplay = document.getElementById('rom-filename');
 
     // Set initial FPS values in the input fields
     idleFpsInput.value = fps;  // Set Idle FPS input
@@ -423,44 +426,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function saveState() {
-        try {
-            const saveData = nes.toJSON();  // Get current emulator state
-            const saveDataString = JSON.stringify(saveData);
-        
-            // Use the buffered frame (lastFrameImage) instead of capturing from the canvas
-            const screenshot = lastFrameImage;
+        const romFilename = document.getElementById('rom-loader').files[0].name;  // Get the ROM file name
+        const saveData = nes.toJSON();  // Get current emulator state
+        const screenshot = lastFrameImage;  // Use the buffered frame
     
-            // Ensure that the screenshot is valid
-            if (!screenshot || screenshot === 'data:,') {
-                alert('Failed to capture a valid screenshot. Please try again.');
-                return;
+        // Send save state data and screenshot along with the ROM title to the server
+        fetch('/save_state', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                stateData: JSON.stringify(saveData),
+                screenshot: screenshot,
+                title: romFilename  // Send the ROM filename as the title
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert('State saved successfully for ROM: ' + data.title);
+                loadSavedStates();  // Refresh the saved states list
+            } else {
+                alert('Failed to save state');
             }
-    
-            // Send save state data and screenshot to the server
-            fetch('/save_state', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ stateData: saveDataString, screenshot: screenshot })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert('State saved successfully on ' + data.save_date);
-                    loadSavedStates();  // Refresh the saved states list immediately
-                } else {
-                    alert('Failed to save state');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving state:', error);
-                alert('Failed to save game state.');
-            });
-        } catch (error) {
+        })
+        .catch(error => {
             console.error('Error saving state:', error);
             alert('Failed to save game state.');
-        }
+        });
     }
     
     function loadSavedStates() {
@@ -477,9 +471,24 @@ document.addEventListener('DOMContentLoaded', function () {
             data.forEach(state => {
                 const newRow = document.createElement('tr');
     
-                // Create and append date cell
+                // Create and append title cell
+                const titleCell = document.createElement('td');
+                titleCell.textContent = state.title || 'Unknown';  // Display title or 'Unknown' if missing
+                newRow.appendChild(titleCell);
+    
+                // Create and append date cell (split date and time into stacked divs)
                 const dateCell = document.createElement('td');
-                dateCell.textContent = new Date(state.save_date).toLocaleString();
+                const saveDate = new Date(state.save_date);
+    
+                const dateDiv = document.createElement('div');
+                dateDiv.textContent = saveDate.toLocaleDateString();  // Display only the date
+    
+                const timeDiv = document.createElement('div');
+                timeDiv.textContent = saveDate.toLocaleTimeString();  // Display only the time
+    
+                // Append date and time to the dateCell
+                dateCell.appendChild(dateDiv);
+                dateCell.appendChild(timeDiv);
                 newRow.appendChild(dateCell);
     
                 // Create and append screenshot cell
@@ -564,6 +573,20 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => console.error('Error loading state:', error));
     }
+
+    // When the button is clicked, trigger the hidden file input
+    fileButton.addEventListener('click', function () {
+        fileInput.click();
+    });
+
+    // When a file is selected, update the filename display
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.textContent = fileInput.files[0].name; // Display the file name
+        } else {
+            fileNameDisplay.textContent = 'No file chosen'; // Reset if no file is selected
+        }
+    });
 
     // Save and Load button event listeners
     document.getElementById('save-state').addEventListener('click', saveState);

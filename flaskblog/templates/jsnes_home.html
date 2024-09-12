@@ -27,9 +27,11 @@
         <h3>Emulator Settings</h3>
     
         <!-- ROM loader -->
-        <div class="rom-loader; content-section">
+        <div class="rom-loader content-section">
             <label for="rom-loader">Choose ROM file:</label>
-            <input type="file" id="rom-loader" accept=".nes" />
+            <button id="rom-loader-btn">Select ROM</button>
+            <input type="file" id="rom-loader" accept=".nes" style="display:none;" />
+            <span id="rom-filename">No file chosen</span> <!-- Display the selected filename -->
         </div>
     
         <!-- Savestates -->
@@ -49,13 +51,14 @@
                 <table class="saved-states-table">
                     <thead>
                         <tr>
-                            <th>Save Date</th>
-                            <th>Screen Snapshot</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Screenshot</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="save-state-table-body">
-                        <!-- Save state entries will be dynamically added here -->
+                        <!-- Dynamic content inserted here -->
                     </tbody>
                 </table>
             </div>

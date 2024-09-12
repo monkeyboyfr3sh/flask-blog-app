@@ -105,6 +105,8 @@ class NESState(db.Model):
     state_data = db.Column(db.Text, nullable=False)  # Store the state data as text
     save_date = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     screenshot = db.Column(db.Text, nullable=False)  # Base64-encoded screenshot
+    title = db.Column(db.String(255), nullable=False)  # New field for ROM title
 
     def __repr__(self):
-        return f"NESState(User: '{self.user_id}', Date: '{self.save_date}')"
+        return f"NESState(User: '{self.user_id}', Date: '{self.save_date}', Title: '{self.title}')"
+

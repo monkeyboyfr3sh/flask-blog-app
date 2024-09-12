@@ -15,15 +15,17 @@ def jsnes_home():
 def save_state():
     state_data = request.json.get('stateData')
     screenshot = request.json.get('screenshot')
+    title = request.json.get('title')  # Get the title (filename of the ROM)
 
-    # Ensure that state data and screenshot are provided and valid
-    if not state_data or not screenshot or len(screenshot) < 50:  # Screenshots should not be too small
-        return jsonify({'error': 'Invalid state data or screenshot provided'}), 400
+    # Ensure that state data, screenshot, and title are provided and valid
+    if not state_data or not screenshot or not title or len(screenshot) < 50:  # Screenshots should not be too small
+        return jsonify({'error': 'Invalid state data, screenshot, or title provided'}), 400
 
     new_save = NESState(
         user_id=current_user.id,
         state_data=state_data,
-        screenshot=screenshot  # Store the screenshot
+        screenshot=screenshot,
+        title=title  # Store the ROM title
     )
 
     db.session.add(new_save)
@@ -31,14 +33,15 @@ def save_state():
 
     return jsonify({
         'message': 'State saved successfully',
-        'save_date': new_save.save_date.isoformat()
+        'save_date': new_save.save_date.isoformat(),
+        'title': new_save.title  # Return the title in the response
     }), 201
 
 @jsnes_game.route('/load_states', methods=['GET'])
 @login_required
 def load_states():
     saved_states = NESState.query.filter_by(user_id=current_user.id).all()
-    state_list = [{'id': state.id, 'save_date': state.save_date.isoformat(), 'screenshot': state.screenshot} for state in saved_states]
+    state_list = [{'id': state.id, 'save_date': state.save_date.isoformat(), 'screenshot': state.screenshot, 'title': state.title} for state in saved_states]
     
     return jsonify(state_list)
     
