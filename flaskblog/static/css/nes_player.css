@@ -200,3 +200,8 @@ input[type="file"]:hover {
 #key-guide ul li {
     margin-bottom: 5px;
 }
+
+.saved-states-table th, .saved-states-table td {
+    text-align: center;  /* Center the content for both headers and entries */
+    vertical-align: middle;  /* Ensure vertical alignment is centered as well */
+}

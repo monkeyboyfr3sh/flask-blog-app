@@ -23,61 +23,65 @@
         <h3>Emulator Settings</h3>
     
         <!-- ROM loader -->
-        <div class="rom-loader">
-            <h4>Load ROM</h4>
+        <div class="rom-loader; content-section">
             <label for="rom-loader">Choose ROM file:</label>
             <input type="file" id="rom-loader" accept=".nes" />
         </div>
     
         <!-- Savestates -->
         <div id="save-load-controls" class="content-section">
-            <h4>Savestates</h4>
+            <label for="save-state">Server Save State:</label>
+            <button id="save-state" class="btn-save">Save State</button>
             
-            <div class="save-state-buttons">
-                <button id="save-state">Save State</button>
-                <button id="load-state">Load State</button>
-            </div>
-            
-            <div class="state-file-controls">
-                <input type="file" id="load-state-file" accept=".json" style="display:none;" />
-                <button id="load-state-from-file">Load State from File</button>
-                <button id="save-state-to-file">Save State to File</button>
-            </div>
-        </div>
+            <hr>
 
-        <div id="save-state-list" class="content-section">
-            <h4>Saved States</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Save Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="save-state-table-body">
-                    <!-- Save state entries will be dynamically added here -->
-                </tbody>
-            </table>
-            <!-- Clear All Button -->
-            <button id="clear-all-states" class="clear-all-button">Clear All Saved States</button>
+            <!-- Saved States List -->
+            <label for="saved-states">Server Load State:</label>
+            <div class="saved-states">
+                <table class="saved-states-table">
+                    <thead>
+                        <tr>
+                            <th>Save Date</th>
+                            <th>Screen Snapshot</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="save-state-table-body">
+                        <!-- Save state entries will be dynamically added here -->
+                    </tbody>
+                </table>
+
+                <!-- Clear All Button -->
+                <button id="clear-all-states" class="btn-clear-all">Clear All Saved States</button>
+            </div>
+
+            <!-- File-based State Controls -->
+            <label for="file-controls">File-based State Management:</label>
+            <div class="file-controls">
+                <input type="file" id="load-state-file" accept=".json" style="display:none;" />
+                <div class="button-group">
+                    <button id="load-state-from-file" class="btn-file-load">Load State from File</button>
+                    <button id="save-state-to-file" class="btn-file-save">Save State to File</button>
+                </div>
+            </div>
+
         </div>
     
         <!-- FPS Controls -->
         <div id="fps-controls" class="content-section">
-            <h4>FPS Controls</h4>
-            
-            <div class="fps-setting">
-                <label for="fps-input">Set FPS:</label>
-                <input type="number" id="fps-input" value="66" min="1" max="120" />
-            </div>
-            
-            <div class="fps-buttons">
+
+            <label for="fps-panel">Set Idle FPS:</label>
+            <div class="fps-panel">
+                <div class="fps-display">
+                    <span>Current FPS: <span id="fps-display">66</span></span>
+                </div>
                 <button id="increase-fps">Increase FPS</button>
                 <button id="decrease-fps">Decrease FPS</button>
             </div>
-        
-            <div class="fps-display">
-                <span>Current FPS: <span id="fps-display">66</span></span>
+
+            <label for="fps-setting">Set Toggle FPS:</label>
+            <div class="fps-setting">
+                <input type="number" id="fps-input" value="66" min="1" max="120" />
             </div>
         </div>
     </div>

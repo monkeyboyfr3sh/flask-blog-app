@@ -101,12 +101,13 @@ document.addEventListener('DOMContentLoaded', function () {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-    // Create NES instance with audio and frame callbacks
+    let lastFrameImage = null;  // Buffer to store the last frame
+
     const nes = new jsnes.NES({
         onFrame: function (framebuffer_24) {
             const width = 256;
             const height = 240;
-
+    
             const pixelData = new Uint8Array(width * height * 4);
             for (let i = 0; i < framebuffer_24.length; i++) {
                 pixelData[i * 4 + 0] = framebuffer_24[i] & 0xFF;         // Red
@@ -114,12 +115,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 pixelData[i * 4 + 2] = (framebuffer_24[i] >> 16) & 0xFF; // Blue
                 pixelData[i * 4 + 3] = 0xFF;                             // Alpha
             }
-
+    
+            // Bind texture and render to canvas
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
-            
             gl.clear(gl.COLOR_BUFFER_BIT);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    
+            // Store the current frame in an offscreen canvas for later use (i.e., when saving state)
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = width;
+            offscreenCanvas.height = height;
+            const offscreenContext = offscreenCanvas.getContext('2d');
+    
+            // Create an ImageData object with the current pixel data
+            const imageData = offscreenContext.createImageData(width, height);
+            imageData.data.set(pixelData);
+            offscreenContext.putImageData(imageData, 0, 0);
+    
+            // Store the frame as a base64 image for later use
+            lastFrameImage = offscreenCanvas.toDataURL('image/png');  // Save the last frame
         },
         onAudioSample: function (left, right) {
             audioBuffer.push(left, right);  // Add audio samples to the buffer
@@ -404,10 +419,9 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const saveData = nes.toJSON();  // Get current emulator state
             const saveDataString = JSON.stringify(saveData);
-    
-            // Capture screenshot from the canvas
-            const canvas = document.getElementById('nes-canvas');
-            const screenshot = canvas.toDataURL('image/png');  // Capture screenshot as base64 PNG
+        
+            // Use the buffered frame (lastFrameImage) instead of capturing from the canvas
+            const screenshot = lastFrameImage;
     
             // Ensure that the screenshot is valid
             if (!screenshot || screenshot === 'data:,') {
@@ -470,21 +484,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 screenshotCell.appendChild(screenshotImg);
                 newRow.appendChild(screenshotCell);
     
-                // Create and append action cell (with load button)
+                // Create and append action cell with both Load and Delete buttons
                 const actionCell = document.createElement('td');
+                
+                // Load button
                 const loadButton = document.createElement('button');
                 loadButton.textContent = 'Load';
+                loadButton.style.marginRight = '10px';  // Add some space between buttons
                 loadButton.addEventListener('click', () => loadStateFromServer(state.id));
                 actionCell.appendChild(loadButton);
-                newRow.appendChild(actionCell);
     
-                // Create and append delete cell (with trashcan icon)
-                const deleteCell = document.createElement('td');
+                // Delete button (Trashcan icon)
                 const deleteButton = document.createElement('button');
-                deleteButton.innerHTML = '🗑️'; // Trashcan icon
+                deleteButton.innerHTML = '🗑️';  // Trashcan icon
                 deleteButton.addEventListener('click', () => deleteState(state.id));
-                deleteCell.appendChild(deleteButton);
-                newRow.appendChild(deleteCell);
+                actionCell.appendChild(deleteButton);
+    
+                newRow.appendChild(actionCell);  // Append the action cell with both buttons
     
                 // Add the new row to the table
                 tableBody.appendChild(newRow);
