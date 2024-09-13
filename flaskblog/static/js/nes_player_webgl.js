@@ -262,31 +262,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.addEventListener('keydown', (event) => {
-        // Check if we are waiting for a remap
- 
-        if (waitingForInput) {
-            const newKey = event.key;
-    
-            // Update controlMapping with the new key
-            controlMapping[newKey] = (waitingForInput === 'fpsBoost')
-                ? 'fpsBoost'
-                : jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
-    
-            // Update the UI to reflect the new mapping
-            updateSidebarMap(waitingForInput, newKey);
-    
-            // Reset the state after remapping
-            if (lastHighlighted) {
-                lastHighlighted.classList.remove('highlight');
-            }
-            waitingForInput = null;
-            lastHighlighted = null;
-    
-            console.log(`New key '${newKey}' mapped to: ${waitingForInput}`);
-        } else {
-            // Regular key handling when not remapping
-            const button = controlMapping[event.key];
-            
+        const button = controlMapping[event.key];
+        const element = document.querySelector(`[data-button="${event.key}"]`);
+
         // If an element exists for the pressed key, add the 'active' class
         if (element) {
             element.classList.add('active');
@@ -299,29 +277,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (button === 'fpsBoost') {
             activateFPSBoost();  // Activate FPS boost when the key is pressed
-        } 
+        }
 
-            if (button !== undefined && button !== 'fpsBoost') {
-                nes.buttonDown(1, button);  // Trigger NES button down
-                event.preventDefault();  // Prevent default behavior
+        if (waitingForInput) {
+            const newKey = event.key;
+            controlMapping[newKey] = (waitingForInput === 'fpsBoost')
+                ? 'fpsBoost'
+                : jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
+            updateSidebarMap(waitingForInput, newKey);
+
+            // Remove highlight and reset waiting state
+            if (lastHighlighted) {
+                lastHighlighted.classList.remove('highlight');
             }
-    
-            if (button === 'fpsBoost') {
-                activateFPSBoost();  // Activate FPS boost
-            }
+            waitingForInput = null;
+            lastHighlighted = null;
         }
     });
-    
+
     document.addEventListener('keyup', (event) => {
         const button = controlMapping[event.key];
-        
-        if (button !== undefined) {
-            if (button === 'fpsBoost') {
-                deactivateFPSBoost();  // Deactivate FPS boost when the key is released
-            } else {
-                nes.buttonUp(1, button);  // Trigger NES button up
-            }
-            event.preventDefault();  // Prevent default behavior
+        const element = document.querySelector(`[data-button="${event.key}"]`);
+
+        // If an element exists for the released key, remove the 'active' class
+        if (element) {
+            element.classList.remove('active');
+        }
+
+        if (button === 'fpsBoost') {
+            deactivateFPSBoost();  // Deactivate FPS boost when the key is released
+        } else if (button !== undefined) {
+            nes.buttonUp(1, button);
+            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
         }
     });
 

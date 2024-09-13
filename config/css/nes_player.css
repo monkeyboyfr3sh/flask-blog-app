@@ -136,7 +136,7 @@ label,
 }
 
 #content-section {
-    border: 1px solid #3b4b58;;
+    border: 1px solid #3b4b58;; /* Optional: Add borders for better readability */
 }
 
 /* General button style */
