@@ -261,12 +261,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     // Button is pressed (and wasn't pressed in the last frame)
-                    if (nesButton !== undefined && nesButton !== 'fpsBoost') {
-                        nes.buttonDown(1, nesButton.action);  // Trigger NES action
-                    }
+                    if (nesButton !== undefined ){
+                        
+                        if( nesButton !== 'fpsBoost') {
+                            nes.buttonDown(1, nesButton.action);  // Trigger NES action
+                        }
 
-                    if (nesButton === 'fpsBoost') {
-                        activateFPSBoost();  // Trigger FPS boost action
+                        if ( nesButton.action === 'fpsBoost') {
+                            activateFPSBoost();  // Trigger FPS boost action
+                        }
                     }
 
                     // Handle remapping if waiting for input
@@ -289,15 +292,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (listItem) {
                         listItem.classList.remove('active');
                     }
-                    
-                    // Button is released (and was pressed in the last frame)
-                    if (nesButton !== undefined && nesButton !== 'fpsBoost') {
-                        nes.buttonUp(1, nesButton.action);  // Trigger NES button release
+
+                    // Button is pressed (and wasn't pressed in the last frame)
+                    if (nesButton !== undefined ){
+                        
+                        if( nesButton !== 'fpsBoost') {
+                            nes.buttonUp(1, nesButton.action);  // Trigger NES button release
+                        }
+
+                        if ( nesButton.action === 'fpsBoost') {
+                            deactivateFPSBoost();  // Stop FPS boost
+                        }
                     }
 
-                    if (nesButton === 'fpsBoost') {
-                        deactivateFPSBoost();  // Stop FPS boost
-                    }
                 }
 
                 // Update previous button state
@@ -359,6 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const id = Object.keys(controlMapping).find(id => controlMapping[id].key === event.key);  // Find the ID that matches the key
 
         if (id) {
+            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
             const listItem = document.getElementById(id);  // Get the corresponding <li> element
 
             // If an element exists for the pressed key, add the 'active' class
@@ -369,7 +377,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // Handle standard NES button presses (ignore FPS boost for now)
             if (controlMapping[id].action !== 'fpsBoost') {
                 nes.buttonDown(1, controlMapping[id].action);  // Trigger NES action
-                event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
             }
 
             // Handle FPS boost activation
@@ -402,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const id = Object.keys(controlMapping).find(id => controlMapping[id].key === event.key);  // Find the ID that matches the key
 
         if (id) {
+            event.preventDefault();  // Prevent default browser behavior
             const listItem = document.getElementById(id);  // Get the corresponding <li> element
 
             // If an element exists for the released key, remove the 'active' class
@@ -412,7 +420,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // Handle standard NES button releases (ignore FPS boost for now)
             if (controlMapping[id].action !== 'fpsBoost') {
                 nes.buttonUp(1, controlMapping[id].action);  // Trigger NES button release
-                event.preventDefault();  // Prevent default browser behavior
             }
 
             // Handle FPS boost deactivation
