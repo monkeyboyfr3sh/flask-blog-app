@@ -225,52 +225,86 @@ document.addEventListener('DOMContentLoaded', function () {
         'map-fps-boost': { key: 'f', action: 'fpsBoost' }  // Custom action for FPS Boost
     };
 
+    // Store previous button states for each gamepad
+    let previousButtonStates = {};
+
+    // Function to poll gamepad input and trigger NES actions
     function pollGamepads() {
         const gamepads = navigator.getGamepads();
-    
+
         for (let i = 0; i < gamepads.length; i++) {
             const gamepad = gamepads[i];
             if (!gamepad) continue;
-    
+
+            // Initialize previous button states for this gamepad if not already done
+            if (!previousButtonStates[gamepad.index]) {
+                previousButtonStates[gamepad.index] = new Array(gamepad.buttons.length).fill(false);
+            }
+
             // Loop through the gamepad buttons
             for (let j = 0; j < gamepad.buttons.length; j++) {
                 const button = gamepad.buttons[j];
-    
-                // Check if the button is pressed
-                if (button.pressed) {
-                    const buttonMapping = `gamepad-${j}`;
-                    const nesButton = controlMapping[buttonMapping];
-    
+                const buttonMapping = `gamepad-${j}`;
+                // Find the control that matches the pressed key
+                const id = Object.keys(controlMapping).find(id => controlMapping[id].key === buttonMapping);  // Find the ID that matches the key
+                const nesButton = controlMapping[id];
+
+                const previouslyPressed = previousButtonStates[gamepad.index][j];  // Check previous state
+
+                if (button.pressed && !previouslyPressed) {
+
+                    const listItem = document.getElementById(id);  // Get the corresponding <li> element
+
+                    // If an element exists for the pressed key, add the 'active' class
+                    if (listItem) {
+                        listItem.classList.add('active');
+                    }
+
+                    // Button is pressed (and wasn't pressed in the last frame)
                     if (nesButton !== undefined && nesButton !== 'fpsBoost') {
-                        nes.buttonDown(1, nesButton);  // Trigger NES action
+                        nes.buttonDown(1, nesButton.action);  // Trigger NES action
                     }
-    
+
                     if (nesButton === 'fpsBoost') {
-                        activateFPSBoost();
+                        activateFPSBoost();  // Trigger FPS boost action
                     }
-    
-                    // Handle remapping
+
+                    // Handle remapping if waiting for input
                     if (waitingForInput) {
-                        controlMapping[buttonMapping] = jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
-                        updateSidebarMap(waitingForInput, `Gamepad ${j}`);
-                        waitingForInput = null;
-                        lastHighlighted.classList.remove('highlight');
+                        // Update the control mapping with the new key
+                        updateSidebarMap(waitingForInput, buttonMapping);  // Update the UI map
+                        controlMapping[waitingForInput].key = buttonMapping;  // Update mapping
+
+                        if (lastHighlighted) {
+                            lastHighlighted.classList.remove('highlight');
+                        }
                         lastHighlighted = null;
+                        waitingForInput = null;
                     }
-                } else {
-                    const buttonMapping = `gamepad-${j}`;
-                    const nesButton = controlMapping[buttonMapping];
+                } else if (!button.pressed && previouslyPressed) {
+                    
+                    const listItem = document.getElementById(id);  // Get the corresponding <li> element
+
+                    // If an element exists for the released key, remove the 'active' class
+                    if (listItem) {
+                        listItem.classList.remove('active');
+                    }
+                    
+                    // Button is released (and was pressed in the last frame)
                     if (nesButton !== undefined && nesButton !== 'fpsBoost') {
-                        nes.buttonUp(1, nesButton);  // Trigger NES button release
+                        nes.buttonUp(1, nesButton.action);  // Trigger NES button release
                     }
-    
+
                     if (nesButton === 'fpsBoost') {
-                        deactivateFPSBoost();
+                        deactivateFPSBoost();  // Stop FPS boost
                     }
                 }
+
+                // Update previous button state
+                previousButtonStates[gamepad.index][j] = button.pressed;
             }
         }
-    
+
         // Poll gamepad again on the next frame
         requestAnimationFrame(pollGamepads);
     }
