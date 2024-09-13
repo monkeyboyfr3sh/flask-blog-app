@@ -225,6 +225,98 @@ document.addEventListener('DOMContentLoaded', function () {
         'map-fps-boost': { key: 'f', action: 'fpsBoost' }  // Custom action for FPS Boost
     };
 
+    // Store previous button states for each gamepad
+    let previousButtonStates = {};
+
+    // Function to poll gamepad input and trigger NES actions
+    function pollGamepads() {
+        const gamepads = navigator.getGamepads();
+
+        for (let i = 0; i < gamepads.length; i++) {
+            const gamepad = gamepads[i];
+            if (!gamepad) continue;
+
+            // Initialize previous button states for this gamepad if not already done
+            if (!previousButtonStates[gamepad.index]) {
+                previousButtonStates[gamepad.index] = new Array(gamepad.buttons.length).fill(false);
+            }
+
+            // Loop through the gamepad buttons
+            for (let j = 0; j < gamepad.buttons.length; j++) {
+                const button = gamepad.buttons[j];
+                const buttonMapping = `gamepad-${j}`;
+                // Find the control that matches the pressed key
+                const id = Object.keys(controlMapping).find(id => controlMapping[id].key === buttonMapping);  // Find the ID that matches the key
+                const nesButton = controlMapping[id];
+
+                const previouslyPressed = previousButtonStates[gamepad.index][j];  // Check previous state
+
+                if (button.pressed && !previouslyPressed) {
+
+                    const listItem = document.getElementById(id);  // Get the corresponding <li> element
+
+                    // If an element exists for the pressed key, add the 'active' class
+                    if (listItem) {
+                        listItem.classList.add('active');
+                    }
+
+                    // Button is pressed (and wasn't pressed in the last frame)
+                    if (nesButton !== undefined ){
+                        
+                        if( nesButton !== 'fpsBoost') {
+                            nes.buttonDown(1, nesButton.action);  // Trigger NES action
+                        }
+
+                        if ( nesButton.action === 'fpsBoost') {
+                            activateFPSBoost();  // Trigger FPS boost action
+                        }
+                    }
+
+                    // Handle remapping if waiting for input
+                    if (waitingForInput) {
+                        // Update the control mapping with the new key
+                        updateSidebarMap(waitingForInput, buttonMapping);  // Update the UI map
+                        controlMapping[waitingForInput].key = buttonMapping;  // Update mapping
+
+                        if (lastHighlighted) {
+                            lastHighlighted.classList.remove('highlight');
+                        }
+                        lastHighlighted = null;
+                        waitingForInput = null;
+                    }
+                } else if (!button.pressed && previouslyPressed) {
+                    
+                    const listItem = document.getElementById(id);  // Get the corresponding <li> element
+
+                    // If an element exists for the released key, remove the 'active' class
+                    if (listItem) {
+                        listItem.classList.remove('active');
+                    }
+
+                    // Button is pressed (and wasn't pressed in the last frame)
+                    if (nesButton !== undefined ){
+                        
+                        if( nesButton !== 'fpsBoost') {
+                            nes.buttonUp(1, nesButton.action);  // Trigger NES button release
+                        }
+
+                        if ( nesButton.action === 'fpsBoost') {
+                            deactivateFPSBoost();  // Stop FPS boost
+                        }
+                    }
+
+                }
+
+                // Update previous button state
+                previousButtonStates[gamepad.index][j] = button.pressed;
+            }
+        }
+
+        // Poll gamepad again on the next frame
+        requestAnimationFrame(pollGamepads);
+    }
+    pollGamepads();
+
     // Function to update the sidebar on page load
     function initializeSidebar() {
         Object.keys(controlMapping).forEach(id => {
@@ -274,6 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const id = Object.keys(controlMapping).find(id => controlMapping[id].key === event.key);  // Find the ID that matches the key
 
         if (id) {
+            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
             const listItem = document.getElementById(id);  // Get the corresponding <li> element
 
             // If an element exists for the pressed key, add the 'active' class
@@ -284,7 +377,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // Handle standard NES button presses (ignore FPS boost for now)
             if (controlMapping[id].action !== 'fpsBoost') {
                 nes.buttonDown(1, controlMapping[id].action);  // Trigger NES action
-                event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
             }
 
             // Handle FPS boost activation
@@ -317,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const id = Object.keys(controlMapping).find(id => controlMapping[id].key === event.key);  // Find the ID that matches the key
 
         if (id) {
+            event.preventDefault();  // Prevent default browser behavior
             const listItem = document.getElementById(id);  // Get the corresponding <li> element
 
             // If an element exists for the released key, remove the 'active' class
@@ -327,7 +420,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // Handle standard NES button releases (ignore FPS boost for now)
             if (controlMapping[id].action !== 'fpsBoost') {
                 nes.buttonUp(1, controlMapping[id].action);  // Trigger NES button release
-                event.preventDefault();  // Prevent default browser behavior
             }
 
             // Handle FPS boost deactivation
