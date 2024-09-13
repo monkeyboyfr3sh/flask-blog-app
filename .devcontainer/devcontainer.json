@@ -1,0 +1,9 @@
+{
+    "name": "Flask Blog DevContainer",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "flaskblog",
+    "workspaceFolder": "/app",
+    "postCreateCommand": "pip install -r requirements.txt",
+    "remoteUser": "root"
+  }
+  
