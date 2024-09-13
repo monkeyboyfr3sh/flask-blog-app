@@ -174,19 +174,6 @@ document.addEventListener('DOMContentLoaded', function () {
         source.start();
     }
 
-    // Initial key mapping, now including FPS Boost
-    let controlMapping = {
-        'Enter': jsnes.Controller.BUTTON_START,
-        'c': jsnes.Controller.BUTTON_SELECT,
-        'x': jsnes.Controller.BUTTON_A,
-        'z': jsnes.Controller.BUTTON_B,
-        'ArrowUp': jsnes.Controller.BUTTON_UP,
-        'ArrowDown': jsnes.Controller.BUTTON_DOWN,
-        'ArrowLeft': jsnes.Controller.BUTTON_LEFT,
-        'ArrowRight': jsnes.Controller.BUTTON_RIGHT,
-        'f': 'fpsBoost'  // Default mapping for FPS Boost
-    };
-
     // Function to update FPS
     function updateFPS(newFPS) {
         fps = newFPS;
@@ -224,6 +211,19 @@ document.addEventListener('DOMContentLoaded', function () {
             fpsBoostActive = false;
         }
     }
+
+    // Initial key mapping, now including FPS Boost
+    let controlMapping = {
+        'Enter': jsnes.Controller.BUTTON_START,
+        'c': jsnes.Controller.BUTTON_SELECT,
+        'x': jsnes.Controller.BUTTON_A,
+        'z': jsnes.Controller.BUTTON_B,
+        'ArrowUp': jsnes.Controller.BUTTON_UP,
+        'ArrowDown': jsnes.Controller.BUTTON_DOWN,
+        'ArrowLeft': jsnes.Controller.BUTTON_LEFT,
+        'ArrowRight': jsnes.Controller.BUTTON_RIGHT,
+        'f': 'fpsBoost'  // Default mapping for FPS Boost
+    };
 
     // Update the sidebar button map visually
     function updateSidebarMap(button, newKey) {
@@ -281,9 +281,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (waitingForInput) {
             const newKey = event.key;
-            controlMapping[newKey] = (waitingForInput === 'fpsBoost')
-                ? 'fpsBoost'
-                : jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
+            controlMapping[newKey] = controlMapping[waitingForInput];
             updateSidebarMap(waitingForInput, newKey);
 
             // Remove highlight and reset waiting state

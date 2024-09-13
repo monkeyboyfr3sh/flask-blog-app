@@ -281,9 +281,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (waitingForInput) {
             const newKey = event.key;
-            controlMapping[newKey] = (waitingForInput === 'fpsBoost')
-                ? 'fpsBoost'
-                : jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
+            controlMapping[newKey] = controlMapping[waitingForInput];
             updateSidebarMap(waitingForInput, newKey);
 
             // Remove highlight and reset waiting state
