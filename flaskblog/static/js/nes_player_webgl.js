@@ -225,6 +225,57 @@ document.addEventListener('DOMContentLoaded', function () {
         'map-fps-boost': { key: 'f', action: 'fpsBoost' }  // Custom action for FPS Boost
     };
 
+    function pollGamepads() {
+        const gamepads = navigator.getGamepads();
+    
+        for (let i = 0; i < gamepads.length; i++) {
+            const gamepad = gamepads[i];
+            if (!gamepad) continue;
+    
+            // Loop through the gamepad buttons
+            for (let j = 0; j < gamepad.buttons.length; j++) {
+                const button = gamepad.buttons[j];
+    
+                // Check if the button is pressed
+                if (button.pressed) {
+                    const buttonMapping = `gamepad-${j}`;
+                    const nesButton = controlMapping[buttonMapping];
+    
+                    if (nesButton !== undefined && nesButton !== 'fpsBoost') {
+                        nes.buttonDown(1, nesButton);  // Trigger NES action
+                    }
+    
+                    if (nesButton === 'fpsBoost') {
+                        activateFPSBoost();
+                    }
+    
+                    // Handle remapping
+                    if (waitingForInput) {
+                        controlMapping[buttonMapping] = jsnes.Controller[`BUTTON_${waitingForInput.toUpperCase()}`];
+                        updateSidebarMap(waitingForInput, `Gamepad ${j}`);
+                        waitingForInput = null;
+                        lastHighlighted.classList.remove('highlight');
+                        lastHighlighted = null;
+                    }
+                } else {
+                    const buttonMapping = `gamepad-${j}`;
+                    const nesButton = controlMapping[buttonMapping];
+                    if (nesButton !== undefined && nesButton !== 'fpsBoost') {
+                        nes.buttonUp(1, nesButton);  // Trigger NES button release
+                    }
+    
+                    if (nesButton === 'fpsBoost') {
+                        deactivateFPSBoost();
+                    }
+                }
+            }
+        }
+    
+        // Poll gamepad again on the next frame
+        requestAnimationFrame(pollGamepads);
+    }
+    pollGamepads();
+
     // Function to update the sidebar on page load
     function initializeSidebar() {
         Object.keys(controlMapping).forEach(id => {
