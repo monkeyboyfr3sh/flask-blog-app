@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let emulatorInterval;
     let waitingForInput = null; // To store the button being remapped
     let lastHighlighted = null; // To store the last highlighted element
+    let emulatorRunning = false;
 
     document.body.style.visibility = 'visible';
 
@@ -213,25 +214,32 @@ document.addEventListener('DOMContentLoaded', function () {
         if (emulatorInterval) {
             clearInterval(emulatorInterval);  // Clear previous interval if it exists
         }
-
-        const frameDuration = 1000 / fps;  // Frame duration in milliseconds
-
-        emulatorInterval = setInterval(() => {
-            nes.frame();  // Render the next frame of the game
-        }, frameDuration);
+        
+        if (fps > 100) {
+            if (!emulatorRunning) {
+                emulatorRunning = true;
+                runEmulatorFast();
+            }
+        } else {
+            emulatorRunning = false;
+            const frameDuration = 1000 / fps;  // Frame duration in milliseconds
+            
+            emulatorInterval = setInterval(() => {
+                nes.frame();  // Render the next frame of the game
+            }, frameDuration);
+        }
     }
-    // FPS control buttons
-    document.getElementById('increase-fps').addEventListener('click', () => {
-        if (fps < 120) {  // Set a max limit, e.g., 120 FPS
-            updateFPS(fps + 1);
-        }
-    });
 
-    document.getElementById('decrease-fps').addEventListener('click', () => {
-        if (fps > 1) {  // Set a min limit, e.g., 1 FPS
-            updateFPS(fps - 1);
+    // Fast frame cycling using requestAnimationFrame
+    function runEmulatorFast() {
+        function loop() {
+            if (emulatorRunning) {
+                nes.frame();  // Render the next frame of the game
+                requestAnimationFrame(loop);  // Continue as fast as possible
+            }
         }
-    });
+        requestAnimationFrame(loop);  // Start the loop
+    }
 
     // Resize canvas dynamically
     window.addEventListener('resize', resizeCanvas);
