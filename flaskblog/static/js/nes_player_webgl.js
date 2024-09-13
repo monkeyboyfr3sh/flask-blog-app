@@ -212,47 +212,54 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Initial key mapping, now including FPS Boost
+    // Initial NES button mapping, using DOM element IDs as keys
     let controlMapping = {
-        'Enter': jsnes.Controller.BUTTON_START,
-        'c': jsnes.Controller.BUTTON_SELECT,
-        'x': jsnes.Controller.BUTTON_A,
-        'z': jsnes.Controller.BUTTON_B,
-        'ArrowUp': jsnes.Controller.BUTTON_UP,
-        'ArrowDown': jsnes.Controller.BUTTON_DOWN,
-        'ArrowLeft': jsnes.Controller.BUTTON_LEFT,
-        'ArrowRight': jsnes.Controller.BUTTON_RIGHT,
-        'f': 'fpsBoost'  // Default mapping for FPS Boost
+        'map-start': { key: 'Enter', action: jsnes.Controller.BUTTON_START },
+        'map-select': { key: 'c', action: jsnes.Controller.BUTTON_SELECT },
+        'map-a': { key: 'x', action: jsnes.Controller.BUTTON_A },
+        'map-b': { key: 'z', action: jsnes.Controller.BUTTON_B },
+        'map-up': { key: 'ArrowUp', action: jsnes.Controller.BUTTON_UP },
+        'map-down': { key: 'ArrowDown', action: jsnes.Controller.BUTTON_DOWN },
+        'map-left': { key: 'ArrowLeft', action: jsnes.Controller.BUTTON_LEFT },
+        'map-right': { key: 'ArrowRight', action: jsnes.Controller.BUTTON_RIGHT },
+        'map-fps-boost': { key: 'f', action: 'fpsBoost' }  // Custom action for FPS Boost
     };
 
-    // Update the sidebar button map visually
-    function updateSidebarMap(button, newKey) {
-        const mapElement = {
-            'start': 'map-start',
-            'select': 'map-select',
-            'a': 'map-a',
-            'b': 'map-b',
-            'up': 'map-up',
-            'down': 'map-down',
-            'left': 'map-left',
-            'right': 'map-right',
-            'fpsBoost': 'map-fps-boost'  // Added FPS Boost to the map
-        };
+    // Function to update the sidebar on page load
+    function initializeSidebar() {
+        Object.keys(controlMapping).forEach(id => {
+            updateSidebarMap(id, controlMapping[id].key);  // Update each item in the sidebar
+        });
+    }
+    initializeSidebar();
 
-        const elementId = mapElement[button];
-        const listItem = document.getElementById(elementId);
+    // Update the sidebar map visually when keys are remapped
+    function updateSidebarMap(id, newKey) {
+        const listItem = document.getElementById(id);  // Get the corresponding list item by its ID
+
         if (listItem) {
-            listItem.textContent = `${button.charAt(0).toUpperCase() + button.slice(1)}: ${newKey}`;
+            const action = id.replace('map-', '');  // Get the action name (e.g., 'start', 'select')
+
+            // Capitalize the newKey (convert to uppercase)
+            const capitalizedKey = newKey.toUpperCase();
+
+            // Update the text content with the action and capitalized key
+            listItem.textContent = `${action.charAt(0).toUpperCase() + action.slice(1)}: ${capitalizedKey}`;
+
+            // Update the key in controlMapping with the new (non-capitalized) key for internal logic
+            controlMapping[id].key = newKey;  
+        } else {
+            console.error(`Element with ID ${id} not found.`);
         }
     }
 
     // Handle button remapping clicks
     document.getElementById('button-map').addEventListener('click', (event) => {
-        const button = event.target.getAttribute('data-button');
-        if (button) {
-            waitingForInput = button;
+        const id = event.target.id;  // Get the ID of the clicked element
+        if (id) {
+            waitingForInput = id;  // Set which element is waiting for a new key
 
-            // Highlight the clicked button
+            // Highlight the clicked button in the UI
             if (lastHighlighted) {
                 lastHighlighted.classList.remove('highlight');
             }
@@ -261,30 +268,41 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Handle keydown events for regular input and remapping
     document.addEventListener('keydown', (event) => {
-        const button = controlMapping[event.key];
-        const element = document.querySelector(`[data-button="${event.key}"]`);
+        // Find the control that matches the pressed key
+        const id = Object.keys(controlMapping).find(id => controlMapping[id].key === event.key);  // Find the ID that matches the key
 
-        // If an element exists for the pressed key, add the 'active' class
-        if (element) {
-            element.classList.add('active');
+        if (id) {
+            const listItem = document.getElementById(id);  // Get the corresponding <li> element
+
+            // If an element exists for the pressed key, add the 'active' class
+            if (listItem) {
+                listItem.classList.add('active');
+            }
+
+            // Handle standard NES button presses (ignore FPS boost for now)
+            if (controlMapping[id].action !== 'fpsBoost') {
+                nes.buttonDown(1, controlMapping[id].action);  // Trigger NES action
+                event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
+            }
+
+            // Handle FPS boost activation
+            if (controlMapping[id].action === 'fpsBoost') {
+                activateFPSBoost();
+            }
         }
 
-        if (button !== undefined && button !== 'fpsBoost') {
-            nes.buttonDown(1, button);
-            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
-        }
-
-        if (button === 'fpsBoost') {
-            activateFPSBoost();  // Activate FPS boost when the key is pressed
-        }
-
+        // Remap keys if in remapping mode
         if (waitingForInput) {
             const newKey = event.key;
-            controlMapping[newKey] = controlMapping[waitingForInput];
-            updateSidebarMap(waitingForInput, newKey);
 
-            // Remove highlight and reset waiting state
+            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
+
+            // Update the control mapping with the new key
+            updateSidebarMap(waitingForInput, newKey);  // Update the UI map
+
+            // Reset the remapping state
             if (lastHighlighted) {
                 lastHighlighted.classList.remove('highlight');
             }
@@ -293,20 +311,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Handle keyup events for stopping input
     document.addEventListener('keyup', (event) => {
-        const button = controlMapping[event.key];
-        const element = document.querySelector(`[data-button="${event.key}"]`);
+        // Find the control that matches the released key
+        const id = Object.keys(controlMapping).find(id => controlMapping[id].key === event.key);  // Find the ID that matches the key
 
-        // If an element exists for the released key, remove the 'active' class
-        if (element) {
-            element.classList.remove('active');
-        }
+        if (id) {
+            const listItem = document.getElementById(id);  // Get the corresponding <li> element
 
-        if (button === 'fpsBoost') {
-            deactivateFPSBoost();  // Deactivate FPS boost when the key is released
-        } else if (button !== undefined) {
-            nes.buttonUp(1, button);
-            event.preventDefault();  // Prevent default behavior (e.g., arrow key scrolling)
+            // If an element exists for the released key, remove the 'active' class
+            if (listItem) {
+                listItem.classList.remove('active');
+            }
+
+            // Handle standard NES button releases (ignore FPS boost for now)
+            if (controlMapping[id].action !== 'fpsBoost') {
+                nes.buttonUp(1, controlMapping[id].action);  // Trigger NES button release
+                event.preventDefault();  // Prevent default browser behavior
+            }
+
+            // Handle FPS boost deactivation
+            if (controlMapping[id].action === 'fpsBoost') {
+                deactivateFPSBoost();
+            }
         }
     });
 
