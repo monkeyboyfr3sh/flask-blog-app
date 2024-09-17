@@ -40,6 +40,19 @@ class User(db.Model, UserMixin):  # type: ignore
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
+class Comment(db.Model):  # type: ignore
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    # Add this line to establish the relationship with the User model
+    author = db.relationship('User', backref='comments', lazy=True)
+
+    def __repr__(self):
+        return f"Comment('{self.content}', '{self.date_posted}')"
+
 class Post(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
