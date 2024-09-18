@@ -82,3 +82,22 @@ def delete_comment(comment_id):
     db.session.commit()
     flash("Comment deleted", "success")
     return redirect(url_for('posts.post', post_id=comment.post_id))
+
+@posts.route("/comment/<int:comment_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    # Ensure the user owns the comment or is an admin
+    if comment.author != current_user and not current_user.admin:
+        abort(403)
+
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment.content = form.content.data
+        db.session.commit()
+        flash('Your comment has been updated!', 'success')
+        return redirect(url_for('posts.post', post_id=comment.post_id))
+    elif request.method == 'GET':
+        form.content.data = comment.content
+
+    return render_template('edit_comment.html', title='Edit Comment', form=form)

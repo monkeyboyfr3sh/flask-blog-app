@@ -1,7 +1,9 @@
 .context-menu {
-  background-color: white;
+  background-color: #fff;
   border: 1px solid #ddd;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 8px;
   z-index: 1000;
 }
 
@@ -18,5 +20,5 @@
 
 .context-menu ul li:hover {
   background-color: #f0f0f0;
+  border-radius: 4px;
 }
-</style>

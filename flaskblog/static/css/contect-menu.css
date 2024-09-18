@@ -1,7 +1,9 @@
 .context-menu {
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #1e1e1e; /* Match the background of the content section */
+  border: 1px solid #424242; /* Match the border color from the content section */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly darker shadow for better contrast */
+  padding: 10px;
+  border-radius: 4px; /* Adjusted to blend with other elements */
   z-index: 1000;
 }
 
@@ -13,10 +15,21 @@
 
 .context-menu ul li {
   padding: 8px 12px;
+  color: #e0e0e0; /* Text color to match the overall theme */
   cursor: pointer;
 }
 
 .context-menu ul li:hover {
-  background-color: #f0f0f0;
+  background-color: #333333; /* Slightly darker for hover effect */
+  border-radius: 4px;
+  color: #ffffff; /* White color on hover for better visibility */
 }
-</style>
+
+.context-menu ul li a {
+  color: inherit; /* Inherit color to match the li styling */
+  text-decoration: none;
+}
+
+.context-menu ul li a:hover {
+  color: #90caf9; /* Use the same hover color as your links */
+}
