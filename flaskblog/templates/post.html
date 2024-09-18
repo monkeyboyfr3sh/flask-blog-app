@@ -5,79 +5,92 @@
         alt="Profile Image" />
     <div class="media-body">
         <div class="article-metadata">
-            <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{
-                post.author.username }}</a>
-            <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+            <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
+            <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+
             {% if post.author == current_user %}
-            <div>
-                <a class="btn btn-secondary btn-sm mt-1 mb-1"
-                    href="{{ url_for('posts.update_post', post_id=post.id) }}">Update</a>
-                <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal"
-                    data-target="#deleteModal">Delete</button>
+            <div class="dropdown">
+                <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModal-{{ post.id }}">Delete</a>
+                </div>
             </div>
             {% endif %}
         </div>
         <h2 class="article-title">{{ post.title }}</h2>
         <p class="article-content">{{ post.content }}</p>
+
+        {% if post.image_file %}
+        <div class="post-image-content">
+          <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-fluid mt-3">
+        </div>
+        {% endif %}
     </div>
 </article>
-<!-- Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="post">
-                    <input class="btn btn-danger" type="submit" value="Delete" />
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
+<!-- Divider between post and comments section -->
+<hr class="section-divider">
 
 <!-- Comments Section -->
 <div class="comments-section mt-5">
     <h3>Comments</h3>
     {% for comment in comments %}
-    <div class="media mb-4">
-      <img class="rounded-circle article-img"
-           src="{{ url_for('static', filename=comment.author.image_file) }}"
-           alt="Profile Image"/>
-      <div class="media-body">
-        <h5 class="mt-0">{{ comment.author.username }}</h5>
-        <p>{{ comment.content }}</p>
-        <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d') }}</small>
-        
-        {% if comment.author == current_user or current_user.admin %}
-        <form action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" class="mt-1">
-          {{ form.hidden_tag() }}
-          <input class="btn btn-danger btn-sm" type="submit" value="Delete">
-        </form>
-        {% endif %}
-      </div>
+    <div class="media comment-item">
+        <div class="comment-image-left">
+            <img class="rounded-circle article-img" src="{{ url_for('static', filename=users[comment.user_id].image_file) }}" alt="Profile Image" />
+        </div>
+        <div class="media-body">
+            <div class="comment-metadata">
+                <h5 class="mt-0">{{ users[comment.user_id].username }}</h5>
+                <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+
+            <p class="comment-content">{{ comment.content }}</p>
+
+            {% if comment.image_file %}
+            <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment Image" class="post-image-content">
+            {% endif %}
+
+            {% if users[comment.user_id] == current_user or current_user.admin %}
+            <div class="dropdown">
+                <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{{ url_for('posts.edit_comment', comment_id=comment.id) }}">Edit</a>
+                    <a class="dropdown-item" href="#" onclick="deleteComment({{ comment.id }})">Delete</a>
+                </div>
+            </div>
+
+            <form id="delete-comment-form-{{ comment.id }}" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" style="display:none;">
+                {{ form.hidden_tag() }}
+            </form>
+            {% endif %}
+        </div>
     </div>
     {% else %}
     <p>No comments yet. Be the first to comment!</p>
     {% endfor %}
 </div>
 
-
 <!-- Comment Form -->
 {% if current_user.is_authenticated %}
 <div class="comment-form mt-4">
-    <form method="POST" action="">
+    <form method="POST" action="" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="form-group">
             {{ form.content.label(class="form-control-label") }}
             {{ form.content(class="form-control form-control-lg") }}
+        </div>
+        <!-- File input for image upload -->
+        <div class="form-group">
+            {{ form.image.label(class="form-control-label") }}
+            {{ form.image(class="form-control-file") }}
         </div>
         <div class="form-group">
             {{ form.submit(class="btn btn-primary") }}
@@ -88,26 +101,12 @@
 <p>You need to <a href="{{ url_for('users.login') }}">log in</a> to comment.</p>
 {% endif %}
 
-<!-- Delete Post Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="POST">
-                    {{ form.csrf_token }}
-                    <input class="btn btn-danger" type="submit" value="Delete" />
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+    function deleteComment(commentId) {
+        if (confirm('Are you sure you want to delete this comment?')) {
+            document.getElementById('delete-comment-form-' + commentId).submit();
+        }
+    }
+</script>
 
 {% endblock content %}

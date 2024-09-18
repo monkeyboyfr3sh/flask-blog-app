@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   flaskblog:
-    image: jlw4049/flask_blog
+    image: flask_emulator_blog
     build:
       context: .
       dockerfile: Dockerfile

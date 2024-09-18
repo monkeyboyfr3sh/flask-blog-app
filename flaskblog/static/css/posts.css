@@ -1,0 +1,136 @@
+/* Inheriting the dark theme from the main CSS */
+.comment-item {
+  background: #1e1e1e; /* Same as content-section background */
+  padding: 15px;
+  border: 1px solid #424242; /* Same as content-section border */
+  border-radius: 3px;
+  margin-bottom: 20px; /* Consistent spacing with other elements */
+}
+
+.comment-metadata {
+  color: #b0bec5; /* Light grey color for metadata */
+  font-size: 14px;
+}
+
+.comment-content {
+  color: #e0e0e0; /* Same light text color for content */
+  font-size: 16px;
+  line-height: 1.6; /* Ensure readability */
+}
+
+.comment-image {
+  float: left;
+  margin-right: 15px;
+  width: 60px;
+  height: 60px;
+}
+
+.comment-image img {
+  border-radius: 50%; /* Circle avatar */
+  border: 1px solid #616161; /* Slight border for better separation */
+}
+
+/* Action button styling */
+.btn-dark {
+  background-color: #4a3b58; /* Steel background */
+  color: #b0bec5; /* Light grey text */
+  border: 0px solid #424242; /* Border matching the dark theme */
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+  margin: 5px;
+}
+
+.btn-dark:hover {
+  background-color: #90caf9; /* Blue hover background */
+  color: #ffffff; /* White text on hover */
+}
+
+/* Dropdown menu styling */
+.dropdown-menu-dark {
+  background-color: #424242; /* Dark background for dropdown */
+  color: #b0bec5; /* Light grey text */
+  border: 1px solid #616161;
+}
+
+.dropdown-item {
+  color: #b0bec5; /* Light grey text for dropdown items */
+}
+
+.dropdown-item:hover {
+  background-color: #4e6272; /* Steel background for hover */
+  color: #ffffff; /* White text on hover */
+}
+
+/* Primary button for forms */
+.btn-primary {
+  background-color: #4a3b58; /* Blue primary button */
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  background-color: #42a5f5; /* Darker blue on hover */
+}
+
+a.dropdown-item {
+  color: #b0bec5;
+}
+
+a.dropdown-item:hover {
+  color: #ffffff;
+  background-color: #424242; /* Dark hover background */
+}
+
+/* Post image on the right for the home page */
+.post-image-right {
+  float: right;
+  margin-left: 20px;
+  max-width: 150px; /* Limit the size */
+}
+
+.post-image-right img {
+  width: 100%; /* Make the image responsive */
+  height: auto;
+  border-radius: 5px; /* Add rounding for consistency */
+}
+
+/* New style for post images in the content section */
+.post-image-content {
+  display: block;
+  margin: 20px auto;
+  max-width: 80%; /* Set a max-width to prevent overflow */
+}
+
+.post-image-content img {
+  width: 100%; /* Responsive image */
+  height: auto;
+  border-radius: 5px; /* Rounding */
+  max-width: 100%; /* Prevent the image from exceeding container size */
+}
+
+/* New style for comment images */
+.comment-image-left {
+  float: left;
+  margin-right: 15px;
+  width: 60px;
+  height: 60px;
+}
+
+.comment-image-left img {
+  border-radius: 50%; /* Circle avatar */
+  border: 1px solid #616161; /* Border for separation */
+  max-width: 60px; /* Ensure it doesn't expand beyond its container */
+  height: auto; /* Keep aspect ratio */
+}
+
+/* Divider between post and comments section */
+.section-divider {
+  border: 0;
+  height: 1px;
+  background: #616161; /* Grey divider matching theme */
+  margin: 40px 0; /* Space above and below the divider */
+}
