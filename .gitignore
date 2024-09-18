@@ -68,3 +68,5 @@ config.json
 
 # Other system files
 *.swp
+
+config/*

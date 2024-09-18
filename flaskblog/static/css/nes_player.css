@@ -108,7 +108,7 @@ label,
 }
 
 #rom-loader-btn {
-    background-color: #3b4b58;
+    background-color: #4a3b58;
     color: #e0e0e0;
     border: 1px solid #424242;
     padding: 10px 20px;
@@ -120,7 +120,7 @@ label,
 }
 
 #rom-loader-btn:hover {
-    background-color: #424242;
+    background-color: #392e44;
     color: #ffffff;
 }
 
@@ -141,7 +141,7 @@ label,
 
 /* General button style */
 button {
-    background-color: #3b4b58;
+    background-color: #4a3b58;
     /* Match the dark steel background */
     color: #e0e0e0;
     /* Light text */
@@ -160,7 +160,7 @@ button {
 }
 
 button:hover {
-    background-color: #424242;
+    background-color: #392e44;
     /* Darken slightly on hover */
     color: #ffffff;
     /* Change to white text on hover */
