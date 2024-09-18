@@ -67,9 +67,17 @@ def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)
+    
+    # Manually delete comments associated with the post
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    for comment in comments:
+        db.session.delete(comment)
+
+    # Now delete the post itself
     db.session.delete(post)
     db.session.commit()
-    flash("Your post has been deleted!", "success")
+    
+    flash("Your post and all associated comments have been deleted!", "success")
     return redirect(url_for("main.home"))
 
 @posts.route("/comment/<int:comment_id>/delete", methods=["POST"])
