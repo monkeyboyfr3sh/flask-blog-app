@@ -5,25 +5,41 @@ from flaskblog import db
 from flaskblog.models import Post, Comment
 from flaskblog.posts.forms import PostForm, CommentForm
 
+import os
+import secrets
+from flask import current_app
+from PIL import Image
+
 posts = Blueprint("posts", __name__)
 
+def save_image(form_image):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_image.filename)
+    image_fn = random_hex + f_ext
+    image_path = os.path.join(current_app.root_path, 'static/post_images', image_fn)
+
+    # Resize the image (optional)
+    i = Image.open(form_image)
+    i.thumbnail((400, 400))  # Resize to a maximum of 400x400 pixels
+    i.save(image_path)
+
+    return image_fn
 
 @posts.route("/post/new", methods=["GET", "POST"])
 @login_required
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(
-            title=form.title.data, content=form.content.data, author=current_user
-        )
+        if form.image.data:
+            image_file = save_image(form.image.data)
+        else:
+            image_file = None
+        post = Post(title=form.title.data, content=form.content.data, author=current_user, image_file=image_file)
         db.session.add(post)
         db.session.commit()
         flash("Your post has been created!", "success")
         return redirect(url_for("main.home"))
-    return render_template(
-        "create_post.html", title="New Post", form=form, legend="New Post"
-    )
-
+    return render_template("create_post.html", title="New Post", form=form, legend="New Post")
 
 @posts.route("/post/<int:post_id>", methods=["GET", "POST"])
 def post(post_id):
@@ -32,7 +48,11 @@ def post(post_id):
     form = CommentForm()
 
     if form.validate_on_submit() and current_user.is_authenticated:
-        comment = Comment(content=form.content.data, post_id=post.id, user_id=current_user.id)
+        if form.image.data:
+            image_file = save_image(form.image.data)
+        else:
+            image_file = None
+        comment = Comment(content=form.content.data, post_id=post.id, user_id=current_user.id, image_file=image_file)
         db.session.add(comment)
         db.session.commit()
         flash('Your comment has been posted.', 'success')

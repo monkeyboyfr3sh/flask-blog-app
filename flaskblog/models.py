@@ -50,11 +50,10 @@ class Comment(db.Model):  # type: ignore
     date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    author = db.relationship('User', backref='comments', lazy=True)
+    image_file = db.Column(db.String(20), nullable=True)  # New field for comment images
 
     def __repr__(self):
-        return f"Comment('{self.content}', '{self.date_posted}')"
+        return f"Comment('{self.content}', '{self.date_posted}', '{self.image_file}')"
 
 class Post(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
@@ -62,9 +61,10 @@ class Post(db.Model):  # type: ignore
     date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    image_file = db.Column(db.String(20), nullable=True)  # New field for post images
 
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Post('{self.title}', '{self.date_posted}', '{self.image_file}')"
     
 class WorkoutLog(db.Model):  # Updated model for workout logs
     id = db.Column(db.Integer, primary_key=True)
