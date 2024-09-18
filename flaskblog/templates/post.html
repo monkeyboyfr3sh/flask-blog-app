@@ -6,95 +6,97 @@
     <div class="media-body">
         <div class="article-metadata">
             <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
-            <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
-            
-            {% if post.author == current_user %}
-            <!-- Dropdown for Edit/Delete options -->
-            <div class="dropdown" style="display:inline-block;">
-                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Actions
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModal-{{ post.id }}">Delete</a>
-                </div>
+
+        <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+
+        {% if post.author == current_user %}
+        <!-- Dropdown for Edit/Delete options -->
+        <div class="dropdown" style="display:inline-block;">
+            <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Actions
+            </button>
+            <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModal-{{ post.id }}">Delete</a>
             </div>
-            {% endif %}
         </div>
-        <h2 class="article-title">{{ post.title }}</h2>
-        <p class="article-content">{{ post.content }}</p>
+        {% endif %}
+    </div>
+    <h2 class="article-title">{{ post.title }}</h2>
+    <p class="article-content">{{ post.content }}</p>
     </div>
 </article>
 
 <!-- Modal for deleting the post -->
 <div class="modal fade" id="deleteModal-{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="post">
-                    <input class="btn btn-danger" type="submit" value="Delete" />
-                </form>
-            </div>
-        </div>
-    </div>
+aria-hidden="true">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="post">
+        <input class="btn btn-danger" type="submit" value="Delete" />
+    </form>
+</div>
+</div>
+</div>
 </div>
 
 <!-- Comments Section -->
 <div class="comments-section mt-5">
-    <h3>Comments</h3>
-    {% for comment in comments %}
-    <div class="media mb-4">
-        <img class="rounded-circle article-img" src="{{ url_for('static', filename=comment.author.image_file) }}" alt="Profile Image" />
-        <div class="media-body">
-            <h5 class="mt-0">{{ comment.author.username }}</h5>
-            <p>{{ comment.content }}</p>
-            <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+<h3>Comments</h3>
+{% for comment in comments %}
+<div class="media mb-4">
+<img class="rounded-circle article-img" src="{{ url_for('static', filename=comment.author.image_file) }}" alt="Profile Image" />
+<div class="media-body">
+<h5 class="mt-0">{{ comment.author.username }}</h5>
+<p>{{ comment.content }}</p>
+<small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
 
-            {% if comment.author == current_user or current_user.admin %}
-            <div class="dropdown" style="display:inline-block;">
-                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Actions
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="{{ url_for('posts.edit_comment', comment_id=comment.id) }}">Edit</a>
-                    <a class="dropdown-item" href="#" onclick="deleteComment({{ comment.id }})">Delete</a>
-                </div>
-            </div>
-            
-            <form id="delete-comment-form-{{ comment.id }}" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" style="display:none;">
-                {{ form.hidden_tag() }}
-            </form>
-            {% endif %}
-        </div>
+{% if comment.author == current_user or current_user.admin %}
+<!-- Dropdown for comment actions -->
+<div class="dropdown" style="display:inline-block;">
+    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Actions
+    </button>
+    <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="{{ url_for('posts.edit_comment', comment_id=comment.id) }}">Edit</a>
+        <a class="dropdown-item" href="#" onclick="deleteComment({{ comment.id }})">Delete</a>
     </div>
-    {% else %}
-    <p>No comments yet. Be the first to comment!</p>
-    {% endfor %}
+</div>
+
+<form id="delete-comment-form-{{ comment.id }}" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" style="display:none;">
+    {{ form.hidden_tag() }}
+</form>
+{% endif %}
+</div>
+</div>
+{% else %}
+<p>No comments yet. Be the first to comment!</p>
+{% endfor %}
 </div>
 
 <!-- Comment Form -->
 {% if current_user.is_authenticated %}
 <div class="comment-form mt-4">
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.content.label(class="form-control-label") }}
-            {{ form.content(class="form-control form-control-lg") }}
-        </div>
-        <div class="form-group">
-            {{ form.submit(class="btn btn-primary") }}
-        </div>
-    </form>
+<form method="POST" action="">
+{{ form.hidden_tag() }}
+<div class="form-group">
+{{ form.content.label(class="form-control-label") }}
+{{ form.content(class="form-control form-control-lg") }}
+</div>
+<div class="form-group">
+{{ form.submit(class="btn btn-primary") }}
+</div>
+</form>
 </div>
 {% else %}
 <p>You need to <a href="{{ url_for('users.login') }}">log in</a> to comment.</p>
@@ -102,11 +104,11 @@
 
 <!-- Optional: JS to handle comment deletion -->
 <script>
-    function deleteComment(commentId) {
-        if (confirm('Are you sure you want to delete this comment?')) {
-            document.getElementById('delete-comment-form-' + commentId).submit();
-        }
-    }
+function deleteComment(commentId) {
+if (confirm('Are you sure you want to delete this comment?')) {
+document.getElementById('delete-comment-form-' + commentId).submit();
+}
+}
 </script>
 
 {% endblock content %}
