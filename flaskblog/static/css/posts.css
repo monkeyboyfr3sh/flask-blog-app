@@ -89,7 +89,7 @@ a.dropdown-item:hover {
 .post-image-right {
   float: right;
   margin-left: 20px;
-  width: 150px; /* Adjust for desired image size */
+  max-width: 150px; /* Limit the size */
 }
 
 .post-image-right img {
@@ -102,13 +102,14 @@ a.dropdown-item:hover {
 .post-image-content {
   display: block;
   margin: 20px auto;
-  width: 80%; /* Center and adjust size as needed */
+  max-width: 80%; /* Set a max-width to prevent overflow */
 }
 
 .post-image-content img {
   width: 100%; /* Responsive image */
   height: auto;
   border-radius: 5px; /* Rounding */
+  max-width: 100%; /* Prevent the image from exceeding container size */
 }
 
 /* New style for comment images */
@@ -122,8 +123,8 @@ a.dropdown-item:hover {
 .comment-image-left img {
   border-radius: 50%; /* Circle avatar */
   border: 1px solid #616161; /* Border for separation */
-  width: 20%; /* Responsive */
-  height: auto;
+  max-width: 60px; /* Ensure it doesn't expand beyond its container */
+  height: auto; /* Keep aspect ratio */
 }
 
 /* Divider between post and comments section */
