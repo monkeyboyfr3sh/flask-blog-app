@@ -1,6 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
   <h1>Blog Posts</h1>
+  
+  <!-- Add New Post button for authenticated users -->
+  {% if current_user.is_authenticated %}
+    <div class="mb-4">
+      <a href="{{ url_for('posts.new_post') }}" class="btn btn-primary">New Post</a>
+    </div>
+  {% endif %}
+  
   {% if posts %}
     {% for post in posts.items %}
       <article class="media content-section">
@@ -24,6 +32,8 @@
         {% endif %}
       </article>
     {% endfor %}
+    
+    <!-- Pagination for posts -->
     {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
       {% if page_num %}
         {% if posts.page == page_num %}
