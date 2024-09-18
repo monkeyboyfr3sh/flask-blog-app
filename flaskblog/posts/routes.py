@@ -12,18 +12,37 @@ from PIL import Image
 
 posts = Blueprint("posts", __name__)
 
-def save_image(form_image):
+def delete_old_pic(old_pic):
+    if "default.jpg" not in old_pic:
+        try:
+            delete = os.path.join(str(current_app.static_folder), old_pic)
+            os.remove(delete)
+        except FileNotFoundError:
+            pass
+
+def save_picture(form_picture, folder='images', size=(400, 400)):
+    # Define the path to the folder
+    pic_path = os.path.join(current_app.static_folder, folder)
+
+    # Create folder if it doesn't exist
+    if not os.path.exists(pic_path):
+        os.makedirs(pic_path)
+
+    # Generate a random name for the image
     random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_image.filename)
-    image_fn = random_hex + f_ext
-    image_path = os.path.join(current_app.root_path, 'static/post_images', image_fn)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(pic_path, picture_fn)
 
-    # Resize the image (optional)
-    i = Image.open(form_image)
-    i.thumbnail((400, 400))  # Resize to a maximum of 400x400 pixels
-    i.save(image_path)
+    # Resize the image
+    i = Image.open(form_picture)
+    if i.mode == 'RGBA':
+        i = i.convert('RGB')
+    i.thumbnail(size)
+    i.save(picture_path)
 
-    return image_fn
+    # Return the path relative to the static folder
+    return os.path.join(folder, picture_fn)
 
 @posts.route("/post/new", methods=["GET", "POST"])
 @login_required
@@ -31,7 +50,7 @@ def new_post():
     form = PostForm()
     if form.validate_on_submit():
         if form.image.data:
-            image_file = save_image(form.image.data)
+            image_file = save_picture(form.image.data, folder='post_images')
         else:
             image_file = None
         post = Post(title=form.title.data, content=form.content.data, author=current_user, image_file=image_file)
@@ -49,7 +68,7 @@ def post(post_id):
 
     if form.validate_on_submit() and current_user.is_authenticated:
         if form.image.data:
-            image_file = save_image(form.image.data)
+            image_file = save_picture(form.image.data, folder='comment_images')
         else:
             image_file = None
         comment = Comment(content=form.content.data, post_id=post.id, user_id=current_user.id, image_file=image_file)
@@ -68,6 +87,11 @@ def update_post(post_id):
         abort(403)
     form = PostForm()
     if form.validate_on_submit():
+        if form.image.data:
+            old_image = post.image_file
+            image_file = save_picture(form.image.data, folder='post_images')
+            post.image_file = image_file
+            delete_old_pic(old_image)  # Delete the old image
         post.title = form.title.data
         post.content = form.content.data
         db.session.commit()
@@ -76,10 +100,7 @@ def update_post(post_id):
     elif request.method == "GET":
         form.title.data = post.title
         form.content.data = post.content
-    return render_template(
-        "create_post.html", title="Update Post", form=form, legend="Update Post"
-    )
-
+    return render_template("create_post.html", title="Update Post", form=form, legend="Update Post")
 
 @posts.route("/post/<int:post_id>/delete", methods=["POST"])
 @login_required
