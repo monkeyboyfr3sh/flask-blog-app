@@ -112,13 +112,7 @@ def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)
-    
-    # Manually delete comments associated with the post
-    comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
-    for comment in comments:
-        db.session.delete(comment)
 
-    # Now delete the post itself
     db.session.delete(post)
     db.session.commit()
     
@@ -129,7 +123,7 @@ def delete_post(post_id):
 @login_required
 def delete_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
-    if comment.author != current_user and not current_user.admin:
+    if comment.user_id != current_user.id and not current_user.admin:
         abort(403)
     db.session.delete(comment)
     db.session.commit()
@@ -141,7 +135,7 @@ def delete_comment(comment_id):
 def edit_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
     # Ensure the user owns the comment or is an admin
-    if comment.author != current_user and not current_user.admin:
+    if comment.user_id != current_user.id and not current_user.admin:
         abort(403)
 
     form = CommentForm()

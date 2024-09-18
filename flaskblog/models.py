@@ -26,10 +26,24 @@ class User(db.Model, UserMixin):  # type: ignore
     posts = db.relationship("Post", backref="author", lazy=True, cascade="all, delete-orphan")
     workouts = db.relationship("WorkoutLog", backref="author", lazy=True, cascade="all, delete-orphan")
     scores = db.relationship("HangmanScore", backref="user", lazy=True, cascade="all, delete-orphan")
+    comments = db.relationship("Comment", backref="author", lazy=True, cascade="all, delete-orphan")
 
     def get_reset_token(self):
         s = TimedSerializer(current_app.secret_key)
         return s.dumps({"id": self.id})
+
+    @staticmethod
+    def verify_reset_token(token, expires_seconds: int = 1800):
+        s = TimedSerializer(current_app.secret_key)
+        try:
+            user_id = s.loads(token, expires_seconds)
+        except itsdangerous.exc.SignatureExpired:
+            return None
+        return User.query.get(user_id)
+
+    def __repr__(self):
+        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+
 
     @staticmethod
     def verify_reset_token(token, expires_seconds: int = 1800):
@@ -62,6 +76,9 @@ class Post(db.Model):  # type: ignore
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     image_file = db.Column(db.String(20), nullable=True)  # New field for post images
+    
+    # Relationship to comments with cascade delete-orphan
+    comments = db.relationship("Comment", backref="post", lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}', '{self.image_file}')"
