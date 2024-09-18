@@ -1,9 +1,12 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import TimedSerializer
 from sqlalchemy.exc import OperationalError
 from flaskblog import db, bcrypt, login_manager
+
+# Define the UTC-6 offset manually (Central Standard Time)
+CST_OFFSET = timedelta(hours=-5)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -40,14 +43,14 @@ class User(db.Model, UserMixin):  # type: ignore
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
+
 class Comment(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    # Add this line to establish the relationship with the User model
     author = db.relationship('User', backref='comments', lazy=True)
 
     def __repr__(self):
@@ -56,13 +59,13 @@ class Comment(db.Model):  # type: ignore
 class Post(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
-
+    
 class WorkoutLog(db.Model):  # Updated model for workout logs
     id = db.Column(db.Integer, primary_key=True)
     workout_type = db.Column(db.String(100), nullable=False)
