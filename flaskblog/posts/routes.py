@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from flaskblog import db
 from flaskblog.models import Post, Comment
 from flaskblog.posts.forms import PostForm, CommentForm
+from flaskblog.models import Post, Comment, User
 
 import os
 import secrets
@@ -66,6 +67,9 @@ def post(post_id):
     comments = Comment.query.filter_by(post_id=post_id).order_by(Comment.date_posted.asc()).all()
     form = CommentForm()
 
+    # Preload the users for all comments to avoid querying in the template
+    users = {comment.user_id: User.query.get(comment.user_id) for comment in comments}
+
     if form.validate_on_submit() and current_user.is_authenticated:
         if form.image.data:
             image_file = save_picture(form.image.data, folder='comment_images')
@@ -77,7 +81,7 @@ def post(post_id):
         flash('Your comment has been posted.', 'success')
         return redirect(url_for('posts.post', post_id=post.id))
 
-    return render_template("post.html", title=post.title, post=post, form=form, comments=comments)
+    return render_template("post.html", title=post.title, post=post, form=form, comments=comments, users=users)
 
 @posts.route("/post/<int:post_id>/update", methods=["GET", "POST"])
 @login_required

@@ -56,16 +56,19 @@
     <h3>Comments</h3>
     {% for comment in comments %}
     <div class="media mb-4">
-        <img class="rounded-circle article-img" src="{{ url_for('static', filename=comment.author.image_file) }}" alt="Profile Image" />
+        <!-- Use the preloaded users dictionary -->
+        {% set user = users[comment.user_id] %}
+        <img class="rounded-circle article-img" src="{{ url_for('static', filename=user.image_file) }}" alt="Profile Image" />
         <div class="media-body">
-            <h5 class="mt-0">{{ comment.author.username }}</h5>
+            <h5 class="mt-0">{{ user.username }}</h5>
             <p>{{ comment.content }}</p>
             <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+
             {% if comment.image_file %}
-            <img src="{{ url_for('static', filename='post_images/' + comment.image_file) }}" alt="Comment Image" class="img-fluid mt-3">
+            <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment Image" class="img-fluid mt-3">
             {% endif %}
 
-            {% if comment.author == current_user or current_user.admin %}
+            {% if user == current_user or current_user.admin %}
             <!-- Dropdown for comment actions -->
             <div class="dropdown" style="display:inline-block;">
                 <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
@@ -84,7 +87,6 @@
             {% endif %}
         </div>
     </div>
-    {% else %}
     <p>No comments yet. Be the first to comment!</p>
     {% endfor %}
 </div>
