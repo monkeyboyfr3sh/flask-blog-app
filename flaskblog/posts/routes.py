@@ -69,7 +69,7 @@ def delete_post(post_id):
         abort(403)
     
     # Manually delete comments associated with the post
-    comments = Comment.query.filter_by(post_id=post_id).all()
+    comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
     for comment in comments:
         db.session.delete(comment)
 
