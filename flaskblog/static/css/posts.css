@@ -1,54 +1,23 @@
-/* Post layout improvements */
-.post-image-right {
-  float: right;
-  margin-left: 20px;
-  width: 150px; /* Adjusted for larger images */
-}
-
-.post-image-right img,
-.comment-image img {
-  width: 100%; /* Make the images responsive */
-  height: auto;
-  border-radius: 5px; /* Consistent rounding */
-}
-
-/* Media section improvements for posts and comments */
-.media-body {
-  padding: 10px 0; /* Uniform padding for all media elements */
-}
-
-/* Comment section improvements */
-.comments-section {
-  margin-top: 30px; /* Space above the comments section */
-}
-
+/* Inheriting the dark theme from the main CSS */
 .comment-item {
-  padding: 10px 0; /* Padding between comments */
-  border-bottom: 1px solid #ddd; /* Separation between comments */
-  margin-bottom: 15px; /* Margin to add spacing */
+  background: #1e1e1e; /* Same as content-section background */
+  padding: 15px;
+  border: 1px solid #424242; /* Same as content-section border */
+  border-radius: 3px;
+  margin-bottom: 20px; /* Consistent spacing with other elements */
 }
 
-.comment-item:last-child {
-  border-bottom: none; /* Remove border for last comment */
+.comment-metadata {
+  color: #b0bec5; /* Light grey color for metadata */
+  font-size: 14px;
 }
 
-/* Consistent dropdown button styling */
-.dropdown {
-  display: inline-block;
-  margin-left: 10px;
+.comment-content {
+  color: #e0e0e0; /* Same light text color for content */
+  font-size: 16px;
+  line-height: 1.6; /* Ensure readability */
 }
 
-.btn-dark {
-  border-radius: 4px;
-}
-
-/* Form input styling */
-.form-control,
-.form-control-file {
-  margin-bottom: 15px;
-}
-
-/* Adjust comment image size */
 .comment-image {
   float: left;
   margin-right: 15px;
@@ -58,5 +27,40 @@
 
 .comment-image img {
   border-radius: 50%; /* Circle avatar */
+  border: 1px solid #616161; /* Slight border for better separation */
 }
 
+/* Adjust buttons and links to follow main site's hover effects */
+.btn-dark {
+  background-color: #3b4b58; /* Steel background for dark buttons */
+  color: #b0bec5; /* Light grey text */
+  border-radius: 3px;
+  border: 1px solid #424242;
+}
+
+.btn-dark:hover {
+  background-color: #90caf9; /* Blue hover color */
+  color: #ffffff;
+}
+
+a.dropdown-item {
+  color: #b0bec5;
+}
+
+a.dropdown-item:hover {
+  color: #ffffff;
+  background-color: #424242; /* Dark hover background */
+}
+
+/* Post image on the right for the home page */
+.post-image-right {
+  float: right;
+  margin-left: 20px;
+  width: 150px; /* Adjust for desired image size */
+}
+
+.post-image-right img {
+  width: 100%; /* Make the image responsive */
+  height: auto;
+  border-radius: 5px; /* Add rounding for consistency */
+}

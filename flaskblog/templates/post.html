@@ -58,21 +58,22 @@
     <h3>Comments</h3>
     {% for comment in comments %}
     <div class="media comment-item">
-        <!-- User image for the comment -->
         <div class="comment-image">
             <img class="rounded-circle article-img" src="{{ url_for('static', filename=users[comment.user_id].image_file) }}" alt="Profile Image" />
         </div>
         <div class="media-body">
-            <h5 class="mt-0">{{ users[comment.user_id].username }}</h5>
-            <p>{{ comment.content }}</p>
-            <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+            <div class="comment-metadata">
+                <h5 class="mt-0">{{ users[comment.user_id].username }}</h5>
+                <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+
+            <p class="comment-content">{{ comment.content }}</p>
 
             {% if comment.image_file %}
             <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment Image" class="img-fluid mt-3">
             {% endif %}
 
             {% if users[comment.user_id] == current_user or current_user.admin %}
-            <!-- Dropdown for comment actions -->
             <div class="dropdown">
                 <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
