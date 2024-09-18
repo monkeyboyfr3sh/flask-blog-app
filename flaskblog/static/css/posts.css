@@ -1,0 +1,12 @@
+.post-image-right {
+    float: right;
+    margin-left: 20px;
+    width: 100px; /* Adjust the width as necessary */
+  }
+  
+  .post-image-right img {
+    width: 100%; /* Make the image responsive */
+    height: auto;
+    border-radius: 5px; /* Optional: adds a bit of rounding to the corners */
+  }
+  

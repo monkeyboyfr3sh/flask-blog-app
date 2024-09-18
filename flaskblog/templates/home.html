@@ -4,8 +4,6 @@
   {% if posts %}
     {% for post in posts.items %}
       <article class="media content-section">
-        <img class="rounded-circle article-img"
-             src="{{ url_for('static', filename='' + post.author.image_file) }}">
         <div class="media-body">
           <div class="article-metadata">
             <a class="mr-2"
@@ -18,6 +16,13 @@
           </h2>
           <p class="article-content">{{ post.content }}</p>
         </div>
+
+        <!-- Check if the post has an image file and display it on the right side -->
+        {% if post.image_file %}
+        <div class="post-image-right">
+          <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-thumbnail">
+        </div>
+        {% endif %}
       </article>
     {% endfor %}
     {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
