@@ -98,6 +98,34 @@ a.dropdown-item:hover {
   border-radius: 5px; /* Add rounding for consistency */
 }
 
+/* New style for post images in the content section */
+.post-image-content {
+  display: block;
+  margin: 20px auto;
+  width: 80%; /* Center and adjust size as needed */
+}
+
+.post-image-content img {
+  width: 100%; /* Responsive image */
+  height: auto;
+  border-radius: 5px; /* Rounding */
+}
+
+/* New style for comment images */
+.comment-image-left {
+  float: left;
+  margin-right: 15px;
+  width: 60px;
+  height: 60px;
+}
+
+.comment-image-left img {
+  border-radius: 50%; /* Circle avatar */
+  border: 1px solid #616161; /* Border for separation */
+  width: 20%; /* Responsive */
+  height: auto;
+}
+
 /* Divider between post and comments section */
 .section-divider {
   border: 0;

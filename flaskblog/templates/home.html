@@ -17,7 +17,7 @@
           <p class="article-content">{{ post.content }}</p>
         </div>
 
-        {% if post.image_file %}
+        {% if post.image_file %} 
         <div class="post-image-right">
           <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-thumbnail">
         </div>
