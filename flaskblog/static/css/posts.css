@@ -1,12 +1,62 @@
+/* Post layout improvements */
 .post-image-right {
-    float: right;
-    margin-left: 20px;
-    width: 100px; /* Adjust the width as necessary */
-  }
-  
-  .post-image-right img {
-    width: 100%; /* Make the image responsive */
-    height: auto;
-    border-radius: 5px; /* Optional: adds a bit of rounding to the corners */
-  }
-  
+  float: right;
+  margin-left: 20px;
+  width: 150px; /* Adjusted for larger images */
+}
+
+.post-image-right img,
+.comment-image img {
+  width: 100%; /* Make the images responsive */
+  height: auto;
+  border-radius: 5px; /* Consistent rounding */
+}
+
+/* Media section improvements for posts and comments */
+.media-body {
+  padding: 10px 0; /* Uniform padding for all media elements */
+}
+
+/* Comment section improvements */
+.comments-section {
+  margin-top: 30px; /* Space above the comments section */
+}
+
+.comment-item {
+  padding: 10px 0; /* Padding between comments */
+  border-bottom: 1px solid #ddd; /* Separation between comments */
+  margin-bottom: 15px; /* Margin to add spacing */
+}
+
+.comment-item:last-child {
+  border-bottom: none; /* Remove border for last comment */
+}
+
+/* Consistent dropdown button styling */
+.dropdown {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.btn-dark {
+  border-radius: 4px;
+}
+
+/* Form input styling */
+.form-control,
+.form-control-file {
+  margin-bottom: 15px;
+}
+
+/* Adjust comment image size */
+.comment-image {
+  float: left;
+  margin-right: 15px;
+  width: 60px;
+  height: 60px;
+}
+
+.comment-image img {
+  border-radius: 50%; /* Circle avatar */
+}
+
