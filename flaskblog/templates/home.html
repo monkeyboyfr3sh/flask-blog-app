@@ -10,39 +10,41 @@
   {% endif %}
   
   {% if posts %}
-    {% for post in posts.items %}
+  {% for post in posts.items %}
       <article class="media content-section">
-        <div class="media-body">
-          <div class="article-metadata">
-            <a class="mr-2"
-               href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
-            <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
-          </div>
-          <h2>
-              <a class="article-title"
-                href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
-          </h2>
-          <p class="article-content">{{ post.content }}</p>
+          <div class="media-body">
+              <div class="article-metadata">
+                  <a class="mr-2"
+                     href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
+                  <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+              </div>
+              <h2>
+                  <a class="article-title"
+                     href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
+              </h2>
+              <p class="article-content">{{ post.content }}</p>
 
-          <!-- Like/Dislike Buttons -->
-          <div class="post-likes-dislikes">
-            <button class="btn btn-success" id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">
-              👍 <span id="like-count-{{ post.id }}">{{ post.likes or 0 }}</span>
-            </button>
-            <button class="btn btn-danger" id="dislike-btn-{{ post.id }}" onclick="dislikePost({{ post.id }})">
-              👎 <span id="dislike-count-{{ post.id }}">{{ post.dislikes or 0 }}</span>
-            </button>
+              <!-- Like/Dislike Buttons -->
+              <div class="post-likes-dislikes">
+                  <button class="btn {% if current_user in post.liked_by %}btn-success{% else %}btn-outline-success{% endif %}" 
+                          id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">
+                  👍 <span id="like-count-{{ post.id }}">{{ post.like_count() }}</span>
+                  </button>
+                  <button class="btn {% if current_user in post.disliked_by %}btn-danger{% else %}btn-outline-danger{% endif %}" 
+                          id="dislike-btn-{{ post.id }}" onclick="dislikePost({{ post.id }})">
+                  👎 <span id="dislike-count-{{ post.id }}">{{ post.dislike_count() }}</span>
+                  </button>
+              </div>
+              
           </div>
-
-        </div>
-        {% if post.image_file %} 
-        <div class="post-image-right">
-          <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-thumbnail">
-        </div>
-        {% endif %}
+          {% if post.image_file %}
+              <div class="post-image-right">
+                  <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-thumbnail">
+              </div>
+          {% endif %}
       </article>
-    {% endfor %}
-    
+  {% endfor %}
+      
     <!-- Pagination for posts -->
     {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
       {% if page_num %}
@@ -57,99 +59,72 @@
         ...
       {% endif %}
     {% endfor %}
-  {% endif %}
+{% endif %}
 
   <script>
     function likePost(postId) {
-        // Get elements for like and dislike counts
         const likeCountElem = document.getElementById(`like-count-${postId}`);
         const dislikeCountElem = document.getElementById(`dislike-count-${postId}`);
+        const likeButton = document.getElementById(`like-btn-${postId}`);
+        const dislikeButton = document.getElementById(`dislike-btn-${postId}`);
 
-        // Check if elements exist
-        if (!likeCountElem || !dislikeCountElem) {
-            console.error(`Could not find like or dislike elements for post ${postId}`);
-            return;
-        }
-
-        // Optimistic UI update for likes
-        const currentLikes = parseInt(likeCountElem.innerText);
-        likeCountElem.innerText = currentLikes + 1;
-
-        // Fetch call to the server
         fetch(`/post/${postId}/like`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                // Revert the like count on failure
-                likeCountElem.innerText = currentLikes;
-                alert('Error liking post');
-            } else {
-                return response.json();
-            }
-        })
+        .then(response => response.json())
         .then(data => {
-            // Update like/dislike count from server response
-            if (data) {
-                likeCountElem.innerText = data.likes;
-                dislikeCountElem.innerText = data.dislikes;
+            // Update the like and dislike counts
+            likeCountElem.innerText = data.likes;
+            dislikeCountElem.innerText = data.dislikes;
+
+            // Update the button states
+            if (data.liked) {
+                likeButton.classList.add('btn-success');
+                dislikeButton.classList.remove('btn-danger');
+            } else {
+                likeButton.classList.remove('btn-success');
             }
         })
         .catch(error => {
-            // Handle errors and revert like count
             console.error('Error:', error);
-            likeCountElem.innerText = currentLikes;
-            alert('Error liking post');
+            alert('Something went wrong while liking the post.');
         });
     }
 
     function dislikePost(postId) {
-        // Get elements for like and dislike counts
         const likeCountElem = document.getElementById(`like-count-${postId}`);
         const dislikeCountElem = document.getElementById(`dislike-count-${postId}`);
+        const likeButton = document.getElementById(`like-btn-${postId}`);
+        const dislikeButton = document.getElementById(`dislike-btn-${postId}`);
 
-        // Check if elements exist
-        if (!likeCountElem || !dislikeCountElem) {
-            console.error(`Could not find like or dislike elements for post ${postId}`);
-            return;
-        }
-
-        // Optimistic UI update for dislikes
-        const currentDislikes = parseInt(dislikeCountElem.innerText);
-        dislikeCountElem.innerText = currentDislikes + 1;
-
-        // Fetch call to the server
         fetch(`/post/${postId}/dislike`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                // Revert the dislike count on failure
-                dislikeCountElem.innerText = currentDislikes;
-                alert('Error disliking post');
-            } else {
-                return response.json();
-            }
-        })
+        .then(response => response.json())
         .then(data => {
-            // Update like/dislike count from server response
-            if (data) {
-                likeCountElem.innerText = data.likes;
-                dislikeCountElem.innerText = data.dislikes;
+            // Update the like and dislike counts
+            likeCountElem.innerText = data.likes;
+            dislikeCountElem.innerText = data.dislikes;
+
+            // Update the button states
+            if (data.disliked) {
+                dislikeButton.classList.add('btn-danger');
+                likeButton.classList.remove('btn-success');
+            } else {
+                dislikeButton.classList.remove('btn-danger');
             }
         })
         .catch(error => {
-            // Handle errors and revert dislike count
             console.error('Error:', error);
-            dislikeCountElem.innerText = currentDislikes;
-            alert('Error disliking post');
+            alert('Something went wrong while disliking the post.');
         });
     }
-  </script>
+</script>
+
 {% endblock content %}

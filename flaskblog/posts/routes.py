@@ -155,23 +155,43 @@ def edit_comment(comment_id):
 @login_required
 def like_post(post_id):
     post = Post.query.get_or_404(post_id)
-    if request.is_json:
-        post.likes += 1
+
+    if post.has_liked(current_user):
+        # If the user already liked the post, remove the like (toggle off)
+        post.liked_by.remove(current_user)
         db.session.commit()
-        return jsonify({'likes': post.likes, 'dislikes': post.dislikes})
-    else:
-        abort(400)  # Bad request if the request isn't JSON
+        return jsonify({'likes': post.like_count(), 'dislikes': post.dislike_count(), 'liked': False, 'disliked': post.has_disliked(current_user)})
+    
+    # If the user disliked the post before, remove the dislike
+    if post.has_disliked(current_user):
+        post.disliked_by.remove(current_user)
+
+    # Add the like
+    post.liked_by.append(current_user)
+    db.session.commit()
+
+    return jsonify({'likes': post.like_count(), 'dislikes': post.dislike_count(), 'liked': True, 'disliked': False})
 
 @posts.route("/post/<int:post_id>/dislike", methods=["POST"])
 @login_required
 def dislike_post(post_id):
     post = Post.query.get_or_404(post_id)
-    if request.is_json:
-        post.dislikes += 1
+
+    if post.has_disliked(current_user):
+        # If the user already disliked the post, remove the dislike (toggle off)
+        post.disliked_by.remove(current_user)
         db.session.commit()
-        return jsonify({'likes': post.likes, 'dislikes': post.dislikes})
-    else:
-        abort(400)  # Bad request if the request isn't JSON
+        return jsonify({'likes': post.like_count(), 'dislikes': post.dislike_count(), 'liked': post.has_liked(current_user), 'disliked': False})
+    
+    # If the user liked the post before, remove the like
+    if post.has_liked(current_user):
+        post.liked_by.remove(current_user)
+
+    # Add the dislike
+    post.disliked_by.append(current_user)
+    db.session.commit()
+
+    return jsonify({'likes': post.like_count(), 'dislikes': post.dislike_count(), 'liked': False, 'disliked': True})
 
 @posts.route("/comment/<int:comment_id>/like", methods=["POST"])
 @login_required

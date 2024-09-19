@@ -15,6 +15,19 @@ def load_user(user_id):
     except OperationalError:
         return None
 
+# Encapsulate the association tables within the models module
+class PostUserAssociation:
+    # Many-to-Many relationship tables for likes and dislikes
+    post_likes = db.Table('post_likes',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+    )
+
+    post_dislikes = db.Table('post_dislikes',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+    )
+
 class User(db.Model, UserMixin):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
@@ -27,6 +40,10 @@ class User(db.Model, UserMixin):  # type: ignore
     workouts = db.relationship("WorkoutLog", backref="author", lazy=True, cascade="all, delete-orphan")
     scores = db.relationship("HangmanScore", backref="user", lazy=True, cascade="all, delete-orphan")
     comments = db.relationship("Comment", backref="author", lazy=True, cascade="all, delete-orphan")
+
+    # Liked and disliked posts relationships
+    liked_posts = db.relationship('Post', secondary=PostUserAssociation.post_likes, backref=db.backref('liked_by', lazy='dynamic'))
+    disliked_posts = db.relationship('Post', secondary=PostUserAssociation.post_dislikes, backref=db.backref('disliked_by', lazy='dynamic'))
 
     def get_reset_token(self):
         s = TimedSerializer(current_app.secret_key)
@@ -65,11 +82,10 @@ class Comment(db.Model):  # type: ignore
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     image_file = db.Column(db.String(20), nullable=True)  # Field for comment images
-    likes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 likes
-    dislikes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 dislikes
 
     def __repr__(self):
         return f"Comment('{self.content}', '{self.date_posted}', '{self.image_file}')"
+
 class Post(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -77,14 +93,25 @@ class Post(db.Model):  # type: ignore
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     image_file = db.Column(db.String(20), nullable=True)  # Field for post images
-    likes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 likes
-    dislikes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 dislikes
 
     # Relationship to comments with cascade delete-orphan
     comments = db.relationship("Comment", backref="post", lazy=True, cascade="all, delete-orphan")
 
+    def like_count(self):
+        return self.liked_by.count()
+
+    def dislike_count(self):
+        return self.disliked_by.count()
+
+    def has_liked(self, user):
+        return user in self.liked_by
+
+    def has_disliked(self, user):
+        return user in self.disliked_by
+
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}', '{self.image_file}')"
+
 
 class WorkoutLog(db.Model):  # Updated model for workout logs
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +126,7 @@ class WorkoutLog(db.Model):  # Updated model for workout logs
     def __repr__(self):
         return f"WorkoutLog('{self.workout_type}', '{self.date_posted}')"
 
+
 class HangmanScore(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -108,6 +136,7 @@ class HangmanScore(db.Model):
     def __repr__(self):
         return f"HangmanScore(User: '{self.user_id}', Wins: '{self.wins}')"
 
+
 def create_table_if_not_exist(app):
     with app.app_context():
         try:
@@ -116,6 +145,7 @@ def create_table_if_not_exist(app):
         except OperationalError as e:
             # Log the exception or handle it appropriately
             print(f"OperationalError: {e}")
+
 
 def create_default_admin():
     """Create a default admin user if none exists."""
@@ -135,6 +165,7 @@ def create_default_admin():
         db.session.commit()
         print(f"Created default admin user: {admin_username} with email: {admin_email}")
 
+
 class NESState(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -145,4 +176,3 @@ class NESState(db.Model):
 
     def __repr__(self):
         return f"NESState(User: '{self.user_id}', Date: '{self.save_date}', Title: '{self.title}')"
-
