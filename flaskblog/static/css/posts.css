@@ -134,3 +134,47 @@ a.dropdown-item:hover {
   background: #616161; /* Grey divider matching theme */
   margin: 40px 0; /* Space above and below the divider */
 }
+
+/* Like/Dislike container styles */
+.like-dislike-container {
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #616161; /* Divider to separate from the post */
+  margin-bottom: 10px;
+}
+
+.post-likes-dislikes {
+  display: flex;
+  gap: 10px;
+}
+
+/* Thumbs Up and Down Button styles */
+.thumbs-up-btn, .thumbs-down-btn {
+  padding: 5px 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Thumbs Up/Down button hover effects */
+.thumbs-up-btn:hover {
+  background-color: #4caf50; /* Green hover for likes */
+  color: #ffffff;
+}
+
+.thumbs-down-btn:hover {
+  background-color: #f44336; /* Red hover for dislikes */
+  color: #ffffff;
+}
+
+/* Success and danger buttons inherit from your existing theme */
+.btn-outline-success {
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.btn-outline-danger {
+  color: #f44336;
+  border: 1px solid #f44336;
+}
