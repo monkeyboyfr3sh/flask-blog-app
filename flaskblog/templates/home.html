@@ -35,7 +35,7 @@
                   👎 <span id="dislike-count-{{ post.id }}">{{ post.dislike_count() }}</span>
                   </button>
               </div>
-              
+
           </div>
           {% if post.image_file %}
               <div class="post-image-right">
@@ -82,10 +82,13 @@
 
             // Update the button states
             if (data.liked) {
+                likeButton.classList.remove('btn-outline-success');
                 likeButton.classList.add('btn-success');
                 dislikeButton.classList.remove('btn-danger');
-            } else {
+                dislikeButton.classList.add('btn-outline-danger');
+              } else {
                 likeButton.classList.remove('btn-success');
+                likeButton.classList.add('btn-outline-success');
             }
         })
         .catch(error => {
@@ -114,10 +117,13 @@
 
             // Update the button states
             if (data.disliked) {
-                dislikeButton.classList.add('btn-danger');
                 likeButton.classList.remove('btn-success');
-            } else {
+                likeButton.classList.add('btn-outline-success');
+                dislikeButton.classList.remove('btn-outline-danger');
+                dislikeButton.classList.add('btn-danger');
+              } else {
                 dislikeButton.classList.remove('btn-danger');
+                dislikeButton.classList.add('btn-outline-danger');
             }
         })
         .catch(error => {
