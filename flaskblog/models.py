@@ -64,25 +64,28 @@ class Comment(db.Model):  # type: ignore
     date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    image_file = db.Column(db.String(20), nullable=True)  # New field for comment images
+    image_file = db.Column(db.String(20), nullable=True)  # Field for comment images
+    likes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 likes
+    dislikes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 dislikes
 
     def __repr__(self):
         return f"Comment('{self.content}', '{self.date_posted}', '{self.image_file}')"
-
 class Post(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    image_file = db.Column(db.String(20), nullable=True)  # New field for post images
-    
+    image_file = db.Column(db.String(20), nullable=True)  # Field for post images
+    likes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 likes
+    dislikes = db.Column(db.Integer, nullable=False, default=0)  # Default 0 dislikes
+
     # Relationship to comments with cascade delete-orphan
     comments = db.relationship("Comment", backref="post", lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}', '{self.image_file}')"
-    
+
 class WorkoutLog(db.Model):  # Updated model for workout logs
     id = db.Column(db.Integer, primary_key=True)
     workout_type = db.Column(db.String(100), nullable=False)

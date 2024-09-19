@@ -19,12 +19,21 @@
             <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
           </div>
           <h2>
-            <a class="article-title"
-               href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
+              <a class="article-title"
+                href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
           </h2>
           <p class="article-content">{{ post.content }}</p>
-        </div>
 
+          <!-- Like/Dislike Buttons -->
+          <div class="post-likes-dislikes">
+            <button class="btn btn-success" id="like-btn" onclick="likePost({{ post.id }})">
+            👍 <span id="like-count">{{ post.likes }}</span>
+            </button>
+            <button class="btn btn-danger" id="dislike-btn" onclick="dislikePost({{ post.id }})">
+            👎 <span id="dislike-count">{{ post.dislikes }}</span>
+            </button>
+          </div>
+        </div>
         {% if post.image_file %} 
         <div class="post-image-right">
           <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-thumbnail">
@@ -48,4 +57,36 @@
       {% endif %}
     {% endfor %}
   {% endif %}
+
+  <script>
+    function likePost(postId) {
+        fetch(`/post/${postId}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('like-count').innerText = data.likes;
+            document.getElementById('dislike-count').innerText = data.dislikes;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function dislikePost(postId) {
+        fetch(`/post/${postId}/dislike`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('like-count').innerText = data.likes;
+            document.getElementById('dislike-count').innerText = data.dislikes;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
 {% endblock content %}

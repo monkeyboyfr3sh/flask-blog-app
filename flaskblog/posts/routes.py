@@ -1,5 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from flask_login import current_user, login_required
+from flask import jsonify
 
 from flaskblog import db
 from flaskblog.models import Post, Comment
@@ -148,3 +149,45 @@ def edit_comment(comment_id):
         form.content.data = comment.content
 
     return render_template('edit_comment.html', title='Edit Comment', form=form)
+
+
+@posts.route("/post/<int:post_id>/like", methods=["POST"])
+@login_required
+def like_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if request.is_json:
+        post.likes += 1
+        db.session.commit()
+        return jsonify({'likes': post.likes, 'dislikes': post.dislikes})
+    else:
+        abort(400)  # Bad request if the request isn't JSON
+
+@posts.route("/post/<int:post_id>/dislike", methods=["POST"])
+@login_required
+def dislike_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if request.is_json:
+        post.dislikes += 1
+        db.session.commit()
+        return jsonify({'likes': post.likes, 'dislikes': post.dislikes})
+    else:
+        abort(400)  # Bad request if the request isn't JSON
+
+@posts.route("/comment/<int:comment_id>/like", methods=["POST"])
+@login_required
+def like_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.likes += 1
+    db.session.commit()
+    flash('You liked this comment!', 'success')
+    return redirect(url_for('posts.post', post_id=comment.post_id))
+
+
+@posts.route("/comment/<int:comment_id>/dislike", methods=["POST"])
+@login_required
+def dislike_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.dislikes += 1
+    db.session.commit()
+    flash('You disliked this comment!', 'success')
+    return redirect(url_for('posts.post', post_id=comment.post_id))

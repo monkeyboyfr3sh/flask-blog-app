@@ -55,6 +55,16 @@
             <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment Image" class="post-image-content">
             {% endif %}
 
+            <!-- Like/Dislike Buttons for Comments -->
+            <div>
+              <form action="{{ url_for('posts.like_comment', comment_id=comment.id) }}" method="POST" style="display:inline;">
+                <button class="btn btn-success btn-sm">👍 {{ comment.likes }}</button>
+              </form>
+              <form action="{{ url_for('posts.dislike_comment', comment_id=comment.id) }}" method="POST" style="display:inline;">
+                <button class="btn btn-danger btn-sm">👎 {{ comment.dislikes }}</button>
+              </form>
+            </div>
+
             {% if users[comment.user_id] == current_user or current_user.admin %}
             <div class="dropdown">
                 <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
