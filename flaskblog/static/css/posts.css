@@ -136,17 +136,35 @@ a.dropdown-item:hover {
 }
 
 /* Like/Dislike container styles */
-.like-dislike-container {
+.like-dislike-container-home {
   display: flex;
   justify-content: flex-start;
-  padding: 10px 0;
+  padding: 0; /* Remove padding */
+  margin-top: 5px; /* Minimal space between post content and buttons */
   border-bottom: 1px solid #616161; /* Divider to separate from the post */
   margin-bottom: 10px;
 }
 
+.like-dislike-container-post {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0; /* Remove padding */
+  margin-top: 5px; /* Minimal space between post content and buttons */
+  border-bottom: 0px solid #616161; /* Divider to separate from the post */
+  margin-bottom: 0px;
+}
+
 .post-likes-dislikes {
   display: flex;
-  gap: 10px;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Media content section adjustments */
+.content-section {
+  margin-bottom: 0; /* Remove extra margin between content and like/dislike buttons */
+  padding-bottom: 0; /* Remove extra padding */
 }
 
 /* Thumbs Up and Down Button styles */
@@ -155,6 +173,7 @@ a.dropdown-item:hover {
   font-size: 16px;
   border-radius: 5px;
   transition: background-color 0.3s ease;
+  margin-bottom: 10px; /* Remove margin from buttons */
 }
 
 /* Thumbs Up/Down button hover effects */

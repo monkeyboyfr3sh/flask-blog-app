@@ -32,7 +32,7 @@
     </article>
 
     <!-- Like/Dislike Buttons -->
-    <div class="like-dislike-container">
+    <div class="like-dislike-container-home">
         <div class="post-likes-dislikes">
             <button class="btn thumbs-up-btn {% if current_user in post.liked_by %}btn-success{% else %}btn-outline-success{% endif %}" 
               id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">

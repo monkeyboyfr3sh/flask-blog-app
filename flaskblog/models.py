@@ -61,20 +61,6 @@ class User(db.Model, UserMixin):  # type: ignore
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
-
-    @staticmethod
-    def verify_reset_token(token, expires_seconds: int = 1800):
-        s = TimedSerializer(current_app.secret_key)
-        try:
-            user_id = s.loads(token, expires_seconds)
-        except itsdangerous.exc.SignatureExpired:
-            return None
-        return User.query.get(user_id)
-
-    def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-
-
 class Comment(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
