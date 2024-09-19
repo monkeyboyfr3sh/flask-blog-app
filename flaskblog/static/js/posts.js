@@ -203,3 +203,9 @@ function dislikeComment(commentId) {
     })
     .catch(error => console.error('Error:', error));
 }
+
+function deleteComment(commentId) {
+    if (confirm('Are you sure you want to delete this comment?')) {
+        document.getElementById('delete-comment-form-' + commentId).submit();
+    }
+}
