@@ -197,17 +197,34 @@ def dislike_post(post_id):
 @login_required
 def like_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
-    comment.likes += 1
-    db.session.commit()
-    flash('You liked this comment!', 'success')
-    return redirect(url_for('posts.post', post_id=comment.post_id))
 
+    if comment.has_liked(current_user):
+        comment.liked_by.remove(current_user)
+        db.session.commit()
+        return jsonify({'likes': comment.like_count(), 'dislikes': comment.dislike_count(), 'liked': False, 'disliked': comment.has_disliked(current_user)})
+    
+    if comment.has_disliked(current_user):
+        comment.disliked_by.remove(current_user)
+
+    comment.liked_by.append(current_user)
+    db.session.commit()
+
+    return jsonify({'likes': comment.like_count(), 'dislikes': comment.dislike_count(), 'liked': True, 'disliked': False})
 
 @posts.route("/comment/<int:comment_id>/dislike", methods=["POST"])
 @login_required
 def dislike_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
-    comment.dislikes += 1
+
+    if comment.has_disliked(current_user):
+        comment.disliked_by.remove(current_user)
+        db.session.commit()
+        return jsonify({'likes': comment.like_count(), 'dislikes': comment.dislike_count(), 'liked': comment.has_liked(current_user), 'disliked': False})
+
+    if comment.has_liked(current_user):
+        comment.liked_by.remove(current_user)
+
+    comment.disliked_by.append(current_user)
     db.session.commit()
-    flash('You disliked this comment!', 'success')
-    return redirect(url_for('posts.post', post_id=comment.post_id))
+
+    return jsonify({'likes': comment.like_count(), 'dislikes': comment.dislike_count(), 'liked': False, 'disliked': True})

@@ -72,12 +72,14 @@
 
                 <!-- Like/Dislike Buttons for Comments -->
                 <div>
-                <form action="{{ url_for('posts.like_comment', comment_id=comment.id) }}" method="POST" style="display:inline;">
-                    <button class="btn btn-success btn-sm">👍 {{ comment.likes }}</button>
-                </form>
-                <form action="{{ url_for('posts.dislike_comment', comment_id=comment.id) }}" method="POST" style="display:inline;">
-                    <button class="btn btn-danger btn-sm">👎 {{ comment.dislikes }}</button>
-                </form>
+                    <button class="btn thumbs-up-btn {% if current_user in comment.liked_by %}btn-success{% else %}btn-outline-success{% endif %}" 
+                        id="like-btn-comment-{{ comment.id }}" onclick="likeComment({{ comment.id }})">
+                        👍 <span id="like-count-comment-{{ comment.id }}">{{ comment.like_count() }}</span>
+                    </button>
+                    <button class="btn thumbs-down-btn {% if current_user in comment.disliked_by %}btn-danger{% else %}btn-outline-danger{% endif %}" 
+                        id="dislike-btn-comment-{{ comment.id }}" onclick="dislikeComment({{ comment.id }})">
+                        👎 <span id="dislike-count-comment-{{ comment.id }}">{{ comment.dislike_count() }}</span>
+                    </button>
                 </div>
 
                 {% if users[comment.user_id] == current_user or current_user.admin %}

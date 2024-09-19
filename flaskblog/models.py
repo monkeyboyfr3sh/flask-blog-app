@@ -15,6 +15,45 @@ def load_user(user_id):
     except OperationalError:
         return None
 
+class CommentUserAssociation:
+    # Many-to-Many relationship tables for comment likes and dislikes
+    comment_likes = db.Table('comment_likes',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('comment_id', db.Integer, db.ForeignKey('comment.id'))
+    )
+
+    comment_dislikes = db.Table('comment_dislikes',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('comment_id', db.Integer, db.ForeignKey('comment.id'))
+    )
+
+class Comment(db.Model):  # type: ignore
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    image_file = db.Column(db.String(20), nullable=True)
+
+    # Liked and disliked comments relationships
+    liked_by = db.relationship('User', secondary=CommentUserAssociation.comment_likes, backref=db.backref('liked_comments', lazy='dynamic'))
+    disliked_by = db.relationship('User', secondary=CommentUserAssociation.comment_dislikes, backref=db.backref('disliked_comments', lazy='dynamic'))
+
+    def like_count(self):
+        return len(self.liked_by)
+
+    def dislike_count(self):
+        return len(self.disliked_by)
+
+    def has_liked(self, user):
+        return user in self.liked_by
+
+    def has_disliked(self, user):
+        return user in self.disliked_by
+
+    def __repr__(self):
+        return f"Comment('{self.content}', '{self.date_posted}', '{self.image_file}')"
+
 # Encapsulate the association tables within the models module
 class PostUserAssociation:
     # Many-to-Many relationship tables for likes and dislikes
@@ -27,6 +66,32 @@ class PostUserAssociation:
         db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
         db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
     )
+
+class Post(db.Model):  # type: ignore
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    image_file = db.Column(db.String(20), nullable=True)  # Field for post images
+
+    # Relationship to comments with cascade delete-orphan
+    comments = db.relationship("Comment", backref="post", lazy=True, cascade="all, delete-orphan")
+
+    def like_count(self):
+        return self.liked_by.count()
+
+    def dislike_count(self):
+        return self.disliked_by.count()
+
+    def has_liked(self, user):
+        return user in self.liked_by
+
+    def has_disliked(self, user):
+        return user in self.disliked_by
+
+    def __repr__(self):
+        return f"Post('{self.title}', '{self.date_posted}', '{self.image_file}')"
 
 class User(db.Model, UserMixin):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
@@ -60,44 +125,6 @@ class User(db.Model, UserMixin):  # type: ignore
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-
-class Comment(db.Model):  # type: ignore
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    image_file = db.Column(db.String(20), nullable=True)  # Field for comment images
-
-    def __repr__(self):
-        return f"Comment('{self.content}', '{self.date_posted}', '{self.image_file}')"
-
-class Post(db.Model):  # type: ignore
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=int(datetime.now(timezone.utc).microsecond / 1000) * 1000) + CST_OFFSET)
-    content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    image_file = db.Column(db.String(20), nullable=True)  # Field for post images
-
-    # Relationship to comments with cascade delete-orphan
-    comments = db.relationship("Comment", backref="post", lazy=True, cascade="all, delete-orphan")
-
-    def like_count(self):
-        return self.liked_by.count()
-
-    def dislike_count(self):
-        return self.disliked_by.count()
-
-    def has_liked(self, user):
-        return user in self.liked_by
-
-    def has_disliked(self, user):
-        return user in self.disliked_by
-
-    def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}', '{self.image_file}')"
-
 
 class WorkoutLog(db.Model):  # Updated model for workout logs
     id = db.Column(db.Integer, primary_key=True)
