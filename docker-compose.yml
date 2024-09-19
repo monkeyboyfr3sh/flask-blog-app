@@ -16,3 +16,4 @@ services:
       - .:/app
       - ./config:/config
       - /usr/bin/git:/usr/bin/git 
+    restart: unless-stopped

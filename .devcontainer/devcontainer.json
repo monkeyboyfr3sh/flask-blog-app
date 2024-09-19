@@ -3,7 +3,19 @@
     "dockerComposeFile": "../docker-compose.yml",
     "service": "flaskblog",
     "workspaceFolder": "/app",
-    "postCreateCommand": "pip install -r requirements.txt",
-    "remoteUser": "root"
+    "remoteUser": "root",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-azuretools.vscode-docker",
+                "eamodio.gitlens",
+                "yzhang.markdown-all-in-one",
+                "ms-python.vscode-pylance",
+                "ms-python.python",
+                "ms-python.debugpy",
+                "mhutchie.git-graph"
+            ]
+        }
+    }
   }
   
