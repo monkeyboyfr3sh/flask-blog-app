@@ -26,13 +26,14 @@
 
           <!-- Like/Dislike Buttons -->
           <div class="post-likes-dislikes">
-            <button class="btn btn-success" id="like-btn" onclick="likePost({{ post.id }})">
-            👍 <span id="like-count">{{ post.likes }}</span>
+            <button class="btn btn-success" id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">
+              👍 <span id="like-count-{{ post.id }}">{{ post.likes or 0 }}</span>
             </button>
-            <button class="btn btn-danger" id="dislike-btn" onclick="dislikePost({{ post.id }})">
-            👎 <span id="dislike-count">{{ post.dislikes }}</span>
+            <button class="btn btn-danger" id="dislike-btn-{{ post.id }}" onclick="dislikePost({{ post.id }})">
+              👎 <span id="dislike-count-{{ post.id }}">{{ post.dislikes or 0 }}</span>
             </button>
           </div>
+
         </div>
         {% if post.image_file %} 
         <div class="post-image-right">
@@ -60,33 +61,95 @@
 
   <script>
     function likePost(postId) {
+        // Get elements for like and dislike counts
+        const likeCountElem = document.getElementById(`like-count-${postId}`);
+        const dislikeCountElem = document.getElementById(`dislike-count-${postId}`);
+
+        // Check if elements exist
+        if (!likeCountElem || !dislikeCountElem) {
+            console.error(`Could not find like or dislike elements for post ${postId}`);
+            return;
+        }
+
+        // Optimistic UI update for likes
+        const currentLikes = parseInt(likeCountElem.innerText);
+        likeCountElem.innerText = currentLikes + 1;
+
+        // Fetch call to the server
         fetch(`/post/${postId}/like`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('like-count').innerText = data.likes;
-            document.getElementById('dislike-count').innerText = data.dislikes;
+        .then(response => {
+            if (!response.ok) {
+                // Revert the like count on failure
+                likeCountElem.innerText = currentLikes;
+                alert('Error liking post');
+            } else {
+                return response.json();
+            }
         })
-        .catch(error => console.error('Error:', error));
+        .then(data => {
+            // Update like/dislike count from server response
+            if (data) {
+                likeCountElem.innerText = data.likes;
+                dislikeCountElem.innerText = data.dislikes;
+            }
+        })
+        .catch(error => {
+            // Handle errors and revert like count
+            console.error('Error:', error);
+            likeCountElem.innerText = currentLikes;
+            alert('Error liking post');
+        });
     }
 
     function dislikePost(postId) {
+        // Get elements for like and dislike counts
+        const likeCountElem = document.getElementById(`like-count-${postId}`);
+        const dislikeCountElem = document.getElementById(`dislike-count-${postId}`);
+
+        // Check if elements exist
+        if (!likeCountElem || !dislikeCountElem) {
+            console.error(`Could not find like or dislike elements for post ${postId}`);
+            return;
+        }
+
+        // Optimistic UI update for dislikes
+        const currentDislikes = parseInt(dislikeCountElem.innerText);
+        dislikeCountElem.innerText = currentDislikes + 1;
+
+        // Fetch call to the server
         fetch(`/post/${postId}/dislike`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('like-count').innerText = data.likes;
-            document.getElementById('dislike-count').innerText = data.dislikes;
+        .then(response => {
+            if (!response.ok) {
+                // Revert the dislike count on failure
+                dislikeCountElem.innerText = currentDislikes;
+                alert('Error disliking post');
+            } else {
+                return response.json();
+            }
         })
-        .catch(error => console.error('Error:', error));
+        .then(data => {
+            // Update like/dislike count from server response
+            if (data) {
+                likeCountElem.innerText = data.likes;
+                dislikeCountElem.innerText = data.dislikes;
+            }
+        })
+        .catch(error => {
+            // Handle errors and revert dislike count
+            console.error('Error:', error);
+            dislikeCountElem.innerText = currentDislikes;
+            alert('Error disliking post');
+        });
     }
-</script>
+  </script>
 {% endblock content %}
