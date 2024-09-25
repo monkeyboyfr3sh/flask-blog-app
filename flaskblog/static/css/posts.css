@@ -208,3 +208,7 @@ a.dropdown-item:hover {
   background-color: #1e1e1e;  /* Background color to match the theme */
   margin-top: 20px;  /* Adds space between different posts/articles */
 }
+
+.post-comments-count {
+  margin-left: 10px;
+}

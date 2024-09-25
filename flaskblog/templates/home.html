@@ -24,19 +24,25 @@
             </h2>
             <p class="article-content">{{ post.content }}</p>
 
-            <!-- Display the number of comments under each post -->
-            <div class="post-comments-count">
-                <small class="text-muted">
-                  {{ post.comments|length }} comment{{ post.comments|length == 1 and '' or 's' }}
-                </small>
-            </div>
         </div>
+        
+        <!-- Make the post image clickable -->
         {% if post.image_file %}
             <div class="post-image-right">
-                <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-thumbnail">
+                <a href="{{ url_for('posts.post', post_id=post.id) }}">
+                  <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-thumbnail">
+                </a>
             </div>
         {% endif %}
     </article>
+    <!-- Make the comments count clickable -->
+    <div class="post-comments-count">
+      <small class="text-muted">
+        <a href="{{ url_for('posts.post', post_id=post.id) }}">
+          {{ post.comments|length }} comment{{ post.comments|length == 1 and '' or 's' }}
+        </a>
+      </small>
+    </div>
 
     <!-- Like/Dislike Buttons -->
     <div class="like-dislike-container-home">
