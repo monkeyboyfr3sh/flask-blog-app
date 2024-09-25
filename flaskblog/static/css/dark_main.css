@@ -37,42 +37,6 @@ h6 {
   margin-bottom: 20px;
 }
 
-.article-title {
-  color: #ffffff;
-}
-
-a.article-title:hover {
-  color: #90caf9;
-  text-decoration: none;
-}
-
-.article-content {
-  white-space: pre-line;
-}
-
-.article-img {
-  height: 65px;
-  width: 65px;
-  margin-right: 16px;
-}
-
-.article-metadata {
-  padding-bottom: 1px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid #616161;
-}
-
-.article-metadata a:hover {
-  color: #e0e0e0;
-  text-decoration: none;
-}
-
-.article-svg {
-  width: 25px;
-  height: 25px;
-  vertical-align: middle;
-}
-
 .account-img {
   height: 125px;
   width: 125px;

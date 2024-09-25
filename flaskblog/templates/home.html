@@ -12,20 +12,37 @@
   {% if posts %}
     {% for post in posts.items %}
     <article class="media content-section post-content-section">
+        <!-- Profile image and username section -->
+
         <div class="media-body">
-            <div class="article-metadata">
-                <a class="mr-2"
-                  href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
-                <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+          <div class="article-metadata d-flex align-items-center">
+            <div class="media-left mr-3">
+                <img src="{{ url_for('static', filename=post.author.image_file) }}" alt="Profile Picture"
+                     class="rounded-circle" style="width: 50px; height: 50px;">
             </div>
+            <!-- Poster username and post date -->
+            <div>
+                <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
+                <small class="text-muted d-block">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+          </div>
+        
             <h2>
                 <a class="article-title"
                   href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
             </h2>
             <p class="article-content">{{ post.content }}</p>
 
+            <!-- Make the comments count clickable -->
+            <div class="post-comments-count">
+                <small class="text-muted">
+                  <a href="{{ url_for('posts.post', post_id=post.id) }}">
+                    {{ post.comments|length }} comment{{ post.comments|length == 1 and '' or 's' }}
+                  </a>
+                </small>
+            </div>
         </div>
-        
+
         <!-- Make the post image clickable -->
         {% if post.image_file %}
             <div class="post-image-right">
@@ -35,14 +52,6 @@
             </div>
         {% endif %}
     </article>
-    <!-- Make the comments count clickable -->
-    <div class="post-comments-count">
-      <small class="text-muted">
-        <a href="{{ url_for('posts.post', post_id=post.id) }}">
-          {{ post.comments|length }} comment{{ post.comments|length == 1 and '' or 's' }}
-        </a>
-      </small>
-    </div>
 
     <!-- Like/Dislike Buttons -->
     <div class="like-dislike-container-home">
