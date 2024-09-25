@@ -23,6 +23,13 @@
                   href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
             </h2>
             <p class="article-content">{{ post.content }}</p>
+
+            <!-- Display the number of comments under each post -->
+            <div class="post-comments-count">
+                <small class="text-muted">
+                  {{ post.comments|length }} comment{{ post.comments|length == 1 and '' or 's' }}
+                </small>
+            </div>
         </div>
         {% if post.image_file %}
             <div class="post-image-right">
