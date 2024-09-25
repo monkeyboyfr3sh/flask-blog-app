@@ -15,31 +15,61 @@
         <!-- Profile image and username section -->
 
         <div class="media-body">
-          <div class="article-metadata d-flex align-items-center">
+            <div class="article-metadata d-flex align-items-center">
             <div class="media-left mr-3">
                 <img src="{{ url_for('static', filename=post.author.image_file) }}" alt="Profile Picture"
-                     class="rounded-circle" style="width: 50px; height: 50px;">
+                        class="rounded-circle" style="width: 50px; height: 50px;">
             </div>
             <!-- Poster username and post date -->
             <div>
                 <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
                 <small class="text-muted d-block">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
             </div>
-          </div>
-        
+            </div>
+    
             <h2>
                 <a class="article-title"
-                  href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
+                href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a>
             </h2>
+
             <p class="article-content">{{ post.content }}</p>
 
-            <!-- Make the comments count clickable -->
-            <div class="post-comments-count">
-                <small class="text-muted">
-                  <a href="{{ url_for('posts.post', post_id=post.id) }}">
-                    {{ post.comments|length }} comment{{ post.comments|length == 1 and '' or 's' }}
-                  </a>
-                </small>
+            <div class="article-footer">
+                <!-- Like/Dislike Buttons -->
+                <div class="like-dislike-container-post">
+                    <div class="post-likes-dislikes">
+                        <button class="btn thumbs-up-btn {% if current_user in post.liked_by %}btn-success{% else %}btn-outline-success{% endif %}" 
+                            id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">
+                        👍 <span id="like-count-{{ post.id }}">{{ post.like_count() }}</span>
+                        </button>
+                        <button class="btn thumbs-down-btn {% if current_user in post.disliked_by %}btn-danger{% else %}btn-outline-danger{% endif %}" 
+                            id="dislike-btn-{{ post.id }}" onclick="dislikePost({{ post.id }})">
+                        👎 <span id="dislike-count-{{ post.id }}">{{ post.dislike_count() }}</span>
+                        </button>
+                    </div>
+            
+                    {% if post.author == current_user %}
+                        <div class="dropdown">
+                            <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Actions
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModal-{{ post.id }}">Delete</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            
+                <!-- Comments Count Section -->
+                <div class="post-comments-count mt-2">
+                    <small class="text-muted">
+                        <a href="{{ url_for('posts.post', post_id=post.id) }}">
+                            {{ post.comments|length }} comment{{ post.comments|length == 1 and '' or 's' }}
+                        </a>
+                    </small>
+                </div>
             </div>
         </div>
 
@@ -52,20 +82,6 @@
             </div>
         {% endif %}
     </article>
-
-    <!-- Like/Dislike Buttons -->
-    <div class="like-dislike-container-home">
-        <div class="post-likes-dislikes">
-            <button class="btn thumbs-up-btn {% if current_user in post.liked_by %}btn-success{% else %}btn-outline-success{% endif %}" 
-              id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">
-          👍 <span id="like-count-{{ post.id }}">{{ post.like_count() }}</span>
-            </button>
-            <button class="btn thumbs-down-btn {% if current_user in post.disliked_by %}btn-danger{% else %}btn-outline-danger{% endif %}" 
-              id="dislike-btn-{{ post.id }}" onclick="dislikePost({{ post.id }})">
-          👎 <span id="dislike-count-{{ post.id }}">{{ post.dislike_count() }}</span>
-            </button>
-        </div>
-    </div>
   {% endfor %}
       
     <!-- Pagination for posts -->

@@ -1,30 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
 <article class="media content-section">
-    <div class="media-body">
-            <div class="article-metadata d-flex align-items-center">
-                <div class="media-left mr-3">
-                    <img src="{{ url_for('static', filename=post.author.image_file) }}" alt="Profile Picture"
-                        class="rounded-circle" style="width: 50px; height: 50px;">
-                </div>
-                <!-- Poster username and post date -->
-                <div>
-                    <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
-                    <small class="text-muted d-block">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
-                </div>
-
-            {% if post.author == current_user %}
-            <div class="dropdown">
-                <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Actions
-                </button>
-                <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModal-{{ post.id }}">Delete</a>
-                </div>
+        <div class="media-body">
+          <div class="article-metadata d-flex align-items-center">
+            <div class="media-left mr-3">
+                <img src="{{ url_for('static', filename=post.author.image_file) }}" alt="Profile Picture"
+                     class="rounded-circle" style="width: 50px; height: 50px;">
             </div>
-            {% endif %}
+            <!-- Poster username and post date -->
+            <div>
+                <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
+                <small class="text-muted d-block">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+          </div>
         </div>
         <h2 class="article-title">{{ post.title }}</h2>
         <p class="article-content">{{ post.content }}</p>
@@ -38,21 +25,35 @@
             {% endif %}
         </div>
         {% endif %}
-    
-        <!-- Like/Dislike Buttons -->
-        <div class="like-dislike-container-post">
-            <div class="post-likes-dislikes">
-                <button class="btn thumbs-up-btn {% if current_user in post.liked_by %}btn-success{% else %}btn-outline-success{% endif %}" 
-                id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">
-            👍 <span id="like-count-{{ post.id }}">{{ post.like_count() }}</span>
-                </button>
-                <button class="btn thumbs-down-btn {% if current_user in post.disliked_by %}btn-danger{% else %}btn-outline-danger{% endif %}" 
-                id="dislike-btn-{{ post.id }}" onclick="dislikePost({{ post.id }})">
-            👎 <span id="dislike-count-{{ post.id }}">{{ post.dislike_count() }}</span>
-                </button>
+
+        
+        <div class="article-footer">
+            <!-- Like/Dislike Buttons -->
+            <div class="like-dislike-container-post">
+                <div class="post-likes-dislikes">
+                    <button class="btn thumbs-up-btn {% if current_user in post.liked_by %}btn-success{% else %}btn-outline-success{% endif %}" 
+                        id="like-btn-{{ post.id }}" onclick="likePost({{ post.id }})">
+                    👍 <span id="like-count-{{ post.id }}">{{ post.like_count() }}</span>
+                    </button>
+                    <button class="btn thumbs-down-btn {% if current_user in post.disliked_by %}btn-danger{% else %}btn-outline-danger{% endif %}" 
+                        id="dislike-btn-{{ post.id }}" onclick="dislikePost({{ post.id }})">
+                    👎 <span id="dislike-count-{{ post.id }}">{{ post.dislike_count() }}</span>
+                    </button>
+                </div>
+                {% if post.author == current_user %}
+                <div class="dropdown">
+                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Actions
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModal-{{ post.id }}">Delete</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
-
     </div>
 </article>
 
@@ -91,27 +92,27 @@
                         id="dislike-btn-comment-{{ comment.id }}" onclick="dislikeComment({{ comment.id }})">
                         👎 <span id="dislike-count-comment-{{ comment.id }}">{{ comment.dislike_count() }}</span>
                     </button>
-                </div>
-
-                {% if users[comment.user_id] == current_user or current_user.admin %}
-                <div class="dropdown">
-                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Actions
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="{{ url_for('posts.edit_comment', comment_id=comment.id) }}">Edit</a>
-                        <a class="dropdown-item" href="#" onclick="deleteComment({{ comment.id }})">Delete</a>
+                
+                    {% if users[comment.user_id] == current_user or current_user.admin %}
+                    <div class="dropdown">
+                        <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Actions
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="{{ url_for('posts.edit_comment', comment_id=comment.id) }}">Edit</a>
+                            <a class="dropdown-item" href="#" onclick="deleteComment({{ comment.id }})">Delete</a>
+                        </div>
                     </div>
+    
+                    <form id="delete-comment-form-{{ comment.id }}" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" style="display:none;">
+                        {{ form.hidden_tag() }}
+                    </form>
+                    {% endif %}
                 </div>
-
-                <form id="delete-comment-form-{{ comment.id }}" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}" method="POST" style="display:none;">
-                    {{ form.hidden_tag() }}
-                </form>
-                {% endif %}
             </div>
         </div>
-        {% else %}
+    {% else %}
         <p>No comments yet. Be the first to comment!</p>
     {% endfor %}
 </div>
@@ -144,9 +145,9 @@
 </div>
 {% else %}
 <p>You need to <a href="{{ url_for('users.login') }}">log in</a> to comment.</p>
-{% endif %}
+  {% endif %}
 
-<script src="{{ url_for('static', filename='js/posts.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/posts.js') }}" defer></script>
 
 <!-- Custom JavaScript for Modal -->
 <script>

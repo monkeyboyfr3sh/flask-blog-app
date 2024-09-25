@@ -35,6 +35,33 @@ a.article-title:hover {
   vertical-align: middle;
 }
 
+.article-footer {
+  display: flex;
+  flex-direction: column; /* Stack the buttons and comments vertically */
+  padding-top: 10px;
+  border-top: 1px solid #424242; /* Adds a separator between the content and the footer */
+  margin-top: 20px;
+}
+
+.article-footer .post-comments-count {
+  margin-left: 0;
+  font-size: 14px;
+  color: #b0bec5;
+}
+
+.article-footer .like-dislike-container-home {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 0;
+  padding: 0;
+}
+
+.article-footer .post-likes-dislikes {
+  display: flex;
+  gap: 10px;
+}
+
 .comment-item {
   background: #1e1e1e; /* Same as content-section background */
   padding: 15px;
@@ -211,18 +238,15 @@ a.dropdown-item:hover {
   padding: 5px 10px;
   font-size: 16px;
   border-radius: 5px;
-  transition: background-color 0.3s ease;
-  margin-bottom: 10px; /* Remove margin from buttons */
 }
 
-/* Thumbs Up/Down button hover effects */
 .thumbs-up-btn:hover {
-  background-color: #4caf50; /* Green hover for likes */
+  background-color: #4caf50;
   color: #ffffff;
 }
 
 .thumbs-down-btn:hover {
-  background-color: #f44336; /* Red hover for dislikes */
+  background-color: #f44336;
   color: #ffffff;
 }
 
