@@ -1,12 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
 <article class="media content-section">
-    <img class="rounded-circle article-img" src="{{ url_for('static', filename=post.author.image_file) }}"
-        alt="Profile Image" />
     <div class="media-body">
-        <div class="article-metadata">
-            <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
-            <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+            <div class="article-metadata d-flex align-items-center">
+                <div class="media-left mr-3">
+                    <img src="{{ url_for('static', filename=post.author.image_file) }}" alt="Profile Picture"
+                        class="rounded-circle" style="width: 50px; height: 50px;">
+                </div>
+                <!-- Poster username and post date -->
+                <div>
+                    <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
+                    <small class="text-muted d-block">{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
 
             {% if post.author == current_user %}
             <div class="dropdown">
@@ -27,9 +32,9 @@
         {% if post.image_file %}
         <div class="post-image-content">
             {% if post.image_file.endswith('.gif') %}
-                <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post GIF" class="img-fluid mt-3" autoplay loop inline>
+                <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post GIF" class="img-fluid mt-3" autoplay loop inline onclick="openImageModal(this)">
             {% else %}
-                <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-fluid mt-3">
+                <img src="{{ url_for('static', filename=post.image_file) }}" alt="Post Image" class="img-fluid mt-3" onclick="openImageModal(this)">
             {% endif %}
         </div>
         {% endif %}
@@ -59,11 +64,9 @@
     <h3>Comments</h3>
     {% for comment in comments %}
         <div class="media comment-item">
-            <div class="comment-image-left">
-                <img class="rounded-circle article-img" src="{{ url_for('static', filename=users[comment.user_id].image_file) }}" alt="Profile Image" />
-            </div>
             <div class="media-body">
                 <div class="comment-metadata">
+                    <img class="rounded-circle comment-image-left" src="{{ url_for('static', filename=users[comment.user_id].image_file) }}" alt="Profile Image" />
                     <h5 class="mt-0">{{ users[comment.user_id].username }}</h5>
                     <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
                 </div>
@@ -72,9 +75,9 @@
 
                 {% if comment.image_file %}
                     {% if post.image_file.endswith('.gif') %}
-                        <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment GIF" class="post-image-content" autoplay loop inline>
+                        <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment GIF" class="post-image-content" autoplay loop inline onclick="openImageModal(this)">
                     {% else %}
-                        <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment Image" class="post-image-content">
+                        <img src="{{ url_for('static', filename=comment.image_file) }}" alt="Comment Image" class="post-image-content" onclick="openImageModal(this)">
                     {% endif %}
                 {% endif %}
 
@@ -113,6 +116,13 @@
     {% endfor %}
 </div>
 
+<!-- Image Modal for Full Screen View -->
+<div id="imageModal" class="modal">
+    <span class="close" onclick="closeImageModal()">&times;</span>
+    <img class="modal-content" id="modalImage">
+    <div id="caption"></div>
+</div>
+
 <!-- Comment Form -->
 {% if current_user.is_authenticated %}
 <div class="comment-form mt-4">
@@ -135,5 +145,80 @@
 {% else %}
 <p>You need to <a href="{{ url_for('users.login') }}">log in</a> to comment.</p>
 {% endif %}
-    <script src="{{ url_for('static', filename='js/posts.js') }}" defer></script>
+
+<script src="{{ url_for('static', filename='js/posts.js') }}" defer></script>
+
+<!-- Custom JavaScript for Modal -->
+<script>
+function openImageModal(imageElement) {
+    var modal = document.getElementById("imageModal");
+    var modalImg = document.getElementById("modalImage");
+    var captionText = document.getElementById("caption");
+
+    modal.style.display = "block";
+    modalImg.src = imageElement.src;
+    captionText.innerHTML = imageElement.alt;
+
+    // Close modal when clicking anywhere on it (including the image)
+    modal.onclick = function() {
+        modal.style.display = "none";
+    }
+}
+
+function closeImageModal() {
+    var modal = document.getElementById("imageModal");
+    modal.style.display = "none";
+}
+</script>
+    
+<style>
+/* Modal Style */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+
+#caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 0;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+</style>
+
 {% endblock content %}
