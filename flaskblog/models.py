@@ -3,7 +3,7 @@ from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import TimedSerializer
 from sqlalchemy.exc import OperationalError
-from flaskblog import db, bcrypt, login_manager
+from flaskblog.extensions import db, bcrypt, login_manager
 
 # Define the UTC-6 offset manually (Central Standard Time)
 CST_OFFSET = timedelta(hours=-5)
