@@ -6,6 +6,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        USER_ID: ${UID}
+        GROUP_ID: ${GID}
     ports:
       - "8000:8000"
     environment:
@@ -16,5 +19,6 @@ services:
     volumes:
       - .:/app
       - ./config:/config
-      - /usr/bin/git:/usr/bin/git 
+      - /usr/bin/git:/usr/bin/git
+    container_name: luna_edge
     restart: unless-stopped

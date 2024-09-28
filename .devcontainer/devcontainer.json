@@ -1,5 +1,5 @@
 {
-    "name": "Flask Blog DevContainer",
+    "name": "Luna Edge DevContainer",
     "dockerComposeFile": [
         "../docker-compose.yml"
     ],
@@ -18,8 +18,5 @@
                 "mhutchie.git-graph"
             ]
         }
-    },
-    "mounts": [
-        "source=${localWorkspaceFolder}/config/static,target=/app/static,type=bind"
-    ]
+    }
 }

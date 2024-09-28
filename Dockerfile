@@ -26,6 +26,15 @@ RUN mkdir -p /code/flaskblog/static/js
 RUN cp node_modules/jsnes/dist/jsnes.min.js /code/flaskblog/static/js/
 RUN cp node_modules/jsnes/dist/jsnes.min.js.map /code/flaskblog/static/js/
 
+# Create a user with the same UID and GID as the host system user
+ARG USER_ID
+ARG GROUP_ID
+RUN addgroup --gid $GROUP_ID appgroup && \
+    adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID appuser
+
+# Switch to the new user
+USER appuser
+
 # Expose port 8000 for the Flask app
 EXPOSE 8000
 
